@@ -10,6 +10,7 @@ type View = "today" | "plan" | "courses" | "tutor" | "quiz";
 type Bi = { zh: string; en: string };
 type QuestionKind = "truefalse" | "single" | "multiple" | "scenario" | "combination" | "calculation" | "data";
 type AnswerValue = number | number[];
+type AiTutorMessage = { role: "user" | "assistant"; content: string };
 type Question = {
   id: string;
   courseId: string;
@@ -321,6 +322,13 @@ const ui = {
     tutorAttempts: "本题尝试",
     tutorStreak: "连续掌握",
     tutorRule: "规则：必须先表达思路；答错后看引导并重做；只有亲自答对才能进入下一题。",
+    aiTutor: "DeepSeek AI 导师",
+    aiTutorIntro: "它会阅读你的具体疑问，先补定义和条件，再针对你的思路追问。",
+    aiPlaceholder: "例如：为什么点积为零就代表垂直？“非零”条件有什么用？",
+    askAi: "问 AI 导师",
+    aiThinking: "正在分析你的思路……",
+    aiError: "AI 暂时没有回答，请稍后再试。",
+    aiStarter: "先解释这道题涉及的核心定义、每个符号和必要条件，不要只重复题目。",
     planTitle: "学期执行中心",
     planIntro: "教学计划、个人课表和 assessment 已经对齐。每周按“课前—课堂—课后—交付”推进。",
     thisWeek: "本周行动",
@@ -421,6 +429,13 @@ const ui = {
     tutorAttempts: "Attempts",
     tutorStreak: "Mastery streak",
     tutorRule: "Rule: explain your thinking first, retry every mistake, and advance only after you answer correctly yourself.",
+    aiTutor: "DeepSeek AI Tutor",
+    aiTutorIntro: "It reads your exact question, repairs missing definitions and conditions, then probes your reasoning.",
+    aiPlaceholder: "For example: why does a zero dot product imply perpendicular vectors, and why must they be non-zero?",
+    askAi: "Ask AI tutor",
+    aiThinking: "Analysing your reasoning…",
+    aiError: "The AI tutor could not answer just now. Please try again.",
+    aiStarter: "Explain the core definitions, every symbol and all necessary conditions. Do not merely repeat the question.",
     planTitle: "Semester execution centre",
     planIntro: "Your teaching plans, personal timetable and assessments are aligned into a weekly pre-class–class–post-class–delivery rhythm.",
     thisWeek: "This week",
@@ -519,6 +534,10 @@ export default function Home() {
   const [tutorAttempts, setTutorAttempts] = useState(0);
   const [tutorCorrect, setTutorCorrect] = useState(false);
   const [tutorStreak, setTutorStreak] = useState(0);
+  const [aiMessages, setAiMessages] = useState<AiTutorMessage[]>([]);
+  const [aiInput, setAiInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const copy = ui[lang];
   const pick = (text: Bi) => text[lang];
@@ -677,6 +696,9 @@ export default function Home() {
     setTutorChoice([]);
     setTutorAttempts(0);
     setTutorCorrect(false);
+    setAiMessages([]);
+    setAiInput("");
+    setAiError("");
   }
 
   function chooseTutorCourse(id: string) {
@@ -698,6 +720,48 @@ export default function Home() {
 
   function nextTutorQuestion() {
     resetTutorQuestion((tutorIndex + 1) % Math.max(tutorQuestions.length, 1));
+  }
+
+  async function askAiTutor(message?: string) {
+    if (!tutorQuestion || aiLoading) return;
+    const content = (message ?? aiInput).trim();
+    if (!content) return;
+    const userEntry: AiTutorMessage = { role: "user", content };
+    const history = [...aiMessages, userEntry];
+    setAiMessages(history);
+    setAiInput("");
+    setAiError("");
+    setAiLoading(true);
+
+    const answerIndexes = Array.isArray(tutorQuestion.answer) ? tutorQuestion.answer : [tutorQuestion.answer];
+    const topicIndex = tutorQuestion.topicId ? Number(tutorQuestion.topicId.split("-").at(-1)) : -1;
+    try {
+      const response = await fetch("/api/tutor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          language: lang,
+          course: `${tutorCourseData.code} ${tutorCourseData.name}`,
+          topic: topicIndex >= 0 ? pick(tutorCourseData.topics[topicIndex]) : pick(tutorCourseData.focus),
+          question: pick(tutorQuestion.question),
+          options: tutorQuestion.options.map(pick),
+          correctAnswer: answerIndexes.map((index) => `${String.fromCharCode(65 + index)}. ${pick(tutorQuestion.options[index])}`).join("; "),
+          explanation: pick(tutorQuestion.explanation),
+          originalThought: tutorThought,
+          userMessage: content,
+          attempted: tutorAttempts > 0,
+          correct: tutorAttempts > 0 && tutorCorrect,
+          history: aiMessages.slice(-8),
+        }),
+      });
+      const payload = await response.json() as { reply?: string; error?: string };
+      if (!response.ok || !payload.reply) throw new Error(payload.error || "AI request failed");
+      setAiMessages((items) => [...items, { role: "assistant", content: payload.reply as string }]);
+    } catch {
+      setAiError(copy.aiError);
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   function renderTutorVisual(visual?: QuestionVisual) {
@@ -1254,6 +1318,41 @@ export default function Home() {
                   {tutorCorrect && <button onClick={nextTutorQuestion}>{copy.tutorNext}</button>}
                 </div>
               )}
+
+              <section className="ai-tutor-panel" aria-label={copy.aiTutor}>
+                <div className="ai-tutor-title">
+                  <span>AI</span>
+                  <div><strong>{copy.aiTutor}</strong><p>{copy.aiTutorIntro}</p></div>
+                </div>
+                {aiMessages.length === 0 && (
+                  <button className="ai-starter" disabled={aiLoading} onClick={() => askAiTutor(copy.aiStarter)}>
+                    {copy.aiStarter}
+                  </button>
+                )}
+                {aiMessages.length > 0 && (
+                  <div className="ai-conversation" aria-live="polite">
+                    {aiMessages.map((message, index) => (
+                      <article key={`${message.role}-${index}`} className={message.role}>
+                        <strong>{message.role === "assistant" ? copy.aiTutor : (lang === "zh" ? "我的问题" : "My question")}</strong>
+                        <p>{message.content}</p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+                {aiLoading && <p className="ai-loading">{copy.aiThinking}</p>}
+                {aiError && <p className="ai-error">{aiError}</p>}
+                <div className="ai-compose">
+                  <textarea
+                    value={aiInput}
+                    placeholder={copy.aiPlaceholder}
+                    onChange={(event) => setAiInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") askAiTutor();
+                    }}
+                  />
+                  <button disabled={aiLoading || !aiInput.trim()} onClick={() => askAiTutor()}>{copy.askAi}</button>
+                </div>
+              </section>
             </article>
           )}
         </section>

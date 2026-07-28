@@ -25,11 +25,12 @@ test("server-renders the four-course learning app", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
-test("includes the bilingual Socratic mastery workflow", async () => {
-  const [page, css, layout] = await Promise.all([
+test("includes the bilingual Socratic mastery workflow and server-side AI tutor", async () => {
+  const [page, css, layout, tutorRoute] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/tutor/route.ts", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /苏格拉底深度导师/);
@@ -40,4 +41,8 @@ test("includes the bilingual Socratic mastery workflow", async () => {
   assert.match(css, /\.tutor-card/);
   assert.match(css, /repeat\(5,\s*1fr\)/);
   assert.match(layout, /四课随身学/);
+  assert.match(page, /DeepSeek AI 导师/);
+  assert.match(tutorRoute, /deepseek-v4-pro/);
+  assert.match(tutorRoute, /formal definition/);
+  assert.doesNotMatch(tutorRoute, /sk-[A-Za-z0-9]/);
 });

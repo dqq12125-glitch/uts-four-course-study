@@ -28,7 +28,10 @@ const specs: TopicSpec[] = [
   {
     courseId: "math",
     topicId: "math-0",
-    note: b("向量问题要同时关注大小、方向、分量和几何关系。", "Vector problems combine magnitude, direction, components and geometry."),
+    note: b(
+      "向量既有大小也有方向。向量 a=(a₁,a₂,…,aₙ) 与 b=(b₁,b₂,…,bₙ) 的点积定义为 a·b=a₁b₁+a₂b₂+…+aₙbₙ；几何上同一个量等于 |a||b|cosθ，其中 |a|、|b| 是长度，θ 是两向量夹角。若 a、b 都不是零向量，则 |a||b|≠0；所以 a·b=0 迫使 cosθ=0，也就是 θ=90°。非零条件不可省略：零向量与任何向量点积都是零，但零向量没有确定方向，不能据此称为垂直。",
+      "A vector has both magnitude and direction. For a=(a₁,a₂,…,aₙ) and b=(b₁,b₂,…,bₙ), the dot product is defined algebraically by a·b=a₁b₁+a₂b₂+…+aₙbₙ. Geometrically, the same scalar equals |a||b|cosθ, where |a| and |b| are magnitudes and θ is the angle between the vectors. If both vectors are non-zero, |a||b|≠0; therefore a·b=0 forces cosθ=0 and hence θ=90°. The non-zero condition matters: the zero vector has dot product zero with every vector but has no defined direction, so perpendicularity cannot be concluded from it.",
+    ),
     checks: [
       ["向量 (3,4) 的长度是 5。", "The magnitude of (3,4) is 5.", true],
       ["两个非零向量点积为零时互相垂直。", "Two non-zero vectors with zero dot product are perpendicular.", true],
