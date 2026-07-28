@@ -7,13 +7,16 @@ import { assessments, semesterBreak, semesterWeeks, timetable } from "./semester
 type Lang = "zh" | "en";
 type View = "today" | "plan" | "courses" | "quiz";
 type Bi = { zh: string; en: string };
+type QuestionKind = "truefalse" | "single" | "multiple" | "scenario" | "combination";
+type AnswerValue = number | number[];
 type Question = {
   id: string;
   courseId: string;
   topicId?: string;
   question: Bi;
   options: Bi[];
-  answer: number;
+  kind?: QuestionKind;
+  answer: AnswerValue;
   explanation: Bi;
 };
 type Course = {
@@ -238,6 +241,17 @@ const questionBank: Question[] = [
 
 const practiceBank: Question[] = topicQuestionBank;
 
+function answerIsCorrect(question: Question, value: AnswerValue | undefined) {
+  if (value === undefined) return false;
+  const expected = Array.isArray(question.answer) ? [...question.answer].sort() : [question.answer];
+  const actual = Array.isArray(value) ? [...value].sort() : [value];
+  return expected.length === actual.length && expected.every((item, index) => item === actual[index]);
+}
+
+function answerContains(value: AnswerValue | undefined, option: number) {
+  return Array.isArray(value) ? value.includes(option) : value === option;
+}
+
 const ui = {
   zh: {
     title: "四课随身学",
@@ -259,8 +273,8 @@ const ui = {
     done: "✓ 今日已学",
     markDone: "标记今日完成",
     canvas: "打开 Canvas ↗",
-    quizTitle: "270 题知识点题库",
-    quizIntro: "每个知识点 10 题。可按课程或知识点练习，逐题查看解析。",
+    quizTitle: "Deep Learning Mode · 270 题",
+    quizIntro: "判断、单选、多选、情境和组合题混合训练。错题会进入复习—错题重练循环，直到完全掌握。",
     all: "全部 270 题",
     topicPrompt: "选择知识点（每组 10 题）",
     question: "题",
@@ -268,10 +282,16 @@ const ui = {
     correct: "答对了。",
     review: "再记一次。",
     next: "下一题",
-    result: "完成本组练习",
-    retryWrong: "只重练错题",
+    result: "本轮学习结果",
+    retryWrong: "继续深度学习错题",
     retryAll: "重新练习本组",
-    perfect: "全部答对，做得漂亮。",
+    perfect: "本知识点已掌握：本轮全部独立答对。",
+    submitAnswer: "提交答案",
+    chooseMultiple: "可选择多个答案，选完后提交",
+    deepMode: "深度学习模式",
+    masteryRule: "掌握标准：本轮所有题独立答对。错题将重复训练，直到清零。",
+    notMastered: "尚未掌握",
+    mastered: "已掌握",
     navToday: "今日",
     navPlan: "计划",
     navCourses: "课程",
@@ -331,8 +351,8 @@ const ui = {
     done: "✓ Studied today",
     markDone: "Mark today complete",
     canvas: "Open Canvas ↗",
-    quizTitle: "270-question topic bank",
-    quizIntro: "Ten questions for every topic. Practise by course or one topic at a time.",
+    quizTitle: "Deep Learning Mode · 270 Questions",
+    quizIntro: "Mixed true/false, single-choice, multiple-select, scenario and combination questions. Mistakes enter a review–retest loop until mastered.",
     all: "All 270",
     topicPrompt: "Choose a topic (10 questions each)",
     question: "Question",
@@ -340,10 +360,16 @@ const ui = {
     correct: "Correct.",
     review: "Review this.",
     next: "Next question",
-    result: "Set complete",
-    retryWrong: "Retry wrong answers",
+    result: "Learning round result",
+    retryWrong: "Deep-learn missed questions",
     retryAll: "Restart this set",
-    perfect: "Perfect score. Nicely done.",
+    perfect: "Topic mastered: every question was answered independently and correctly this round.",
+    submitAnswer: "Submit answer",
+    chooseMultiple: "Select every correct answer, then submit",
+    deepMode: "Deep Learning Mode",
+    masteryRule: "Mastery standard: answer every item correctly in one independent round. Missed items repeat until none remain.",
+    notMastered: "Not mastered yet",
+    mastered: "Mastered",
     navToday: "Today",
     navPlan: "Plan",
     navCourses: "Courses",
@@ -402,7 +428,10 @@ export default function Home() {
   const [quizTopic, setQuizTopic] = useState("all");
   const [sessionIds, setSessionIds] = useState(practiceBank.map((q) => q.id));
   const [quizIndex, setQuizIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
+  const [draftSelections, setDraftSelections] = useState<Record<string, number[]>>({});
+  const [learningRound, setLearningRound] = useState(1);
+  const [masteredTopics, setMasteredTopics] = useState<string[]>([]);
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [planChecks, setPlanChecks] = useState<Record<string, boolean>>({});
   const [planNotes, setPlanNotes] = useState<Record<string, string>>({});
@@ -421,9 +450,11 @@ export default function Home() {
       const savedChecks = window.localStorage.getItem("four-course-plan-checks");
       const savedNotes = window.localStorage.getItem("four-course-plan-notes");
       const savedConfidence = window.localStorage.getItem("four-course-confidence");
+      const savedMastery = window.localStorage.getItem("four-course-mastery");
       if (savedChecks) setPlanChecks(JSON.parse(savedChecks));
       if (savedNotes) setPlanNotes(JSON.parse(savedNotes));
       if (savedConfidence) setConfidence(JSON.parse(savedConfidence));
+      if (savedMastery) setMasteredTopics(JSON.parse(savedMastery));
       const current = new Date();
       const active = semesterWeeks.find((week) => current >= new Date(`${week.start}T00:00:00`) && current <= new Date(`${week.end}T23:59:59`));
       if (active) setSelectedWeek(active.week);
@@ -453,6 +484,10 @@ export default function Home() {
   }, [confidence]);
 
   useEffect(() => {
+    window.localStorage.setItem("four-course-mastery", JSON.stringify(masteredTopics));
+  }, [masteredTopics]);
+
+  useEffect(() => {
     if (!running || seconds <= 0) return;
     const timer = window.setInterval(() => setSeconds((value) => value - 1), 1000);
     return () => window.clearInterval(timer);
@@ -469,9 +504,9 @@ export default function Home() {
   const sessionQuestions = sessionIds
     .map((id) => practiceBank.find((q) => q.id === id))
     .filter((q): q is Question => Boolean(q));
-  const correctCount = sessionQuestions.filter((q) => answers[q.id] === q.answer).length;
+  const correctCount = sessionQuestions.filter((q) => answerIsCorrect(q, answers[q.id])).length;
   const wrongIds = sessionQuestions
-    .filter((q) => answers[q.id] !== undefined && answers[q.id] !== q.answer)
+    .filter((q) => answers[q.id] !== undefined && !answerIsCorrect(q, answers[q.id]))
     .map((q) => q.id);
   const quizComplete = sessionIds.length > 0 && Object.keys(answers).length === sessionIds.length;
   const semesterWeek = semesterWeeks.find((week) => week.week === selectedWeek) ?? semesterWeeks[0];
@@ -524,6 +559,8 @@ export default function Home() {
     setSessionIds(nextIds);
     setQuizIndex(0);
     setAnswers({});
+    setDraftSelections({});
+    if (!ids) setLearningRound(1);
   }
 
   function goNext() {
@@ -531,6 +568,25 @@ export default function Home() {
       setQuizIndex((index) => index + 1);
     }
   }
+
+  function continueDeepLearning() {
+    setSessionIds(wrongIds);
+    setQuizIndex(0);
+    setAnswers({});
+    setDraftSelections({});
+    setLearningRound((round) => round + 1);
+  }
+
+  function markMastered() {
+    if (quizTopic !== "all") {
+      setMasteredTopics((items) => items.includes(quizTopic) ? items : [...items, quizTopic]);
+    }
+  }
+
+  useEffect(() => {
+    if (quizComplete && wrongIds.length === 0) markMastered();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizComplete]);
 
   return (
     <main className="app-shell">
@@ -969,7 +1025,7 @@ export default function Home() {
                       >
                         <span>{index + 1}</span>
                         {pick(topic)}
-                        <small>10 {lang === "zh" ? "题" : "Q"}</small>
+                        <small>{masteredTopics.includes(topicId) ? `✓ ${copy.mastered}` : `10 ${lang === "zh" ? "题" : "Q"}`}</small>
                       </button>
                     );
                   })}
@@ -980,6 +1036,15 @@ export default function Home() {
 
           {!quizComplete && currentQuestion && (() => {
             const course = courses.find((item) => item.id === currentQuestion.courseId) ?? courses[0];
+            const isMultiple = Array.isArray(currentQuestion.answer);
+            const draft = draftSelections[currentQuestion.id] ?? [];
+            const kindLabels: Record<QuestionKind, Bi> = {
+              truefalse: bi("判断题", "True / False"),
+              single: bi("单选题", "Single choice"),
+              multiple: bi("多选题", "Multiple select"),
+              scenario: bi("情境分析", "Scenario"),
+              combination: bi("组合题", "Combination"),
+            };
             return (
               <article className="quiz-card quiz-player" style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
                 <div className="quiz-progress-row">
@@ -987,31 +1052,54 @@ export default function Home() {
                     <p>{course.code} · {pick(course.short)}</p>
                     <strong>{copy.question} {quizIndex + 1} / {sessionIds.length}</strong>
                   </div>
-                  <span>{correctCount}/{Object.keys(answers).length || 0}</span>
+                  <span>{copy.deepMode} · R{learningRound}</span>
                 </div>
                 <div className="quiz-progress-track"><span style={{ width: `${((quizIndex + 1) / sessionIds.length) * 100}%` }} /></div>
+                <div className="question-kind-badge">{pick(kindLabels[currentQuestion.kind ?? "single"])}</div>
                 <h3>{pick(currentQuestion.question)}</h3>
+                {isMultiple && answeredCurrent === undefined && <p className="multiple-hint">{copy.chooseMultiple}</p>}
                 <div className="options">
                   {currentQuestion.options.map((option, index) => {
                     let state = "";
-                    if (answeredCurrent !== undefined && index === currentQuestion.answer) state = "correct";
-                    else if (answeredCurrent === index) state = "wrong";
+                    if (answeredCurrent !== undefined && answerContains(currentQuestion.answer, index)) state = "correct";
+                    else if (answeredCurrent !== undefined && answerContains(answeredCurrent, index)) state = "wrong";
+                    else if (answeredCurrent === undefined && isMultiple && draft.includes(index)) state = "selected";
                     return (
                       <button
                         key={option.en}
                         className={state}
                         disabled={answeredCurrent !== undefined}
-                        onClick={() => setAnswers((items) => ({ ...items, [currentQuestion.id]: index }))}
+                        onClick={() => {
+                          if (!isMultiple) {
+                            setAnswers((items) => ({ ...items, [currentQuestion.id]: index }));
+                            return;
+                          }
+                          setDraftSelections((items) => ({
+                            ...items,
+                            [currentQuestion.id]: draft.includes(index)
+                              ? draft.filter((item) => item !== index)
+                              : [...draft, index],
+                          }));
+                        }}
                       >
                         <span>{String.fromCharCode(65 + index)}</span>{pick(option)}
                       </button>
                     );
                   })}
                 </div>
+                {isMultiple && answeredCurrent === undefined && (
+                  <button
+                    className="submit-answer-button"
+                    disabled={draft.length === 0}
+                    onClick={() => setAnswers((items) => ({ ...items, [currentQuestion.id]: draft }))}
+                  >
+                    {copy.submitAnswer}
+                  </button>
+                )}
                 {answeredCurrent !== undefined && (
                   <>
                     <p className="explanation">
-                      <strong>{answeredCurrent === currentQuestion.answer ? copy.correct : copy.review}</strong>
+                      <strong>{answerIsCorrect(currentQuestion, answeredCurrent) ? copy.correct : copy.review}</strong>
                       {pick(currentQuestion.explanation)}
                     </p>
                     {quizIndex < sessionIds.length - 1 && <button className="next-button" onClick={goNext}>{copy.next} →</button>}
@@ -1026,8 +1114,12 @@ export default function Home() {
               <p className="eyebrow">{copy.result}</p>
               <div className="result-score"><strong>{correctCount}</strong><span>/ {sessionIds.length}</span></div>
               <p>{wrongIds.length === 0 ? copy.perfect : `${copy.score}: ${Math.round((correctCount / sessionIds.length) * 100)}%`}</p>
+              <p className={`mastery-status ${wrongIds.length === 0 ? "mastered" : ""}`}>
+                {wrongIds.length === 0 ? `✓ ${copy.mastered}` : `${copy.notMastered} · ${wrongIds.length} ${lang === "zh" ? "题待清零" : "to clear"}`}
+              </p>
+              <p className="mastery-rule">{copy.masteryRule}</p>
               <div className="result-actions">
-                {wrongIds.length > 0 && <button onClick={() => startQuiz(quizFilter, wrongIds, quizTopic)}>{copy.retryWrong} ({wrongIds.length})</button>}
+                {wrongIds.length > 0 && <button onClick={continueDeepLearning}>{copy.retryWrong} ({wrongIds.length})</button>}
                 <button className="secondary" onClick={() => startQuiz(quizFilter, undefined, quizTopic)}>{copy.retryAll}</button>
               </div>
             </article>

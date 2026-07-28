@@ -4,9 +4,10 @@ export type TopicQuestion = {
   id: string;
   courseId: string;
   topicId: string;
+  kind: "truefalse" | "single" | "multiple" | "scenario" | "combination";
   question: LocalizedText;
   options: LocalizedText[];
-  answer: number;
+  answer: number | number[];
   explanation: LocalizedText;
 };
 
@@ -485,14 +486,125 @@ const specs: TopicSpec[] = [
   },
 ];
 
-export const topicQuestionBank: TopicQuestion[] = specs.flatMap((spec) =>
-  spec.checks.map(([zh, en, truth], index) => ({
-    id: `${spec.topicId}-${index + 1}`,
+const pick = <T,>(items: T[], index: number) => items[index % items.length];
+
+const rotate = <T,>(items: T[], amount: number) => {
+  const shift = amount % items.length;
+  return [...items.slice(shift), ...items.slice(0, shift)];
+};
+
+const explainChecks = (spec: TopicSpec, checks: Check[]) => {
+  const zhDetails = checks
+    .map(([zh, , truth], index) =>
+      `${String.fromCharCode(65 + index)}：${truth ? "正确" : "错误"}。${zh}${truth ? " 这与本知识点的定义和适用条件一致。" : " 这句话忽略了必要条件或混淆了概念，不能作为正确结论。"}`
+    )
+    .join("\n");
+  const enDetails = checks
+    .map(([, en, truth], index) =>
+      `${String.fromCharCode(65 + index)}: ${truth ? "Correct" : "Incorrect"}. ${en} ${truth ? "This is consistent with the definition and its conditions." : "This drops a required condition or mixes concepts, so it cannot be accepted."}`
+    )
+    .join("\n");
+  return b(
+    `${zhDetails}\n\n核心规则：${spec.note.zh}\n复习方法：先说出定义或公式的适用条件，再逐项排除；不要只记选项字母。`,
+    `${enDetails}\n\nCore rule: ${spec.note.en}\nReview method: state the definition or equation conditions first, then eliminate options one by one. Do not memorise the option letter.`,
+  );
+};
+
+const makeTrueFalse = (spec: TopicSpec, check: Check, index: number): TopicQuestion => ({
+  id: `${spec.topicId}-${index}`,
+  courseId: spec.courseId,
+  topicId: spec.topicId,
+  kind: "truefalse",
+  question: b(`${check[0]}（判断正误）`, `${check[1]} True or false?`),
+  options: [b("正确", "True"), b("错误", "False")],
+  answer: check[2] ? 0 : 1,
+  explanation: b(
+    `${check[2] ? "正确" : "错误"}。${check[0]}\n\n判断依据：${spec.note.zh}\n易错提醒：判断题也要检查定义、适用条件和关键词；“一定”“所有”“只要”等绝对表达尤其需要验证。`,
+    `${check[2] ? "True" : "False"}. ${check[1]}\n\nReasoning: ${spec.note.en}\nCommon trap: still check the definition, conditions and key wording. Absolute words such as “always”, “every” and “only” deserve extra scrutiny.`,
+  ),
+});
+
+const makeStatementQuestion = (
+  spec: TopicSpec,
+  id: number,
+  mode: "correct" | "incorrect" | "scenario",
+  seed: number,
+): TopicQuestion => {
+  const truths = spec.checks.filter((item) => item[2]);
+  const falses = spec.checks.filter((item) => !item[2]);
+  const raw =
+    mode === "incorrect"
+      ? [pick(falses, seed), pick(truths, seed), pick(truths, seed + 1), pick(truths, seed + 2)]
+      : [pick(truths, seed), pick(falses, seed), pick(falses, seed + 1), pick(falses, seed + 2)];
+  const checks = rotate(raw, seed + id);
+  const wantedTruth = mode !== "incorrect";
+  return {
+    id: `${spec.topicId}-${id}`,
     courseId: spec.courseId,
     topicId: spec.topicId,
-    question: b(`${zh}（判断正误）`, `${en} True or false?`),
-    options: [b("正确", "True"), b("错误", "False")],
-    answer: truth ? 0 : 1,
-    explanation: spec.note,
-  })),
-);
+    kind: mode === "scenario" ? "scenario" : "single",
+    question:
+      mode === "correct"
+        ? b("下面哪一项表述正确？", "Which statement is correct?")
+        : mode === "incorrect"
+          ? b("下面哪一项表述错误？", "Which statement is incorrect?")
+          : b("一位同学准备把下面一条结论写进复习卡。哪一项可以保留？", "A student wants to keep one claim on a revision card. Which one should stay?"),
+    options: checks.map(([zh, en]) => b(zh, en)),
+    answer: checks.findIndex((item) => item[2] === wantedTruth),
+    explanation: explainChecks(spec, checks),
+  };
+};
+
+const makeMultiple = (spec: TopicSpec, id: number, seed: number): TopicQuestion => {
+  const truths = spec.checks.filter((item) => item[2]);
+  const falses = spec.checks.filter((item) => !item[2]);
+  const checks = rotate(
+    [pick(truths, seed), pick(falses, seed), pick(truths, seed + 1), pick(falses, seed + 1)],
+    seed + 1,
+  );
+  return {
+    id: `${spec.topicId}-${id}`,
+    courseId: spec.courseId,
+    topicId: spec.topicId,
+    kind: "multiple",
+    question: b("多选题：选择所有正确的表述。", "Multiple select: choose every correct statement."),
+    options: checks.map(([zh, en]) => b(zh, en)),
+    answer: checks.map((item, index) => item[2] ? index : -1).filter((index) => index >= 0),
+    explanation: explainChecks(spec, checks),
+  };
+};
+
+const makeCombination = (spec: TopicSpec, id: number, seed: number): TopicQuestion => {
+  const truths = spec.checks.filter((item) => item[2]);
+  const falses = spec.checks.filter((item) => !item[2]);
+  const statements = [pick(truths, seed), pick(falses, seed), pick(truths, seed + 1)];
+  return {
+    id: `${spec.topicId}-${id}`,
+    courseId: spec.courseId,
+    topicId: spec.topicId,
+    kind: "combination",
+    question: b(
+      `组合题：判断下面三句话，哪一组是正确的？\n① ${statements[0][0]}\n② ${statements[1][0]}\n③ ${statements[2][0]}`,
+      `Combination question: which statements are correct?\n① ${statements[0][1]}\n② ${statements[1][1]}\n③ ${statements[2][1]}`,
+    ),
+    options: [b("只有①②", "① and ② only"), b("只有①③", "① and ③ only"), b("只有②③", "② and ③ only"), b("①②③全部", "All of ①, ② and ③")],
+    answer: 1,
+    explanation: b(
+      `正确组合是①③。\n①正确：${statements[0][0]}\n②错误：${statements[1][0]} 这句话忽略了必要条件或混淆了概念。\n③正确：${statements[2][0]}\n\n核心规则：${spec.note.zh}\n解题方法：先分别判断①②③，再去匹配组合，能减少被选项干扰。`,
+      `The correct combination is ① and ③.\n① is correct: ${statements[0][1]}\n② is incorrect: ${statements[1][1]} It drops a condition or mixes concepts.\n③ is correct: ${statements[2][1]}\n\nCore rule: ${spec.note.en}\nMethod: judge ①, ② and ③ independently before matching a combination. This reduces option-driven mistakes.`,
+    ),
+  };
+};
+
+export const topicQuestionBank: TopicQuestion[] = specs.flatMap((spec) => [
+  makeTrueFalse(spec, spec.checks[0], 1),
+  makeTrueFalse(spec, spec.checks[1], 2),
+  makeStatementQuestion(spec, 3, "correct", 0),
+  makeStatementQuestion(spec, 4, "incorrect", 1),
+  makeMultiple(spec, 5, 0),
+  makeStatementQuestion(spec, 6, "scenario", 2),
+  makeMultiple(spec, 7, 2),
+  makeCombination(spec, 8, 1),
+  makeStatementQuestion(spec, 9, "correct", 3),
+  makeStatementQuestion(spec, 10, "incorrect", 4),
+]);
