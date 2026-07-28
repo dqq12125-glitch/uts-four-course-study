@@ -6,7 +6,7 @@ import type { QuestionVisual } from "./advanced-questions";
 import { assessments, semesterBreak, semesterWeeks, timetable } from "./semester-data";
 
 type Lang = "zh" | "en";
-type View = "today" | "plan" | "courses" | "quiz";
+type View = "today" | "plan" | "courses" | "tutor" | "quiz";
 type Bi = { zh: string; en: string };
 type QuestionKind = "truefalse" | "single" | "multiple" | "scenario" | "combination" | "calculation" | "data";
 type AnswerValue = number | number[];
@@ -301,7 +301,26 @@ const ui = {
     navToday: "今日",
     navPlan: "计划",
     navCourses: "课程",
+    navTutor: "导师",
     navQuiz: "题库",
+    tutorTitle: "苏格拉底深度导师",
+    tutorIntro: "不急着告诉你答案。先说出思路，再通过追问、提示和重做，把每个知识点真正弄懂。",
+    tutorCourse: "选择课程",
+    tutorTopic: "选择知识点",
+    tutorThought: "先写下你的思路",
+    tutorThoughtPlaceholder: "我认为应该……因为……我还不确定的是……",
+    tutorSubmitThought: "提交思路，接受追问",
+    tutorProbe: "导师追问",
+    tutorContinue: "我想过了，继续",
+    tutorCommit: "现在提交你的答案",
+    tutorRetry: "根据提示重新作答",
+    tutorNext: "进入下一道",
+    tutorCorrect: "推理成立。现在把方法讲透：",
+    tutorWrong: "这一步还没站稳。先定位错误，不跳题。",
+    tutorReasoningSaved: "你的原始思路",
+    tutorAttempts: "本题尝试",
+    tutorStreak: "连续掌握",
+    tutorRule: "规则：必须先表达思路；答错后看引导并重做；只有亲自答对才能进入下一题。",
     planTitle: "学期执行中心",
     planIntro: "教学计划、个人课表和 assessment 已经对齐。每周按“课前—课堂—课后—交付”推进。",
     thisWeek: "本周行动",
@@ -382,7 +401,26 @@ const ui = {
     navToday: "Today",
     navPlan: "Plan",
     navCourses: "Courses",
+    navTutor: "Tutor",
     navQuiz: "Practice",
+    tutorTitle: "Socratic Deep Tutor",
+    tutorIntro: "No instant answer. State your reasoning, follow targeted questions, use hints and retry until the idea is genuinely understood.",
+    tutorCourse: "Choose a course",
+    tutorTopic: "Choose a topic",
+    tutorThought: "Write your reasoning first",
+    tutorThoughtPlaceholder: "I think I should… because… What I am unsure about is…",
+    tutorSubmitThought: "Submit reasoning",
+    tutorProbe: "Tutor question",
+    tutorContinue: "I have thought about it — continue",
+    tutorCommit: "Commit your answer",
+    tutorRetry: "Retry with the guidance",
+    tutorNext: "Next challenge",
+    tutorCorrect: "Your reasoning holds. Now make the method explicit:",
+    tutorWrong: "This step is not secure yet. Locate the error before moving on.",
+    tutorReasoningSaved: "Your original reasoning",
+    tutorAttempts: "Attempts",
+    tutorStreak: "Mastery streak",
+    tutorRule: "Rule: explain your thinking first, retry every mistake, and advance only after you answer correctly yourself.",
     planTitle: "Semester execution centre",
     planIntro: "Your teaching plans, personal timetable and assessments are aligned into a weekly pre-class–class–post-class–delivery rhythm.",
     thisWeek: "This week",
@@ -423,6 +461,29 @@ const ui = {
   },
 };
 
+const tutorPrompts: Record<string, Bi[]> = {
+  math: [
+    bi("先不要代数值：题目给了哪些量，真正要求的量是什么？", "Before substituting: which quantities are given, and what exactly must be found?"),
+    bi("你准备使用哪个定义、定理或公式？它的适用条件在这里成立吗？", "Which definition, theorem or formula will you use, and are its conditions satisfied here?"),
+    bi("检查一次符号、运算顺序与最终形式。有没有一个简单特例能验证你的结果？", "Check signs, operation order and final form. Can a simple special case test your result?"),
+  ],
+  iep: [
+    bi("谁会受到这个决定影响？请把使用者、社区和维护者分开考虑。", "Who is affected by this decision? Consider users, community and maintainers separately."),
+    bi("你的判断依据是个人偏好，还是可观察的标准、约束与证据？", "Is your judgement based on preference, or on observable criteria, constraints and evidence?"),
+    bi("如果方案失败，最可能失败在哪里？怎样用一个低成本测试尽早发现？", "Where is the concept most likely to fail, and what low-cost test would reveal it early?"),
+  ],
+  c: [
+    bi("先逐行追踪：这一行执行前，每个相关变量的值和类型是什么？", "Trace line by line: before this statement, what are the values and types of the relevant variables?"),
+    bi("这一操作改变的是数值、控制流，还是内存中的位置？", "Does this operation change a value, the control flow, or a location in memory?"),
+    bi("别凭感觉运行代码：写出下一步的精确结果，并检查边界、类型转换和未定义行为。", "Do not run it by intuition: write the exact next state and check bounds, conversions and undefined behaviour."),
+  ],
+  physics: [
+    bi("先画模型：选定正方向，并列出已知量、未知量及每个量的单位。", "Model first: choose a positive direction and list knowns, unknowns and units."),
+    bi("你使用的物理关系有哪些前提？例如加速度恒定、系统封闭或忽略阻力。", "What assumptions support the physical relation—for example constant acceleration, a closed system or negligible drag?"),
+    bi("结果的正负号、单位和数量级分别告诉你什么？它符合图像或现实趋势吗？", "What do the sign, unit and order of magnitude tell you? Does the result match the graph or physical trend?"),
+  ],
+};
+
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -449,6 +510,15 @@ export default function Home() {
   const [planNotes, setPlanNotes] = useState<Record<string, string>>({});
   const [confidence, setConfidence] = useState<Record<string, number>>({});
   const [assessmentFilter, setAssessmentFilter] = useState("all");
+  const [tutorCourse, setTutorCourse] = useState("math");
+  const [tutorTopic, setTutorTopic] = useState("all");
+  const [tutorIndex, setTutorIndex] = useState(0);
+  const [tutorStage, setTutorStage] = useState<"think" | "probe" | "answer" | "feedback">("think");
+  const [tutorThought, setTutorThought] = useState("");
+  const [tutorChoice, setTutorChoice] = useState<number[]>([]);
+  const [tutorAttempts, setTutorAttempts] = useState(0);
+  const [tutorCorrect, setTutorCorrect] = useState(false);
+  const [tutorStreak, setTutorStreak] = useState(0);
 
   const copy = ui[lang];
   const pick = (text: Bi) => text[lang];
@@ -529,6 +599,11 @@ export default function Home() {
   const upcomingAssessments = assessments
     .filter((item) => !item.date || new Date(item.date).getTime() >= now.getTime() - 86400000)
     .sort((a, b) => (a.date ? new Date(a.date).getTime() : Number.MAX_SAFE_INTEGER) - (b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER));
+  const tutorCourseData = courses.find((course) => course.id === tutorCourse) ?? courses[0];
+  const tutorQuestions = practiceBank.filter((question) =>
+    question.courseId === tutorCourse && (tutorTopic === "all" || question.topicId === tutorTopic),
+  );
+  const tutorQuestion = tutorQuestions[tutorIndex % Math.max(tutorQuestions.length, 1)];
 
   function daysUntil(date?: string) {
     if (!date) return null;
@@ -593,6 +668,67 @@ export default function Home() {
     if (quizTopic !== "all") {
       setMasteredTopics((items) => items.includes(quizTopic) ? items : [...items, quizTopic]);
     }
+  }
+
+  function resetTutorQuestion(nextIndex = 0) {
+    setTutorIndex(nextIndex);
+    setTutorStage("think");
+    setTutorThought("");
+    setTutorChoice([]);
+    setTutorAttempts(0);
+    setTutorCorrect(false);
+  }
+
+  function chooseTutorCourse(id: string) {
+    setTutorCourse(id);
+    setTutorTopic("all");
+    resetTutorQuestion();
+  }
+
+  function submitTutorAnswer() {
+    if (!tutorQuestion || tutorChoice.length === 0) return;
+    const value: AnswerValue = Array.isArray(tutorQuestion.answer) ? tutorChoice : tutorChoice[0];
+    const correct = answerIsCorrect(tutorQuestion, value);
+    setTutorAttempts((count) => count + 1);
+    setTutorCorrect(correct);
+    setTutorStage("feedback");
+    if (correct) setTutorStreak((count) => count + 1);
+    else setTutorStreak(0);
+  }
+
+  function nextTutorQuestion() {
+    resetTutorQuestion((tutorIndex + 1) % Math.max(tutorQuestions.length, 1));
+  }
+
+  function renderTutorVisual(visual?: QuestionVisual) {
+    if (!visual) return null;
+    if (visual.kind === "code") {
+      return <figure className="question-visual code-visual"><figcaption>{pick(visual.title)}</figcaption><pre><code>{visual.code}</code></pre></figure>;
+    }
+    if (visual.kind === "table") {
+      return (
+        <figure className="question-visual table-visual">
+          <figcaption>{pick(visual.title)}</figcaption>
+          <div className="visual-scroll"><table><thead><tr>{visual.columns.map((column) => <th key={column.en}>{pick(column)}</th>)}</tr></thead>
+            <tbody>{visual.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>)}</tbody></table></div>
+        </figure>
+      );
+    }
+    const maxValue = Math.max(...visual.values);
+    return (
+      <figure className="question-visual bars-visual">
+        <figcaption>{pick(visual.title)}</figcaption>
+        <div className="bar-plot" role="img" aria-label={pick(visual.title)}>
+          {visual.values.map((value, index) => (
+            <div className="bar-column" key={visual.labels[index].en}>
+              <span className="bar-value">{value}{visual.unit}</span>
+              <span className="bar-shape" style={{ height: `${Math.max(12, (value / maxValue) * 116)}px` }} />
+              <span className="bar-label">{pick(visual.labels[index])}</span>
+            </div>
+          ))}
+        </div>
+      </figure>
+    );
   }
 
   useEffect(() => {
@@ -998,6 +1134,131 @@ export default function Home() {
         </section>
       )}
 
+      {view === "tutor" && (
+        <section className="view-stack tutor-view">
+          <div className="page-intro">
+            <p className="eyebrow">GUIDED MASTERY</p>
+            <h2>{copy.tutorTitle}</h2>
+            <p>{copy.tutorIntro}</p>
+          </div>
+
+          <div className="tutor-selector">
+            <strong>{copy.tutorCourse}</strong>
+            <div className="tutor-course-row">
+              {courses.map((course) => (
+                <button
+                  key={course.id}
+                  className={tutorCourse === course.id ? "active" : ""}
+                  style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}
+                  onClick={() => chooseTutorCourse(course.id)}
+                >
+                  <span>{course.mark}</span>{course.code}
+                </button>
+              ))}
+            </div>
+            <strong>{copy.tutorTopic}</strong>
+            <div className="tutor-topic-row">
+              <button
+                className={tutorTopic === "all" ? "active" : ""}
+                onClick={() => { setTutorTopic("all"); resetTutorQuestion(); }}
+              >
+                {lang === "zh" ? "全部知识点" : "All topics"}
+              </button>
+              {tutorCourseData.topics.map((topic, index) => {
+                const topicId = `${tutorCourseData.id}-${index}`;
+                return (
+                  <button
+                    key={topicId}
+                    className={tutorTopic === topicId ? "active" : ""}
+                    onClick={() => { setTutorTopic(topicId); resetTutorQuestion(); }}
+                  >
+                    {index + 1}. {pick(topic)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {tutorQuestion && (
+            <article className="tutor-card" style={{ "--accent": tutorCourseData.accent, "--soft": tutorCourseData.soft } as React.CSSProperties}>
+              <div className="tutor-card-head">
+                <div>
+                  <p>{tutorCourseData.code} · {pick(tutorCourseData.short)}</p>
+                  <strong>{copy.question} {tutorIndex + 1} / {tutorQuestions.length}</strong>
+                </div>
+                <div className="tutor-stats">
+                  <span>{copy.tutorAttempts} <b>{tutorAttempts}</b></span>
+                  <span>{copy.tutorStreak} <b>{tutorStreak}</b></span>
+                </div>
+              </div>
+              <p className="tutor-rule">{copy.tutorRule}</p>
+              <h3>{pick(tutorQuestion.question)}</h3>
+              {renderTutorVisual(tutorQuestion.visual)}
+
+              {tutorStage === "think" && (
+                <div className="tutor-step">
+                  <label htmlFor="tutor-thought">{copy.tutorThought}</label>
+                  <textarea
+                    id="tutor-thought"
+                    value={tutorThought}
+                    placeholder={copy.tutorThoughtPlaceholder}
+                    onChange={(event) => setTutorThought(event.target.value)}
+                  />
+                  <button disabled={tutorThought.trim().length < 8} onClick={() => setTutorStage("probe")}>{copy.tutorSubmitThought}</button>
+                </div>
+              )}
+
+              {tutorStage === "probe" && (
+                <div className="tutor-step">
+                  <div className="saved-thought"><strong>{copy.tutorReasoningSaved}</strong><p>{tutorThought}</p></div>
+                  <p className="tutor-label">{copy.tutorProbe}</p>
+                  <ol className="probe-list">
+                    {(tutorPrompts[tutorCourse] ?? tutorPrompts.math).map((prompt) => <li key={prompt.en}>{pick(prompt)}</li>)}
+                  </ol>
+                  <button onClick={() => setTutorStage("answer")}>{copy.tutorContinue}</button>
+                </div>
+              )}
+
+              {tutorStage === "answer" && (
+                <div className="tutor-step">
+                  <p className="tutor-label">{copy.tutorCommit}</p>
+                  <div className="options tutor-options">
+                    {tutorQuestion.options.map((option, index) => (
+                      <button
+                        key={option.en}
+                        className={tutorChoice.includes(index) ? "selected" : ""}
+                        onClick={() => setTutorChoice((items) =>
+                          Array.isArray(tutorQuestion.answer)
+                            ? (items.includes(index) ? items.filter((item) => item !== index) : [...items, index])
+                            : [index],
+                        )}
+                      >
+                        <span>{String.fromCharCode(65 + index)}</span>{pick(option)}
+                      </button>
+                    ))}
+                  </div>
+                  <button disabled={tutorChoice.length === 0} onClick={submitTutorAnswer}>{copy.submitAnswer}</button>
+                </div>
+              )}
+
+              {tutorStage === "feedback" && (
+                <div className={`tutor-feedback ${tutorCorrect ? "correct" : "wrong"}`}>
+                  <strong>{tutorCorrect ? copy.tutorCorrect : copy.tutorWrong}</strong>
+                  <p>{pick(tutorQuestion.explanation)}</p>
+                  {!tutorCorrect && (
+                    <div className="retry-coaching">
+                      <span>{pick((tutorPrompts[tutorCourse] ?? tutorPrompts.math)[Math.min(tutorAttempts, 2)])}</span>
+                      <button onClick={() => { setTutorChoice([]); setTutorStage("answer"); }}>{copy.tutorRetry}</button>
+                    </div>
+                  )}
+                  {tutorCorrect && <button onClick={nextTutorQuestion}>{copy.tutorNext}</button>}
+                </div>
+              )}
+            </article>
+          )}
+        </section>
+      )}
+
       {view === "quiz" && (
         <section className="view-stack">
           <div className="page-intro">
@@ -1190,6 +1451,7 @@ export default function Home() {
         <button className={view === "today" ? "active" : ""} onClick={() => setView("today")}><span>⌂</span>{copy.navToday}</button>
         <button className={view === "plan" ? "active" : ""} onClick={() => setView("plan")}><span>◫</span>{copy.navPlan}</button>
         <button className={view === "courses" ? "active" : ""} onClick={() => setView("courses")}><span>▤</span>{copy.navCourses}</button>
+        <button className={view === "tutor" ? "active" : ""} onClick={() => setView("tutor")}><span>◇</span>{copy.navTutor}</button>
         <button className={view === "quiz" ? "active" : ""} onClick={() => setView("quiz")}><span>✓</span>{copy.navQuiz}</button>
       </nav>
     </main>
