@@ -299,9 +299,17 @@ const ui = {
     datePending: "待公布",
     assessmentStep: "当前建议",
     allCourses: "全部",
-    navigate: "地图导航",
+    navigate: "打开 Google 地图",
     onlineClass: "在线上课，不需要到校园",
     roomGuide: "课室代码：CB 后两位是楼号，中间是楼层，最后三位是房间号。",
+    howToGet: "怎么去",
+    stepBuilding: "先到教学楼",
+    stepLevel: "再到楼层",
+    stepRoom: "最后找房间",
+    openCanvasClass: "打开 Canvas 进入课堂",
+    physicalBadge: "到校上课",
+    onlineBadge: "线上上课",
+    arriveTip: "第一次去建议提前 15 分钟到楼下。",
   },
   en: {
     title: "Four-Course Study",
@@ -363,9 +371,17 @@ const ui = {
     datePending: "Pending",
     assessmentStep: "Next move",
     allCourses: "All",
-    navigate: "Open map",
+    navigate: "Open Google Maps",
     onlineClass: "Online class — no campus room",
     roomGuide: "Room codes show the building, level and room number in that order.",
+    howToGet: "How to get there",
+    stepBuilding: "Find the building",
+    stepLevel: "Go to the level",
+    stepRoom: "Find the room",
+    openCanvasClass: "Open Canvas to join",
+    physicalBadge: "On campus",
+    onlineBadge: "Online",
+    arriveTip: "For your first visit, arrive at the building 15 minutes early.",
   },
 };
 
@@ -624,6 +640,14 @@ export default function Home() {
                           : `${item.venue.building[lang]} · ${item.venue.level?.[lang]} · ${item.venue.room?.[lang]}`}
                       </small>
                     </div>
+                    <a
+                      className="today-map-link"
+                      href={item.venue.mapUrl ?? course.canvas}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {item.venue.kind === "online" ? "Canvas" : copy.navigate} →
+                    </a>
                   </article>
                 );
               })}
@@ -693,27 +717,45 @@ export default function Home() {
                         <p>{item.activity[lang]} · {item.start}–{item.end}</p>
                       </div>
                       <small className="room-code">{item.location}</small>
-                      <div className="venue-detail">
-                        <div>
-                          <strong>{item.venue.building[lang]}</strong>
-                          <span>
-                            {item.venue.kind === "online"
-                              ? item.venue.room?.[lang]
-                              : `${item.venue.level?.[lang]} · ${item.venue.room?.[lang]}`}
+                      <div className="route-card">
+                        <div className="route-title">
+                          <strong>{copy.howToGet}</strong>
+                          <span className={item.venue.kind === "online" ? "online" : ""}>
+                            {item.venue.kind === "online" ? copy.onlineBadge : copy.physicalBadge}
                           </span>
-                          {item.venue.address && <small>{item.venue.address}</small>}
                         </div>
-                        {item.venue.mapUrl ? (
-                          <a href={item.venue.mapUrl} target="_blank" rel="noreferrer">{copy.navigate} ↗</a>
+                        {item.venue.kind === "physical" ? (
+                          <div className="route-steps">
+                            <div>
+                              <b>1</b>
+                              <span><small>{copy.stepBuilding}</small><strong>{item.venue.building[lang]}</strong><em>{item.venue.address}</em></span>
+                            </div>
+                            <div>
+                              <b>2</b>
+                              <span><small>{copy.stepLevel}</small><strong>{item.venue.level?.[lang]}</strong></span>
+                            </div>
+                            <div>
+                              <b>3</b>
+                              <span><small>{copy.stepRoom}</small><strong>{item.venue.room?.[lang]}</strong></span>
+                            </div>
+                          </div>
                         ) : (
-                          <a href={course.canvas} target="_blank" rel="noreferrer">Canvas ↗</a>
+                          <div className="route-steps online-steps">
+                            <div><b>1</b><span><small>Canvas</small><strong>{pick(course.short)}</strong></span></div>
+                            <div><b>2</b><span><small>{copy.stepRoom}</small><strong>{item.location}</strong></span></div>
+                            <div><b>3</b><span><small>{lang === "zh" ? "提前进入" : "Join early"}</small><strong>{lang === "zh" ? "提前 5 分钟测试声音" : "Test audio 5 minutes early"}</strong></span></div>
+                          </div>
                         )}
+                        <a href={item.venue.mapUrl ?? course.canvas} target="_blank" rel="noreferrer">
+                          {item.venue.kind === "online" ? copy.openCanvasClass : copy.navigate} <span>→</span>
+                        </a>
                       </div>
                     </article>
                   );
                 })}
             </div>
             <p className="room-guide">{copy.roomGuide}</p>
+            <p className="arrival-tip">ⓘ {copy.arriveTip}</p>
             {selectedWeek === 8 && <p className="break-note">{semesterBreak[lang]}</p>}
           </section>
 

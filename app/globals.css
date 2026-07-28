@@ -970,6 +970,21 @@ blockquote span {
   line-height: 1.4;
 }
 
+.today-map-link {
+  grid-column: 1 / -1;
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .deadline-peek {
   margin-top: 17px;
   padding-top: 15px;
@@ -1119,46 +1134,116 @@ blockquote span {
   font: 700 8px var(--font-geist-mono), monospace;
 }
 
-.venue-detail {
+.route-card {
   grid-column: 1 / -1;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  gap: 10px;
   padding-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
-.venue-detail > div {
-  display: grid;
-  gap: 2px;
+.route-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.venue-detail strong {
-  color: var(--ink);
+.route-title > strong {
   font-size: 10px;
 }
 
-.venue-detail span {
+.route-title > span {
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: var(--card);
   color: var(--accent);
-  font-size: 10px;
-  font-weight: 750;
+  font-size: 8px;
+  font-weight: 800;
 }
 
-.venue-detail small {
+.route-title > span.online {
+  background: var(--ink);
+  color: #fff;
+}
+
+.route-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.route-steps > div {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 8px;
+  border-radius: 11px;
+  background: rgba(255, 253, 248, 0.82);
+}
+
+.route-steps b {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font: 800 10px var(--font-geist-mono), monospace;
+}
+
+.route-steps span {
+  display: grid;
+  gap: 1px;
+}
+
+.route-steps small {
   color: var(--muted);
   font-size: 8px;
 }
 
-.venue-detail a {
-  flex: 0 0 auto;
-  padding: 7px 9px;
-  border-radius: 9px;
-  background: var(--card);
-  color: var(--accent);
+.route-steps strong {
+  font-size: 10px;
+}
+
+.route-steps em {
+  color: var(--muted);
   font-size: 8px;
-  font-weight: 750;
+  font-style: normal;
+}
+
+.online-steps b {
+  background: var(--ink);
+}
+
+.route-card > a {
+  display: flex;
+  min-height: 43px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
   text-decoration: none;
+}
+
+.route-card > a span {
+  font-size: 18px;
+}
+
+.arrival-tip {
+  margin: 8px 0 0;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: #fff6d8;
+  color: #75601f;
+  font-size: 9px;
+  line-height: 1.45;
 }
 
 .room-guide {
