@@ -11,6 +11,14 @@ export type TimetableItem = {
   end: string;
   location: string;
   startsWeek?: number;
+  venue: {
+    kind: "physical" | "online";
+    building: SemesterBi;
+    level?: SemesterBi;
+    room?: SemesterBi;
+    address?: string;
+    mapUrl?: string;
+  };
 };
 
 export type WeeklyCoursePlan = {
@@ -42,13 +50,34 @@ export type Assessment = {
 };
 
 export const timetable: TimetableItem[] = [
-  { courseId: "physics", activity: bi("实践课 Prc1", "Practical Prc1"), day: 1, dayLabel: bi("周一", "Monday"), start: "17:00", end: "20:00", location: "CB04.03.551" },
-  { courseId: "physics", activity: bi("讲座 Lec1", "Lecture Lec1"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "17:00", end: "18:00", location: "CB06.03.028" },
-  { courseId: "iep", activity: bi("辅导课 Tut1", "Tutorial Tut1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "11:00", end: "14:00", location: "CB06.06.103" },
-  { courseId: "c", activity: bi("在线课 Olr1", "Online Olr1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "15:00", end: "17:00", location: "ONLINE060" },
-  { courseId: "math", activity: bi("工作坊 Wrk1", "Workshop Wrk1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "17:00", end: "19:00", location: "ONLINE058" },
-  { courseId: "c", activity: bi("机房课 Cmp1", "Computer lab Cmp1"), day: 5, dayLabel: bi("周五", "Friday"), start: "08:00", end: "10:00", location: "CB11.B1.100", startsWeek: 2 },
-  { courseId: "math", activity: bi("辅导课 Tut1", "Tutorial Tut1"), day: 5, dayLabel: bi("周五", "Friday"), start: "15:00", end: "17:00", location: "CB10.03.470", startsWeek: 2 },
+  {
+    courseId: "physics", activity: bi("实践课 Prc1", "Practical Prc1"), day: 1, dayLabel: bi("周一", "Monday"), start: "17:00", end: "20:00", location: "CB04.03.551",
+    venue: { kind: "physical", building: bi("4号楼 · Science Building", "Building 4 · Science Building"), level: bi("3层", "Level 3"), room: bi("551室", "Room 551"), address: "745 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+4+745+Harris+Street+Ultimo+NSW+2007" },
+  },
+  {
+    courseId: "physics", activity: bi("讲座 Lec1", "Lecture Lec1"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "17:00", end: "18:00", location: "CB06.03.028",
+    venue: { kind: "physical", building: bi("6号楼 · Peter Johnson Building", "Building 6 · Peter Johnson Building"), level: bi("3层", "Level 3"), room: bi("028室 · Guthrie Theatre", "Room 028 · Guthrie Theatre"), address: "702 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+6+702+Harris+Street+Ultimo+NSW+2007" },
+  },
+  {
+    courseId: "iep", activity: bi("辅导课 Tut1", "Tutorial Tut1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "11:00", end: "14:00", location: "CB06.06.103",
+    venue: { kind: "physical", building: bi("6号楼 · Peter Johnson Building", "Building 6 · Peter Johnson Building"), level: bi("6层", "Level 6"), room: bi("103室", "Room 103"), address: "702 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+6+702+Harris+Street+Ultimo+NSW+2007" },
+  },
+  {
+    courseId: "c", activity: bi("在线课 Olr1", "Online Olr1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "15:00", end: "17:00", location: "ONLINE060",
+    venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE060 · 从 Canvas 进入", "ONLINE060 · Join from Canvas") },
+  },
+  {
+    courseId: "math", activity: bi("工作坊 Wrk1", "Workshop Wrk1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "17:00", end: "19:00", location: "ONLINE058",
+    venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE058 · 从 Canvas 进入", "ONLINE058 · Join from Canvas") },
+  },
+  {
+    courseId: "c", activity: bi("机房课 Cmp1", "Computer lab Cmp1"), day: 5, dayLabel: bi("周五", "Friday"), start: "08:00", end: "10:00", location: "CB11.B1.100", startsWeek: 2,
+    venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("地下1层", "Basement 1"), room: bi("100室", "Room 100"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
+  },
+  {
+    courseId: "math", activity: bi("辅导课 Tut1", "Tutorial Tut1"), day: 5, dayLabel: bi("周五", "Friday"), start: "15:00", end: "17:00", location: "CB10.03.470", startsWeek: 2,
+    venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("3层", "Level 3"), room: bi("470室", "Room 470"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
+  },
 ];
 
 const mathTopics = [

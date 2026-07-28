@@ -299,6 +299,9 @@ const ui = {
     datePending: "待公布",
     assessmentStep: "当前建议",
     allCourses: "全部",
+    navigate: "地图导航",
+    onlineClass: "在线上课，不需要到校园",
+    roomGuide: "课室代码：CB 后两位是楼号，中间是楼层，最后三位是房间号。",
   },
   en: {
     title: "Four-Course Study",
@@ -360,6 +363,9 @@ const ui = {
     datePending: "Pending",
     assessmentStep: "Next move",
     allCourses: "All",
+    navigate: "Open map",
+    onlineClass: "Online class — no campus room",
+    roomGuide: "Room codes show the building, level and room number in that order.",
   },
 };
 
@@ -612,6 +618,11 @@ export default function Home() {
                     <div>
                       <strong>{course.code} · {pick(course.short)}</strong>
                       <p>{item.activity[lang]} · {item.location}</p>
+                      <small className="today-venue">
+                        {item.venue.kind === "online"
+                          ? copy.onlineClass
+                          : `${item.venue.building[lang]} · ${item.venue.level?.[lang]} · ${item.venue.room?.[lang]}`}
+                      </small>
                     </div>
                   </article>
                 );
@@ -681,11 +692,28 @@ export default function Home() {
                         <strong>{course.code} · {pick(course.short)}</strong>
                         <p>{item.activity[lang]} · {item.start}–{item.end}</p>
                       </div>
-                      <small>{item.location}</small>
+                      <small className="room-code">{item.location}</small>
+                      <div className="venue-detail">
+                        <div>
+                          <strong>{item.venue.building[lang]}</strong>
+                          <span>
+                            {item.venue.kind === "online"
+                              ? item.venue.room?.[lang]
+                              : `${item.venue.level?.[lang]} · ${item.venue.room?.[lang]}`}
+                          </span>
+                          {item.venue.address && <small>{item.venue.address}</small>}
+                        </div>
+                        {item.venue.mapUrl ? (
+                          <a href={item.venue.mapUrl} target="_blank" rel="noreferrer">{copy.navigate} ↗</a>
+                        ) : (
+                          <a href={course.canvas} target="_blank" rel="noreferrer">Canvas ↗</a>
+                        )}
+                      </div>
                     </article>
                   );
                 })}
             </div>
+            <p className="room-guide">{copy.roomGuide}</p>
             {selectedWeek === 8 && <p className="break-note">{semesterBreak[lang]}</p>}
           </section>
 

@@ -961,6 +961,15 @@ blockquote span {
   font-size: 10px;
 }
 
+.today-venue {
+  display: block;
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .deadline-peek {
   margin-top: 17px;
   padding-top: 15px;
@@ -1105,9 +1114,58 @@ blockquote span {
   font-size: 9px;
 }
 
-.schedule-list article > small {
+.schedule-list article > .room-code {
   color: var(--accent);
   font: 700 8px var(--font-geist-mono), monospace;
+}
+
+.venue-detail {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.venue-detail > div {
+  display: grid;
+  gap: 2px;
+}
+
+.venue-detail strong {
+  color: var(--ink);
+  font-size: 10px;
+}
+
+.venue-detail span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.venue-detail small {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.venue-detail a {
+  flex: 0 0 auto;
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: var(--card);
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.room-guide {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.55;
 }
 
 .break-note {
