@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { topicQuestionBank } from "./topic-questions";
+import { assessments, semesterBreak, semesterWeeks, timetable } from "./semester-data";
 
 type Lang = "zh" | "en";
-type View = "today" | "courses" | "quiz";
+type View = "today" | "plan" | "courses" | "quiz";
 type Bi = { zh: string; en: string };
 type Question = {
   id: string;
@@ -272,8 +273,32 @@ const ui = {
     retryAll: "重新练习本组",
     perfect: "全部答对，做得漂亮。",
     navToday: "今日",
+    navPlan: "计划",
     navCourses: "课程",
     navQuiz: "题库",
+    planTitle: "学期执行中心",
+    planIntro: "教学计划、个人课表和 assessment 已经对齐。每周按“课前—课堂—课后—交付”推进。",
+    thisWeek: "本周行动",
+    timetable: "固定课表",
+    assessments: "Assessment 时间线",
+    preparation: "课前预习",
+    afterClass: "课后练习",
+    weeklyOutcome: "本周产出",
+    notes: "本周笔记 / 疑问",
+    notesPlaceholder: "记下课堂问题、易错点、老师反馈或下一步……",
+    confidence: "掌握度",
+    low: "需复习",
+    medium: "在进步",
+    high: "能独立做",
+    completedLabel: "已完成",
+    openPlan: "打开本周计划",
+    noClass: "今天没有固定课，用 25 分钟处理最近的 assessment。",
+    dueSoon: "最近截止",
+    days: "天",
+    todayDue: "今天",
+    datePending: "待公布",
+    assessmentStep: "当前建议",
+    allCourses: "全部",
   },
   en: {
     title: "Four-Course Study",
@@ -309,8 +334,32 @@ const ui = {
     retryAll: "Restart this set",
     perfect: "Perfect score. Nicely done.",
     navToday: "Today",
+    navPlan: "Plan",
     navCourses: "Courses",
     navQuiz: "Practice",
+    planTitle: "Semester execution centre",
+    planIntro: "Your teaching plans, personal timetable and assessments are aligned into a weekly pre-class–class–post-class–delivery rhythm.",
+    thisWeek: "This week",
+    timetable: "Weekly timetable",
+    assessments: "Assessment timeline",
+    preparation: "Pre-class",
+    afterClass: "Post-class practice",
+    weeklyOutcome: "Weekly output",
+    notes: "Notes / questions",
+    notesPlaceholder: "Capture questions, mistakes, tutor feedback or your next step…",
+    confidence: "Confidence",
+    low: "Review",
+    medium: "Progressing",
+    high: "Independent",
+    completedLabel: "Complete",
+    openPlan: "Open this week’s plan",
+    noClass: "No scheduled class today. Use 25 minutes on the nearest assessment.",
+    dueSoon: "Due soon",
+    days: "days",
+    todayDue: "Today",
+    datePending: "Pending",
+    assessmentStep: "Next move",
+    allCourses: "All",
   },
 };
 
@@ -332,15 +381,32 @@ export default function Home() {
   const [sessionIds, setSessionIds] = useState(practiceBank.map((q) => q.id));
   const [quizIndex, setQuizIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [planChecks, setPlanChecks] = useState<Record<string, boolean>>({});
+  const [planNotes, setPlanNotes] = useState<Record<string, string>>({});
+  const [confidence, setConfidence] = useState<Record<string, number>>({});
+  const [assessmentFilter, setAssessmentFilter] = useState("all");
 
   const copy = ui[lang];
   const pick = (text: Bi) => text[lang];
 
   useEffect(() => {
-    const savedProgress = window.localStorage.getItem("four-course-progress");
-    const savedLang = window.localStorage.getItem("four-course-language") as Lang | null;
-    if (savedProgress) setCompleted(JSON.parse(savedProgress));
-    if (savedLang === "zh" || savedLang === "en") setLang(savedLang);
+    const hydrate = window.setTimeout(() => {
+      const savedProgress = window.localStorage.getItem("four-course-progress");
+      const savedLang = window.localStorage.getItem("four-course-language") as Lang | null;
+      if (savedProgress) setCompleted(JSON.parse(savedProgress));
+      if (savedLang === "zh" || savedLang === "en") setLang(savedLang);
+      const savedChecks = window.localStorage.getItem("four-course-plan-checks");
+      const savedNotes = window.localStorage.getItem("four-course-plan-notes");
+      const savedConfidence = window.localStorage.getItem("four-course-confidence");
+      if (savedChecks) setPlanChecks(JSON.parse(savedChecks));
+      if (savedNotes) setPlanNotes(JSON.parse(savedNotes));
+      if (savedConfidence) setConfidence(JSON.parse(savedConfidence));
+      const current = new Date();
+      const active = semesterWeeks.find((week) => current >= new Date(`${week.start}T00:00:00`) && current <= new Date(`${week.end}T23:59:59`));
+      if (active) setSelectedWeek(active.week);
+    }, 0);
+    return () => window.clearTimeout(hydrate);
   }, []);
 
   useEffect(() => {
@@ -351,6 +417,18 @@ export default function Home() {
     window.localStorage.setItem("four-course-language", lang);
     document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   }, [lang]);
+
+  useEffect(() => {
+    window.localStorage.setItem("four-course-plan-checks", JSON.stringify(planChecks));
+  }, [planChecks]);
+
+  useEffect(() => {
+    window.localStorage.setItem("four-course-plan-notes", JSON.stringify(planNotes));
+  }, [planNotes]);
+
+  useEffect(() => {
+    window.localStorage.setItem("four-course-confidence", JSON.stringify(confidence));
+  }, [confidence]);
 
   useEffect(() => {
     if (!running || seconds <= 0) return;
@@ -374,6 +452,29 @@ export default function Home() {
     .filter((q) => answers[q.id] !== undefined && answers[q.id] !== q.answer)
     .map((q) => q.id);
   const quizComplete = sessionIds.length > 0 && Object.keys(answers).length === sessionIds.length;
+  const semesterWeek = semesterWeeks.find((week) => week.week === selectedWeek) ?? semesterWeeks[0];
+  const now = new Date();
+  const todayClasses = timetable
+    .filter((item) => item.day === now.getDay() && (!item.startsWeek || selectedWeek >= item.startsWeek))
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const upcomingAssessments = assessments
+    .filter((item) => !item.date || new Date(item.date).getTime() >= now.getTime() - 86400000)
+    .sort((a, b) => (a.date ? new Date(a.date).getTime() : Number.MAX_SAFE_INTEGER) - (b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER));
+
+  function daysUntil(date?: string) {
+    if (!date) return null;
+    return Math.max(0, Math.ceil((new Date(date).getTime() - now.getTime()) / 86400000));
+  }
+
+  function assessmentAdvice(date?: string) {
+    const days = daysUntil(date);
+    if (days === null) return lang === "zh" ? "建立每周累计复习，不等日期公布。" : "Build cumulative weekly revision; do not wait for the date.";
+    if (days > 28) return lang === "zh" ? "读 rubric，建文件夹、时间线和交付清单。" : "Read the rubric; create folders, timeline and deliverables.";
+    if (days > 14) return lang === "zh" ? "完成研究/题型地图，做出第一版。" : "Finish research/topic mapping and produce a first version.";
+    if (days > 7) return lang === "zh" ? "做完整草稿或模拟卷，主动拿反馈。" : "Build a full draft or mock test and seek feedback.";
+    if (days > 2) return lang === "zh" ? "按 rubric 逐项检查，修正最大风险。" : "Check every rubric item and fix the biggest risk.";
+    return lang === "zh" ? "最终检查、备份并预留提前提交时间。" : "Final QA, backup and leave an early-submission buffer.";
+  }
 
   function chooseCourse(id: string) {
     setSelectedId(id);
@@ -493,7 +594,205 @@ export default function Home() {
             </div>
           </section>
 
+          <section className="week-pulse">
+            <div className="week-pulse-head">
+              <div>
+                <p className="eyebrow">WEEK {selectedWeek} · {semesterWeek.range[lang]}</p>
+                <h2>{copy.thisWeek}</h2>
+              </div>
+              <button onClick={() => setView("plan")}>{copy.openPlan} →</button>
+            </div>
+            <div className="today-class-list">
+              {todayClasses.length === 0 && <p className="empty-note">{copy.noClass}</p>}
+              {todayClasses.map((item) => {
+                const course = courses.find((entry) => entry.id === item.courseId) ?? courses[0];
+                return (
+                  <article key={`${item.courseId}-${item.start}`} style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
+                    <span className="class-time">{item.start}</span>
+                    <div>
+                      <strong>{course.code} · {pick(course.short)}</strong>
+                      <p>{item.activity[lang]} · {item.location}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="deadline-peek">
+              <p>{copy.dueSoon}</p>
+              {upcomingAssessments.slice(0, 3).map((item) => {
+                const course = courses.find((entry) => entry.id === item.courseId) ?? courses[0];
+                const days = daysUntil(item.date);
+                return (
+                  <button key={item.id} onClick={() => { setAssessmentFilter(item.courseId); setView("plan"); }}>
+                    <span style={{ background: course.soft, color: course.accent }}>{course.code}</span>
+                    <strong>{item.title[lang]}</strong>
+                    <small>{days === null ? copy.datePending : days === 0 ? copy.todayDue : `${days} ${copy.days}`}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
           <blockquote>{copy.quote}<span>{copy.tip}</span></blockquote>
+        </section>
+      )}
+
+      {view === "plan" && (
+        <section className="view-stack plan-view">
+          <div className="page-intro">
+            <p className="eyebrow">SEMESTER OS · SPRING 2026</p>
+            <h2>{copy.planTitle}</h2>
+            <p>{copy.planIntro}</p>
+          </div>
+
+          <div className="week-picker" aria-label={copy.thisWeek}>
+            {semesterWeeks.map((week) => (
+              <button
+                key={week.week}
+                className={selectedWeek === week.week ? "active" : ""}
+                onClick={() => setSelectedWeek(week.week)}
+              >
+                <strong>W{week.week}</strong>
+                <small>{week.range[lang]}</small>
+              </button>
+            ))}
+          </div>
+
+          <section className="schedule-card">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">PERSONAL TIMETABLE</p>
+                <h2>{copy.timetable}</h2>
+              </div>
+              <span className="week-badge">W{selectedWeek}</span>
+            </div>
+            <div className="schedule-list">
+              {timetable
+                .filter((item) => !item.startsWeek || selectedWeek >= item.startsWeek)
+                .map((item) => {
+                  const course = courses.find((entry) => entry.id === item.courseId) ?? courses[0];
+                  return (
+                    <article key={`${item.courseId}-${item.activity.en}`} style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
+                      <div className="schedule-day">
+                        <strong>{item.dayLabel[lang]}</strong>
+                        <span>{item.start}</span>
+                      </div>
+                      <div>
+                        <strong>{course.code} · {pick(course.short)}</strong>
+                        <p>{item.activity[lang]} · {item.start}–{item.end}</p>
+                      </div>
+                      <small>{item.location}</small>
+                    </article>
+                  );
+                })}
+            </div>
+            {selectedWeek === 8 && <p className="break-note">{semesterBreak[lang]}</p>}
+          </section>
+
+          <section className="weekly-plan">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">PREP → CLASS → PRACTICE</p>
+                <h2>W{selectedWeek} · {semesterWeek.range[lang]}</h2>
+              </div>
+            </div>
+            <div className="weekly-course-list">
+              {semesterWeek.plans.map((plan) => {
+                const course = courses.find((entry) => entry.id === plan.courseId) ?? courses[0];
+                const preKey = `w${selectedWeek}-${plan.courseId}-pre`;
+                const postKey = `w${selectedWeek}-${plan.courseId}-post`;
+                const outputKey = `w${selectedWeek}-${plan.courseId}-output`;
+                const noteKey = `w${selectedWeek}-${plan.courseId}`;
+                return (
+                  <article key={plan.courseId} className="weekly-course-card" style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
+                    <header>
+                      <span className="course-mark">{course.mark}</span>
+                      <div>
+                        <small>{course.code} · {pick(course.short)}</small>
+                        <h3>{plan.topic[lang]}</h3>
+                      </div>
+                    </header>
+                    <label className={planChecks[preKey] ? "plan-task checked" : "plan-task"}>
+                      <input type="checkbox" checked={Boolean(planChecks[preKey])} onChange={() => setPlanChecks((items) => ({ ...items, [preKey]: !items[preKey] }))} />
+                      <span><strong>{copy.preparation}</strong>{plan.prepare[lang]}</span>
+                    </label>
+                    <label className={planChecks[postKey] ? "plan-task checked" : "plan-task"}>
+                      <input type="checkbox" checked={Boolean(planChecks[postKey])} onChange={() => setPlanChecks((items) => ({ ...items, [postKey]: !items[postKey] }))} />
+                      <span><strong>{copy.afterClass}</strong>{plan.after[lang]}</span>
+                    </label>
+                    <label className={planChecks[outputKey] ? "plan-task checked" : "plan-task"}>
+                      <input type="checkbox" checked={Boolean(planChecks[outputKey])} onChange={() => setPlanChecks((items) => ({ ...items, [outputKey]: !items[outputKey] }))} />
+                      <span><strong>{copy.weeklyOutcome}</strong>{plan.outcome[lang]}</span>
+                    </label>
+                    <div className="confidence-row">
+                      <span>{copy.confidence}</span>
+                      {[copy.low, copy.medium, copy.high].map((label, index) => (
+                        <button
+                          key={label}
+                          className={confidence[noteKey] === index + 1 ? "active" : ""}
+                          onClick={() => setConfidence((items) => ({ ...items, [noteKey]: index + 1 }))}
+                        >
+                          {index + 1} · {label}
+                        </button>
+                      ))}
+                    </div>
+                    <label className="note-field">
+                      <span>{copy.notes}</span>
+                      <textarea
+                        value={planNotes[noteKey] ?? ""}
+                        placeholder={copy.notesPlaceholder}
+                        onChange={(event) => setPlanNotes((items) => ({ ...items, [noteKey]: event.target.value }))}
+                      />
+                    </label>
+                    <a href={course.canvas} target="_blank" rel="noreferrer">{copy.canvas}</a>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="assessment-section">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">DEADLINES & MILESTONES</p>
+                <h2>{copy.assessments}</h2>
+              </div>
+            </div>
+            <div className="assessment-filters">
+              <button className={assessmentFilter === "all" ? "active" : ""} onClick={() => setAssessmentFilter("all")}>{copy.allCourses}</button>
+              {courses.map((course) => (
+                <button key={course.id} className={assessmentFilter === course.id ? "active" : ""} onClick={() => setAssessmentFilter(course.id)}>{course.code}</button>
+              ))}
+            </div>
+            <div className="assessment-list">
+              {assessments
+                .filter((item) => assessmentFilter === "all" || item.courseId === assessmentFilter)
+                .map((item) => {
+                  const course = courses.find((entry) => entry.id === item.courseId) ?? courses[0];
+                  const days = daysUntil(item.date);
+                  const checkKey = `assessment-${item.id}`;
+                  return (
+                    <article key={item.id} className={planChecks[checkKey] ? "assessment-card complete" : "assessment-card"} style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
+                      <div className="assessment-top">
+                        <span className="assessment-code">{course.code}</span>
+                        <span className="assessment-countdown">{days === null ? copy.datePending : days === 0 ? copy.todayDue : `${days} ${copy.days}`}</span>
+                      </div>
+                      <h3>{item.title[lang]}</h3>
+                      <div className="assessment-meta"><strong>{item.weight}</strong><span>{item.displayDate[lang]}</span></div>
+                      <p>{item.note[lang]}</p>
+                      <div className="assessment-advice"><strong>{copy.assessmentStep}</strong><span>{assessmentAdvice(item.date)}</span></div>
+                      <div className="assessment-actions">
+                        <label>
+                          <input type="checkbox" checked={Boolean(planChecks[checkKey])} onChange={() => setPlanChecks((items) => ({ ...items, [checkKey]: !items[checkKey] }))} />
+                          {copy.completedLabel}
+                        </label>
+                        <a href={item.canvas} target="_blank" rel="noreferrer">Canvas ↗</a>
+                      </div>
+                    </article>
+                  );
+                })}
+            </div>
+          </section>
         </section>
       )}
 
@@ -668,6 +967,7 @@ export default function Home() {
 
       <nav className="bottom-nav" aria-label="Main navigation">
         <button className={view === "today" ? "active" : ""} onClick={() => setView("today")}><span>⌂</span>{copy.navToday}</button>
+        <button className={view === "plan" ? "active" : ""} onClick={() => setView("plan")}><span>◫</span>{copy.navPlan}</button>
         <button className={view === "courses" ? "active" : ""} onClick={() => setView("courses")}><span>▤</span>{copy.navCourses}</button>
         <button className={view === "quiz" ? "active" : ""} onClick={() => setView("quiz")}><span>✓</span>{copy.navQuiz}</button>
       </nav>

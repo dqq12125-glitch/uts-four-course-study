@@ -20,11 +20,11 @@ const notoSansSC = Noto_Sans_SC({
 export const metadata: Metadata = {
   metadataBase: new URL("https://four-course-pocket-study.dqq12125.chatgpt.site"),
   title: "四课随身学 · Four-Course Study",
-  description: "UTS Spring 2026 中英双语手机学习中心，覆盖 27 个知识点和 270 道练习题。",
+  description: "UTS Spring 2026 中英双语手机学习中心：个人课表、每周预习与复习计划、assessment 时间线，以及 270 道练习题。",
   applicationName: "四课随身学 · Four-Course Study",
   openGraph: {
     title: "四课随身学",
-    description: "中英双语学习四门课程：27 个知识点、270 道练习题。",
+    description: "四门课的个人课表、每周学习计划、assessment 倒计时和 270 道练习题。",
     images: [{ url: "/og.png", width: 1536, height: 1024, alt: "四课随身学" }],
   },
   twitter: {
