@@ -18,6 +18,7 @@ export type TimetableItem = {
     room?: SemesterBi;
     address?: string;
     mapUrl?: string;
+    zoomUrl?: string;
   };
 };
 
@@ -64,11 +65,11 @@ export const timetable: TimetableItem[] = [
   },
   {
     courseId: "c", activity: bi("在线课 Olr1", "Online Olr1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "15:00", end: "17:00", location: "ONLINE060",
-    venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE060 · 从 Canvas 进入", "ONLINE060 · Join from Canvas") },
+    venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE060 · 从 Canvas 进入", "ONLINE060 · Join from Canvas"), zoomUrl: "https://canvas.uts.edu.au/courses/41072/external_tools/3695" },
   },
   {
     courseId: "math", activity: bi("工作坊 Wrk1", "Workshop Wrk1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "17:00", end: "19:00", location: "ONLINE058",
-    venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE058 · 从 Canvas 进入", "ONLINE058 · Join from Canvas") },
+    venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE058 · 从 Canvas 进入", "ONLINE058 · Join from Canvas"), zoomUrl: "https://canvas.uts.edu.au/courses/40822/modules/items/2812965" },
   },
   {
     courseId: "c", activity: bi("机房课 Cmp1", "Computer lab Cmp1"), day: 5, dayLabel: bi("周五", "Friday"), start: "08:00", end: "10:00", location: "CB11.B1.100", startsWeek: 2,

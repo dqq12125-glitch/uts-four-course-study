@@ -30,6 +30,7 @@ type Course = {
   soft: string;
   mark: string;
   canvas: string;
+  zoom?: { url: string; label: Bi };
   focus: Bi;
   topics: Bi[];
   lesson: {
@@ -53,6 +54,7 @@ const courses: Course[] = [
     soft: "#E8F0FF",
     mark: "∫",
     canvas: "https://canvas.uts.edu.au/courses/40822/modules",
+    zoom: { url: "https://canvas.uts.edu.au/courses/40822/modules/items/2812965", label: bi("在线工作坊 Zoom", "Online workshop Zoom") },
     focus: bi("向量与三维空间", "Vectors & 3D space"),
     topics: [
       bi("向量与三维空间", "Vectors & 3D space"),
@@ -127,6 +129,7 @@ const courses: Course[] = [
     soft: "#E6F6F0",
     mark: "{ }",
     canvas: "https://canvas.uts.edu.au/courses/41072/modules",
+    zoom: { url: "https://canvas.uts.edu.au/courses/41072/external_tools/3695", label: bi("在线课 Zoom", "Online class Zoom") },
     focus: bi("编程基础", "Programming fundamentals"),
     topics: [
       bi("编程基础", "Programming fundamentals"),
@@ -165,6 +168,7 @@ const courses: Course[] = [
     soft: "#F0ECFF",
     mark: "↗",
     canvas: "https://canvas.uts.edu.au/courses/41382/modules",
+    zoom: { url: "https://canvas.uts.edu.au/courses/41382/modules/items/2699713", label: bi("Zoom 讲座说明", "Zoom lecture information") },
     focus: bi("一维运动学与测量不确定度", "1D kinematics & uncertainty"),
     topics: [
       bi("一维运动学", "1D kinematics"),
@@ -332,6 +336,9 @@ const ui = {
     physicalBadge: "到校上课",
     onlineBadge: "线上上课",
     arriveTip: "第一次去建议提前 15 分钟到楼下。",
+    zoom: "进入 Zoom",
+    zoomInfo: "Zoom 入口",
+    zoomProtected: "通过 Canvas 登录后进入，不公开会议密码",
   },
   en: {
     title: "Four-Course Study",
@@ -410,6 +417,9 @@ const ui = {
     physicalBadge: "On campus",
     onlineBadge: "Online",
     arriveTip: "For your first visit, arrive at the building 15 minutes early.",
+    zoom: "Join Zoom",
+    zoomInfo: "Zoom access",
+    zoomProtected: "Opens through Canvas sign-in; meeting credentials stay private",
   },
 };
 
@@ -700,11 +710,11 @@ export default function Home() {
                     </div>
                     <a
                       className="today-map-link"
-                      href={item.venue.mapUrl ?? course.canvas}
+                      href={item.venue.zoomUrl ?? item.venue.mapUrl ?? course.canvas}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {item.venue.kind === "online" ? "Canvas" : copy.navigate} →
+                      {item.venue.kind === "online" ? copy.zoom : copy.navigate} →
                     </a>
                   </article>
                 );
@@ -799,14 +809,15 @@ export default function Home() {
                           </div>
                         ) : (
                           <div className="route-steps online-steps">
-                            <div><b>1</b><span><small>Canvas</small><strong>{pick(course.short)}</strong></span></div>
-                            <div><b>2</b><span><small>{copy.stepRoom}</small><strong>{item.location}</strong></span></div>
+                            <div><b>1</b><span><small>Canvas</small><strong>{lang === "zh" ? "登录 UTS Canvas" : "Sign in to UTS Canvas"}</strong></span></div>
+                            <div><b>2</b><span><small>{copy.zoomInfo}</small><strong>{pick(course.short)} · {item.location}</strong></span></div>
                             <div><b>3</b><span><small>{lang === "zh" ? "提前进入" : "Join early"}</small><strong>{lang === "zh" ? "提前 5 分钟测试声音" : "Test audio 5 minutes early"}</strong></span></div>
                           </div>
                         )}
-                        <a href={item.venue.mapUrl ?? course.canvas} target="_blank" rel="noreferrer">
-                          {item.venue.kind === "online" ? copy.openCanvasClass : copy.navigate} <span>→</span>
+                        <a href={item.venue.zoomUrl ?? item.venue.mapUrl ?? course.canvas} target="_blank" rel="noreferrer">
+                          {item.venue.kind === "online" ? copy.zoom : copy.navigate} <span>→</span>
                         </a>
+                        {item.venue.kind === "online" && <small className="zoom-privacy">🔒 {copy.zoomProtected}</small>}
                       </div>
                     </article>
                   );
@@ -977,6 +988,11 @@ export default function Home() {
                 {completed.includes(selected.id) ? copy.done : copy.markDone}
               </button>
               <a href={selected.canvas} target="_blank" rel="noreferrer">{copy.canvas}</a>
+              {selected.zoom && (
+                <a className="zoom-action" href={selected.zoom.url} target="_blank" rel="noreferrer">
+                  <span>◉</span> {pick(selected.zoom.label)}
+                </a>
+              )}
             </div>
           </article>
         </section>

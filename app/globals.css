@@ -565,6 +565,26 @@ blockquote span {
   color: var(--ink);
 }
 
+.action-row .zoom-action {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  background: #e8f0ff;
+  color: #246bfd;
+}
+
+.action-row .zoom-action span {
+  font-size: 15px;
+}
+
+.zoom-privacy {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
 .quiz-stack {
   display: grid;
   gap: 14px;
