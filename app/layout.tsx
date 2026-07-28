@@ -18,12 +18,13 @@ const notoSansSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "四课随身学 · Spring 2026",
-  description: "为 UTS Spring 2026 四门课程打造的手机学习中心。",
-  applicationName: "四课随身学",
+  metadataBase: new URL("https://four-course-pocket-study.dqq12125.chatgpt.site"),
+  title: "四课随身学 · Four-Course Study",
+  description: "UTS Spring 2026 中英双语手机学习中心，覆盖 27 个知识点和 270 道练习题。",
+  applicationName: "四课随身学 · Four-Course Study",
   openGraph: {
     title: "四课随身学",
-    description: "Mathematics 1、工程项目、C 编程与物理建模的随身学习中心。",
+    description: "中英双语学习四门课程：27 个知识点、270 道练习题。",
     images: [{ url: "/og.png", width: 1536, height: 1024, alt: "四课随身学" }],
   },
   twitter: {
