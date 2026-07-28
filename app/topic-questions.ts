@@ -1,14 +1,17 @@
+import { advancedQuestionBank, type QuestionVisual } from "./advanced-questions";
+
 export type LocalizedText = { zh: string; en: string };
 
 export type TopicQuestion = {
   id: string;
   courseId: string;
   topicId: string;
-  kind: "truefalse" | "single" | "multiple" | "scenario" | "combination";
+  kind: "truefalse" | "single" | "multiple" | "scenario" | "combination" | "calculation" | "data";
   question: LocalizedText;
   options: LocalizedText[];
   answer: number | number[];
   explanation: LocalizedText;
+  visual?: QuestionVisual;
 };
 
 type Check = [zh: string, en: string, truth: boolean];
@@ -505,8 +508,8 @@ const explainChecks = (spec: TopicSpec, checks: Check[]) => {
     )
     .join("\n");
   return b(
-    `${zhDetails}\n\n核心规则：${spec.note.zh}\n复习方法：先说出定义或公式的适用条件，再逐项排除；不要只记选项字母。`,
-    `${enDetails}\n\nCore rule: ${spec.note.en}\nReview method: state the definition or equation conditions first, then eliminate options one by one. Do not memorise the option letter.`,
+    `第 1 步｜识别任务\n先确认题目要找“正确项”还是“错误项”，避免知识会了却选反。\n\n第 2 步｜逐项验证\n${zhDetails}\n\n第 3 步｜回到核心规则\n${spec.note.zh}\n\n第 4 步｜形成可迁移的方法\n合上解析，尝试用自己的话解释每个选项为什么成立或不成立。能解释条件和反例，才不只是记住答案。\n\n易错提醒\n不要只记选项字母；下次选项顺序改变时，必须仍能从定义、公式或证据推出结论。`,
+    `Step 1 | Identify the task\nConfirm whether the question asks for the correct or incorrect statement so you do not reverse a sound analysis.\n\nStep 2 | Test every option\n${enDetails}\n\nStep 3 | Return to the core rule\n${spec.note.en}\n\nStep 4 | Make the method transferable\nClose the explanation and justify each option in your own words. Understanding means you can state conditions and counterexamples—not merely remember an answer.\n\nCommon trap\nDo not memorise option letters. You should still derive the result when choices are reordered.`,
   );
 };
 
@@ -519,8 +522,8 @@ const makeTrueFalse = (spec: TopicSpec, check: Check, index: number): TopicQuest
   options: [b("正确", "True"), b("错误", "False")],
   answer: check[2] ? 0 : 1,
   explanation: b(
-    `${check[2] ? "正确" : "错误"}。${check[0]}\n\n判断依据：${spec.note.zh}\n易错提醒：判断题也要检查定义、适用条件和关键词；“一定”“所有”“只要”等绝对表达尤其需要验证。`,
-    `${check[2] ? "True" : "False"}. ${check[1]}\n\nReasoning: ${spec.note.en}\nCommon trap: still check the definition, conditions and key wording. Absolute words such as “always”, “every” and “only” deserve extra scrutiny.`,
+    `第 1 步｜圈出关键词\n命题是：“${check[0]}”\n\n第 2 步｜调用核心规则\n${spec.note.zh}\n\n第 3 步｜比较命题与规则\n该命题${check[2] ? "符合定义及适用条件，因此成立" : "忽略必要条件或混淆概念，因此不成立"}。\n\n结论\n答案是“${check[2] ? "正确" : "错误"}”。\n\n第 4 步｜自我检验\n尝试举一个例子${check[2] ? "验证它，并说明适用条件" : "作为反例推翻它"}。\n\n易错提醒\n“一定”“所有”“只要”等绝对表达尤其需要检查。`,
+    `Step 1 | Mark key wording\nThe claim is: “${check[1]}”\n\nStep 2 | Recall the core rule\n${spec.note.en}\n\nStep 3 | Compare claim with rule\nThe claim ${check[2] ? "matches the definition and its conditions, so it holds" : "drops a required condition or mixes concepts, so it fails"}.\n\nConclusion\nThe answer is ${check[2] ? "True" : "False"}.\n\nStep 4 | Self-test\nTry to give ${check[2] ? "a confirming example and its conditions" : "a counterexample that disproves it"}.\n\nCommon trap\nAbsolute words such as “always”, “every” and “only” deserve extra scrutiny.`,
   ),
 });
 
@@ -590,13 +593,13 @@ const makeCombination = (spec: TopicSpec, id: number, seed: number): TopicQuesti
     options: [b("只有①②", "① and ② only"), b("只有①③", "① and ③ only"), b("只有②③", "② and ③ only"), b("①②③全部", "All of ①, ② and ③")],
     answer: 1,
     explanation: b(
-      `正确组合是①③。\n①正确：${statements[0][0]}\n②错误：${statements[1][0]} 这句话忽略了必要条件或混淆了概念。\n③正确：${statements[2][0]}\n\n核心规则：${spec.note.zh}\n解题方法：先分别判断①②③，再去匹配组合，能减少被选项干扰。`,
-      `The correct combination is ① and ③.\n① is correct: ${statements[0][1]}\n② is incorrect: ${statements[1][1]} It drops a condition or mixes concepts.\n③ is correct: ${statements[2][1]}\n\nCore rule: ${spec.note.en}\nMethod: judge ①, ② and ③ independently before matching a combination. This reduces option-driven mistakes.`,
+      `第 1 步｜先遮住组合选项\n不要一开始就在 A–D 中猜，先独立判断三句话。\n\n第 2 步｜逐句判断\n① 正确：${statements[0][0]}\n② 错误：${statements[1][0]} 这句话忽略了必要条件或混淆了概念。\n③ 正确：${statements[2][0]}\n\n第 3 步｜编码结果\n三句结果为“对、错、对”，也就是①③。\n\n第 4 步｜匹配选项\n“只有①③”对应 B。\n\n核心规则\n${spec.note.zh}\n\n易错提醒\n先判断语句、后匹配组合，可以避免被相似选项带偏。`,
+      `Step 1 | Hide the combinations\nDo not guess among A–D first. Judge each statement independently.\n\nStep 2 | Judge each claim\n① Correct: ${statements[0][1]}\n② Incorrect: ${statements[1][1]} It drops a condition or mixes concepts.\n③ Correct: ${statements[2][1]}\n\nStep 3 | Encode the result\nThe pattern is true, false, true: ① and ③.\n\nStep 4 | Match a choice\n“① and ③ only” is B.\n\nCore rule\n${spec.note.en}\n\nCommon trap\nJudge statements before matching combinations to resist distractors.`,
     ),
   };
 };
 
-export const topicQuestionBank: TopicQuestion[] = specs.flatMap((spec) => [
+const generatedQuestionBank: TopicQuestion[] = specs.flatMap((spec) => [
   makeTrueFalse(spec, spec.checks[0], 1),
   makeTrueFalse(spec, spec.checks[1], 2),
   makeStatementQuestion(spec, 3, "correct", 0),
@@ -608,3 +611,9 @@ export const topicQuestionBank: TopicQuestion[] = specs.flatMap((spec) => [
   makeStatementQuestion(spec, 9, "correct", 3),
   makeStatementQuestion(spec, 10, "incorrect", 4),
 ]);
+
+const advancedById = new Map(advancedQuestionBank.map((question) => [question.id, question]));
+
+export const topicQuestionBank: TopicQuestion[] = generatedQuestionBank.map(
+  (question) => advancedById.get(question.id) ?? question,
+);

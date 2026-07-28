@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { topicQuestionBank } from "./topic-questions";
+import type { QuestionVisual } from "./advanced-questions";
 import { assessments, semesterBreak, semesterWeeks, timetable } from "./semester-data";
 
 type Lang = "zh" | "en";
 type View = "today" | "plan" | "courses" | "quiz";
 type Bi = { zh: string; en: string };
-type QuestionKind = "truefalse" | "single" | "multiple" | "scenario" | "combination";
+type QuestionKind = "truefalse" | "single" | "multiple" | "scenario" | "combination" | "calculation" | "data";
 type AnswerValue = number | number[];
 type Question = {
   id: string;
@@ -18,6 +19,7 @@ type Question = {
   kind?: QuestionKind;
   answer: AnswerValue;
   explanation: Bi;
+  visual?: QuestionVisual;
 };
 type Course = {
   id: string;
@@ -274,7 +276,7 @@ const ui = {
     markDone: "标记今日完成",
     canvas: "打开 Canvas ↗",
     quizTitle: "Deep Learning Mode · 270 题",
-    quizIntro: "判断、单选、多选、情境和组合题混合训练。错题会进入复习—错题重练循环，直到完全掌握。",
+    quizIntro: "包含复杂计算、代码推演、图表数据、判断、多选与情境题。解析按步骤教学，错题循环到完全掌握。",
     all: "全部 270 题",
     topicPrompt: "选择知识点（每组 10 题）",
     question: "题",
@@ -352,7 +354,7 @@ const ui = {
     markDone: "Mark today complete",
     canvas: "Open Canvas ↗",
     quizTitle: "Deep Learning Mode · 270 Questions",
-    quizIntro: "Mixed true/false, single-choice, multiple-select, scenario and combination questions. Mistakes enter a review–retest loop until mastered.",
+    quizIntro: "Complex calculations, code tracing, charts, data, multiple-select and scenarios. Every applied solution is taught step by step; mistakes repeat until mastered.",
     all: "All 270",
     topicPrompt: "Choose a topic (10 questions each)",
     question: "Question",
@@ -1044,6 +1046,8 @@ export default function Home() {
               multiple: bi("多选题", "Multiple select"),
               scenario: bi("情境分析", "Scenario"),
               combination: bi("组合题", "Combination"),
+              calculation: bi("计算 / 推演题", "Calculation / Trace"),
+              data: bi("图表 / 数据题", "Chart / Data"),
             };
             return (
               <article className="quiz-card quiz-player" style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
@@ -1057,6 +1061,45 @@ export default function Home() {
                 <div className="quiz-progress-track"><span style={{ width: `${((quizIndex + 1) / sessionIds.length) * 100}%` }} /></div>
                 <div className="question-kind-badge">{pick(kindLabels[currentQuestion.kind ?? "single"])}</div>
                 <h3>{pick(currentQuestion.question)}</h3>
+                {currentQuestion.visual && (() => {
+                  const visual = currentQuestion.visual;
+                  if (visual.kind === "code") {
+                    return (
+                      <figure className="question-visual code-visual">
+                        <figcaption>{pick(visual.title)}</figcaption>
+                        <pre><code>{visual.code}</code></pre>
+                      </figure>
+                    );
+                  }
+                  if (visual.kind === "table") {
+                    return (
+                      <figure className="question-visual table-visual">
+                        <figcaption>{pick(visual.title)}</figcaption>
+                        <div className="visual-scroll">
+                          <table>
+                            <thead><tr>{visual.columns.map((column) => <th key={column.en}>{pick(column)}</th>)}</tr></thead>
+                            <tbody>{visual.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>)}</tbody>
+                          </table>
+                        </div>
+                      </figure>
+                    );
+                  }
+                  const maxValue = Math.max(...visual.values);
+                  return (
+                    <figure className="question-visual bars-visual">
+                      <figcaption>{pick(visual.title)}</figcaption>
+                      <div className="bar-plot" role="img" aria-label={pick(visual.title)}>
+                        {visual.values.map((value, index) => (
+                          <div className="bar-column" key={visual.labels[index].en}>
+                            <span className="bar-value">{value}{visual.unit}</span>
+                            <span className="bar-shape" style={{ height: `${Math.max(12, (value / maxValue) * 116)}px` }} />
+                            <span className="bar-label">{pick(visual.labels[index])}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </figure>
+                  );
+                })()}
                 {isMultiple && answeredCurrent === undefined && <p className="multiple-hint">{copy.chooseMultiple}</p>}
                 <div className="options">
                   {currentQuestion.options.map((option, index) => {

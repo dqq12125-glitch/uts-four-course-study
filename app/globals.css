@@ -754,6 +754,92 @@ blockquote span {
   margin: 16px 0;
   font-size: 18px;
   line-height: 1.5;
+  white-space: pre-line;
+}
+
+.question-visual {
+  margin: 14px 0 18px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--line));
+  border-radius: 15px;
+  background: #fbfaf6;
+}
+
+.question-visual figcaption {
+  margin-bottom: 12px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.visual-scroll {
+  overflow-x: auto;
+}
+
+.table-visual table {
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table-visual th,
+.table-visual td {
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.table-visual th {
+  background: var(--soft);
+  color: var(--accent);
+}
+
+.code-visual pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #17211d;
+  color: #e5f4eb;
+  font: 12px/1.7 var(--font-geist-mono), monospace;
+}
+
+.bar-plot {
+  display: flex;
+  min-height: 165px;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 8px 4px 0;
+  border-bottom: 1px solid #aeb8b1;
+}
+
+.bar-column {
+  display: grid;
+  width: min(72px, 22%);
+  justify-items: center;
+  align-items: end;
+}
+
+.bar-shape {
+  width: min(42px, 80%);
+  border-radius: 7px 7px 0 0;
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 68%, #17211d));
+}
+
+.bar-value {
+  margin-bottom: 5px;
+  color: var(--accent);
+  font: 750 10px var(--font-geist-mono), monospace;
+}
+
+.bar-label {
+  min-height: 28px;
+  padding-top: 6px;
+  color: var(--muted);
+  font-size: 9px;
+  text-align: center;
 }
 
 .options {
