@@ -334,6 +334,12 @@ const ui = {
     aiThinking: "正在分析你的思路……",
     aiError: "AI 暂时没有回答，请稍后再试。",
     aiStarter: "先解释这道题涉及的核心定义、每个符号和必要条件，不要只重复题目。",
+    aiSetupTitle: "连接你的 DeepSeek API",
+    aiSetupIntro: "当前网址是静态网站。请输入 API Key 启用 AI；Key 只保存在这台设备的浏览器中，不会上传到网站代码。",
+    aiKeyPlaceholder: "粘贴 DeepSeek API Key",
+    aiSaveKey: "保存并启用 AI",
+    aiRemoveKey: "移除本机 Key",
+    aiReady: "AI 已连接 · 使用本机保存的 DeepSeek Key",
     planTitle: "学期执行中心",
     planIntro: "教学计划、个人课表和 assessment 已经对齐。每周按“课前—课堂—课后—交付”推进。",
     thisWeek: "本周行动",
@@ -449,6 +455,12 @@ const ui = {
     aiThinking: "Analysing your reasoning…",
     aiError: "The AI tutor could not answer just now. Please try again.",
     aiStarter: "Explain the core definitions, every symbol and all necessary conditions. Do not merely repeat the question.",
+    aiSetupTitle: "Connect your DeepSeek API",
+    aiSetupIntro: "This is a static site. Enter an API key to enable AI; it stays only in this browser and is never added to the website code.",
+    aiKeyPlaceholder: "Paste DeepSeek API key",
+    aiSaveKey: "Save and enable AI",
+    aiRemoveKey: "Remove device key",
+    aiReady: "AI connected · using this device’s DeepSeek key",
     planTitle: "Semester execution centre",
     planIntro: "Your teaching plans, personal timetable and assessments are aligned into a weekly pre-class–class–post-class–delivery rhythm.",
     thisWeek: "This week",
@@ -561,6 +573,10 @@ export default function Home() {
   const [aiInput, setAiInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [aiApiKey, setAiApiKey] = useState("");
+  const [aiKeyInput, setAiKeyInput] = useState("");
+  const [showAiSetup, setShowAiSetup] = useState(false);
+  const [needsAiKey, setNeedsAiKey] = useState(false);
 
   const copy = ui[lang];
   const pick = (text: Bi) => text[lang];
@@ -575,10 +591,13 @@ export default function Home() {
       const savedNotes = window.localStorage.getItem("four-course-plan-notes");
       const savedConfidence = window.localStorage.getItem("four-course-confidence");
       const savedMastery = window.localStorage.getItem("four-course-mastery");
+      const savedAiKey = window.localStorage.getItem("four-course-deepseek-key");
+      setNeedsAiKey(window.location.hostname.endsWith("github.io"));
       if (savedChecks) setPlanChecks(JSON.parse(savedChecks));
       if (savedNotes) setPlanNotes(JSON.parse(savedNotes));
       if (savedConfidence) setConfidence(JSON.parse(savedConfidence));
       if (savedMastery) setMasteredTopics(JSON.parse(savedMastery));
+      if (savedAiKey) setAiApiKey(savedAiKey);
       const current = new Date();
       const active = semesterWeeks.find((week) => current >= new Date(`${week.start}T00:00:00`) && current <= new Date(`${week.end}T23:59:59`));
       if (active) setSelectedWeek(active.week);
@@ -758,6 +777,12 @@ export default function Home() {
     if (!tutorQuestion || aiLoading) return;
     const content = (message ?? aiInput).trim();
     if (!content) return;
+    const staticHost = window.location.hostname.endsWith("github.io");
+    if (staticHost && !aiApiKey) {
+      setShowAiSetup(true);
+      setAiError("");
+      return;
+    }
     const userEntry: AiTutorMessage = { role: "user", content };
     const history = [...aiMessages, userEntry];
     setAiMessages(history);
@@ -767,30 +792,76 @@ export default function Home() {
 
     const answerIndexes = Array.isArray(tutorQuestion.answer) ? tutorQuestion.answer : [tutorQuestion.answer];
     const topicIndex = tutorQuestion.topicId ? Number(tutorQuestion.topicId.split("-").at(-1)) : -1;
+    const requestPayload = {
+      language: lang,
+      course: `${tutorCourseData.code} ${tutorCourseData.name}`,
+      topic: topicIndex >= 0 ? pick(tutorCourseData.topics[topicIndex]) : pick(tutorCourseData.focus),
+      question: pick(tutorQuestion.question),
+      options: tutorQuestion.options.map(pick),
+      correctAnswer: answerIndexes.map((index) => `${String.fromCharCode(65 + index)}. ${pick(tutorQuestion.options[index])}`).join("; "),
+      explanation: pick(tutorQuestion.explanation),
+      originalThought: tutorThought,
+      userMessage: content,
+      attempted: tutorAttempts > 0,
+      correct: tutorAttempts > 0 && tutorCorrect,
+      history: aiMessages.slice(-8),
+    };
     try {
-      const response = await fetch("/api/tutor", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          language: lang,
-          course: `${tutorCourseData.code} ${tutorCourseData.name}`,
-          topic: topicIndex >= 0 ? pick(tutorCourseData.topics[topicIndex]) : pick(tutorCourseData.focus),
-          question: pick(tutorQuestion.question),
-          options: tutorQuestion.options.map(pick),
-          correctAnswer: answerIndexes.map((index) => `${String.fromCharCode(65 + index)}. ${pick(tutorQuestion.options[index])}`).join("; "),
-          explanation: pick(tutorQuestion.explanation),
-          originalThought: tutorThought,
-          userMessage: content,
-          attempted: tutorAttempts > 0,
-          correct: tutorAttempts > 0 && tutorCorrect,
-          history: aiMessages.slice(-8),
-        }),
-      });
-      const payload = await response.json() as { reply?: string; error?: string };
-      if (!response.ok || !payload.reply) throw new Error(payload.error || "AI request failed");
-      setAiMessages((items) => [...items, { role: "assistant", content: payload.reply as string }]);
-    } catch {
-      setAiError(copy.aiError);
+      let reply = "";
+      if (!staticHost) {
+        const response = await fetch("/api/tutor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestPayload),
+        });
+        const payload = await response.json() as { reply?: string; error?: string };
+        if (response.ok && payload.reply) reply = payload.reply;
+      }
+      if (!reply && aiApiKey) {
+        const teachingState = requestPayload.attempted
+          ? requestPayload.correct
+            ? "The student has answered correctly. Explain deeply and test transfer."
+            : "The student has answered incorrectly. Diagnose the misconception and repair it step by step."
+          : "The student has not committed an answer. Do not reveal the final option; teach the definition and ask for one next step.";
+        const system = `You are a Socratic Deep Tutor for a first-year UTS engineering student. Teach in ${lang === "zh" ? "Simplified Chinese" : "English"}.
+Give formal definitions and plain-language intuition. Explain every symbol and every condition. Derive results step by step. For maths and physics, check units, signs, limiting cases and geometric or physical meaning. For C, trace values, types, control flow and memory. Do not give vague summaries. Use one confirming example and one common trap. End with exactly one short check question.
+${teachingState}`;
+        const context = `COURSE: ${requestPayload.course}
+TOPIC: ${requestPayload.topic}
+QUESTION: ${requestPayload.question}
+OPTIONS: ${requestPayload.options.map((option, index) => `${String.fromCharCode(65 + index)}. ${option}`).join("\n")}
+CORRECT ANSWER (teacher-only): ${requestPayload.correctAnswer}
+EXISTING EXPLANATION: ${requestPayload.explanation}
+STUDENT REASONING: ${requestPayload.originalThought || "Not provided."}`;
+        const response = await fetch("https://api.deepseek.com/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${aiApiKey}` },
+          body: JSON.stringify({
+            model: "deepseek-v4-pro",
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: context },
+              ...aiMessages.slice(-8),
+              { role: "user", content },
+            ],
+            thinking: { type: "enabled" },
+            reasoning_effort: "high",
+            max_tokens: 1800,
+            temperature: 0.25,
+            stream: false,
+          }),
+        });
+        const payload = await response.json() as { choices?: Array<{ message?: { content?: string } }>; error?: { message?: string } };
+        if (!response.ok) throw new Error(payload.error?.message || "DeepSeek request failed");
+        reply = payload.choices?.[0]?.message?.content?.trim() ?? "";
+      }
+      if (!reply) {
+        setShowAiSetup(true);
+        throw new Error("AI key required");
+      }
+      setAiMessages((items) => [...items, { role: "assistant", content: reply }]);
+    } catch (error) {
+      setAiError(error instanceof Error && error.message !== "AI key required" ? error.message : copy.aiError);
     } finally {
       setAiLoading(false);
     }
@@ -1501,6 +1572,42 @@ export default function Home() {
                   <span>AI</span>
                   <div><strong>{copy.aiTutor}</strong><p>{copy.aiTutorIntro}</p></div>
                 </div>
+                {(showAiSetup || (needsAiKey && !aiApiKey)) && (
+                  <div className="ai-key-setup">
+                    <strong>{copy.aiSetupTitle}</strong>
+                    <p>{copy.aiSetupIntro}</p>
+                    <input
+                      type="password"
+                      autoComplete="off"
+                      value={aiKeyInput}
+                      placeholder={copy.aiKeyPlaceholder}
+                      onChange={(event) => setAiKeyInput(event.target.value)}
+                    />
+                    <button
+                      disabled={aiKeyInput.trim().length < 12}
+                      onClick={() => {
+                        const key = aiKeyInput.trim();
+                        window.localStorage.setItem("four-course-deepseek-key", key);
+                        setAiApiKey(key);
+                        setAiKeyInput("");
+                        setShowAiSetup(false);
+                        setAiError("");
+                      }}
+                    >
+                      {copy.aiSaveKey}
+                    </button>
+                  </div>
+                )}
+                {aiApiKey && (
+                  <div className="ai-key-ready">
+                    <span>● {copy.aiReady}</span>
+                    <button onClick={() => {
+                      window.localStorage.removeItem("four-course-deepseek-key");
+                      setAiApiKey("");
+                      setShowAiSetup(needsAiKey);
+                    }}>{copy.aiRemoveKey}</button>
+                  </div>
+                )}
                 {aiMessages.length === 0 && (
                   <button className="ai-starter" disabled={aiLoading} onClick={() => askAiTutor(copy.aiStarter)}>
                     {copy.aiStarter}

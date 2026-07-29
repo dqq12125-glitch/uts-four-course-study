@@ -2691,6 +2691,75 @@ blockquote span {
   line-height: 1.45;
 }
 
+.ai-key-setup {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+  border-radius: 13px;
+  background: var(--soft);
+}
+
+.ai-key-setup > strong {
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.ai-key-setup > p {
+  margin: 0;
+  color: #505c55;
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.ai-key-setup input {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--line));
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font: 11px var(--font-geist-mono), monospace;
+}
+
+.ai-key-setup button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ai-key-setup button:disabled {
+  opacity: 0.45;
+}
+
+.ai-key-ready {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: #e6f6f0;
+  color: #147151;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.ai-key-ready button {
+  border: 0;
+  background: transparent;
+  color: #147151;
+  font-size: 8px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .ai-starter {
   padding: 12px;
   border: 1px dashed var(--accent);
