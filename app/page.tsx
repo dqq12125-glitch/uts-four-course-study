@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { MathPhysicsTools } from "./learning-tools";
 import { topicQuestionBank } from "./topic-questions";
 import type { QuestionVisual } from "./advanced-questions";
 import { assessments, semesterBreak, semesterWeeks, timetable } from "./semester-data";
@@ -340,6 +341,14 @@ const ui = {
     preparation: "课前预习",
     afterClass: "课后练习",
     weeklyOutcome: "本周产出",
+    planAll: "全部流程",
+    planPrepOnly: "只看预习",
+    planReviewOnly: "只看复习",
+    planProgress: "本周学习流程",
+    beforeWhen: "上课前 30 分钟",
+    afterWhen: "下课后 24 小时内",
+    recallWhen: "隔天闭卷检查",
+    startTen: "开始本知识点 10 题",
     notes: "本周笔记 / 疑问",
     notesPlaceholder: "记下课堂问题、易错点、老师反馈或下一步……",
     confidence: "掌握度",
@@ -447,6 +456,14 @@ const ui = {
     preparation: "Pre-class",
     afterClass: "Post-class practice",
     weeklyOutcome: "Weekly output",
+    planAll: "Full flow",
+    planPrepOnly: "Pre-class only",
+    planReviewOnly: "Review only",
+    planProgress: "Weekly learning flow",
+    beforeWhen: "30 min before class",
+    afterWhen: "Within 24 hours",
+    recallWhen: "Closed-book next day",
+    startTen: "Start this topic’s 10 questions",
     notes: "Notes / questions",
     notesPlaceholder: "Capture questions, mistakes, tutor feedback or your next step…",
     confidence: "Confidence",
@@ -524,6 +541,7 @@ export default function Home() {
   const [learningRound, setLearningRound] = useState(1);
   const [masteredTopics, setMasteredTopics] = useState<string[]>([]);
   const [selectedWeek, setSelectedWeek] = useState(1);
+  const [planFocus, setPlanFocus] = useState<"all" | "prepare" | "review">("all");
   const [planChecks, setPlanChecks] = useState<Record<string, boolean>>({});
   const [planNotes, setPlanNotes] = useState<Record<string, string>>({});
   const [confidence, setConfidence] = useState<Record<string, number>>({});
@@ -614,6 +632,12 @@ export default function Home() {
     .map((q) => q.id);
   const quizComplete = sessionIds.length > 0 && Object.keys(answers).length === sessionIds.length;
   const semesterWeek = semesterWeeks.find((week) => week.week === selectedWeek) ?? semesterWeeks[0];
+  const weeklyPlanKeys = semesterWeek.plans.flatMap((plan) => [
+    `w${selectedWeek}-${plan.courseId}-pre`,
+    `w${selectedWeek}-${plan.courseId}-post`,
+    `w${selectedWeek}-${plan.courseId}-output`,
+  ]);
+  const weeklyPlanDone = weeklyPlanKeys.filter((key) => planChecks[key]).length;
   const now = new Date();
   const todayClasses = timetable
     .filter((item) => item.day === now.getDay() && (!item.startsWeek || selectedWeek >= item.startsWeek))
@@ -1034,8 +1058,22 @@ export default function Home() {
           <section className="weekly-plan">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">PREP → CLASS → PRACTICE</p>
+                <p className="eyebrow">PREP → CLASS → REVIEW → RETRIEVAL</p>
                 <h2>W{selectedWeek} · {semesterWeek.range[lang]}</h2>
+              </div>
+            </div>
+            <div className="plan-control-panel">
+              <div className="plan-progress-copy">
+                <span>{copy.planProgress}</span>
+                <strong>{weeklyPlanDone} / {weeklyPlanKeys.length}</strong>
+              </div>
+              <div className="plan-progress-track" aria-label={`${weeklyPlanDone} / ${weeklyPlanKeys.length}`}>
+                <span style={{ width: `${(weeklyPlanDone / weeklyPlanKeys.length) * 100}%` }} />
+              </div>
+              <div className="plan-focus-tabs">
+                <button className={planFocus === "all" ? "active" : ""} onClick={() => setPlanFocus("all")}>{copy.planAll}</button>
+                <button className={planFocus === "prepare" ? "active" : ""} onClick={() => setPlanFocus("prepare")}>{copy.planPrepOnly}</button>
+                <button className={planFocus === "review" ? "active" : ""} onClick={() => setPlanFocus("review")}>{copy.planReviewOnly}</button>
               </div>
             </div>
             <div className="weekly-course-list">
@@ -1045,6 +1083,8 @@ export default function Home() {
                 const postKey = `w${selectedWeek}-${plan.courseId}-post`;
                 const outputKey = `w${selectedWeek}-${plan.courseId}-output`;
                 const noteKey = `w${selectedWeek}-${plan.courseId}`;
+                const topicIndex = Math.min(selectedWeek - 1, course.topics.length - 1);
+                const topicId = `${course.id}-${topicIndex}`;
                 return (
                   <article key={plan.courseId} className="weekly-course-card" style={{ "--accent": course.accent, "--soft": course.soft } as React.CSSProperties}>
                     <header>
@@ -1054,18 +1094,47 @@ export default function Home() {
                         <h3>{plan.topic[lang]}</h3>
                       </div>
                     </header>
-                    <label className={planChecks[preKey] ? "plan-task checked" : "plan-task"}>
-                      <input type="checkbox" checked={Boolean(planChecks[preKey])} onChange={() => setPlanChecks((items) => ({ ...items, [preKey]: !items[preKey] }))} />
-                      <span><strong>{copy.preparation}</strong>{plan.prepare[lang]}</span>
-                    </label>
-                    <label className={planChecks[postKey] ? "plan-task checked" : "plan-task"}>
-                      <input type="checkbox" checked={Boolean(planChecks[postKey])} onChange={() => setPlanChecks((items) => ({ ...items, [postKey]: !items[postKey] }))} />
-                      <span><strong>{copy.afterClass}</strong>{plan.after[lang]}</span>
-                    </label>
-                    <label className={planChecks[outputKey] ? "plan-task checked" : "plan-task"}>
-                      <input type="checkbox" checked={Boolean(planChecks[outputKey])} onChange={() => setPlanChecks((items) => ({ ...items, [outputKey]: !items[outputKey] }))} />
-                      <span><strong>{copy.weeklyOutcome}</strong>{plan.outcome[lang]}</span>
-                    </label>
+                    <div className="learning-flow">
+                      {(planFocus === "all" || planFocus === "prepare") && (
+                        <label className={planChecks[preKey] ? "flow-step prepare checked" : "flow-step prepare"}>
+                          <input type="checkbox" checked={Boolean(planChecks[preKey])} onChange={() => setPlanChecks((items) => ({ ...items, [preKey]: !items[preKey] }))} />
+                          <b>1</b>
+                          <span>
+                            <em>{copy.beforeWhen}</em>
+                            <strong>{copy.preparation}</strong>
+                            <p>{plan.prepare[lang]}</p>
+                          </span>
+                        </label>
+                      )}
+                      {(planFocus === "all" || planFocus === "review") && (
+                        <>
+                          <label className={planChecks[postKey] ? "flow-step review checked" : "flow-step review"}>
+                            <input type="checkbox" checked={Boolean(planChecks[postKey])} onChange={() => setPlanChecks((items) => ({ ...items, [postKey]: !items[postKey] }))} />
+                            <b>2</b>
+                            <span>
+                              <em>{copy.afterWhen}</em>
+                              <strong>{copy.afterClass}</strong>
+                              <p>{plan.after[lang]}</p>
+                            </span>
+                          </label>
+                          <label className={planChecks[outputKey] ? "flow-step retrieval checked" : "flow-step retrieval"}>
+                            <input type="checkbox" checked={Boolean(planChecks[outputKey])} onChange={() => setPlanChecks((items) => ({ ...items, [outputKey]: !items[outputKey] }))} />
+                            <b>3</b>
+                            <span>
+                              <em>{copy.recallWhen}</em>
+                              <strong>{copy.weeklyOutcome}</strong>
+                              <p>{plan.outcome[lang]}</p>
+                            </span>
+                          </label>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      className="weekly-practice-button"
+                      onClick={() => { startQuiz(course.id, undefined, topicId); setView("quiz"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    >
+                      <span>10</span>{copy.startTen}<b>→</b>
+                    </button>
                     <div className="confidence-row">
                       <span>{copy.confidence}</span>
                       {[copy.low, copy.medium, copy.high].map((label, index) => (
@@ -1261,6 +1330,9 @@ export default function Home() {
               <p className="tutor-rule">{copy.tutorRule}</p>
               <h3>{pick(tutorQuestion.question)}</h3>
               {renderTutorVisual(tutorQuestion.visual)}
+              {(tutorQuestion.courseId === "math" || tutorQuestion.courseId === "physics") && (
+                <MathPhysicsTools courseId={tutorQuestion.courseId} topicId={tutorQuestion.topicId} lang={lang} />
+              )}
 
               {tutorStage === "think" && (
                 <div className="tutor-step">
@@ -1479,6 +1551,9 @@ export default function Home() {
                     </figure>
                   );
                 })()}
+                {(currentQuestion.courseId === "math" || currentQuestion.courseId === "physics") && (
+                  <MathPhysicsTools courseId={currentQuestion.courseId} topicId={currentQuestion.topicId} lang={lang} />
+                )}
                 {isMultiple && answeredCurrent === undefined && <p className="multiple-hint">{copy.chooseMultiple}</p>}
                 <div className="options">
                   {currentQuestion.options.map((option, index) => {
