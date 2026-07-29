@@ -26,12 +26,13 @@ test("server-renders the four-course learning app", async () => {
 });
 
 test("includes the bilingual Socratic mastery workflow and server-side AI tutor", async () => {
-  const [page, css, layout, tutorRoute, learningTools] = await Promise.all([
+  const [page, css, layout, tutorRoute, learningTools, deepLessons] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/tutor/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/learning-tools.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/deep-lessons.ts", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /苏格拉底深度导师/);
@@ -56,4 +57,9 @@ test("includes the bilingual Socratic mastery workflow and server-side AI tutor"
   assert.match(learningTools, /drawMath/);
   assert.match(learningTools, /drawPhysics/);
   assert.match(css, /\.learning-flow/);
+  assert.match(page, /完整章节/);
+  assert.match(page, /selectedCourseTopic/);
+  assert.equal((deepLessons.match(/^\s+"(?:math|eee|c|physics)-\d+":/gm) ?? []).length, 29);
+  assert.match(deepLessons, /投影系数为 6\/4=1\.5/);
+  assert.match(css, /\.worked-example/);
 });

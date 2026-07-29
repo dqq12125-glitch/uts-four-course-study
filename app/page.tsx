@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { deepLessons } from "./deep-lessons";
 import { MathPhysicsTools } from "./learning-tools";
 import { topicQuestionBank } from "./topic-questions";
 import type { QuestionVisual } from "./advanced-questions";
@@ -529,6 +530,7 @@ export default function Home() {
   const [lang, setLang] = useState<Lang>("zh");
   const [view, setView] = useState<View>("today");
   const [selectedId, setSelectedId] = useState("math");
+  const [selectedCourseTopic, setSelectedCourseTopic] = useState(0);
   const [completed, setCompleted] = useState<string[]>([]);
   const [seconds, setSeconds] = useState(25 * 60);
   const [running, setRunning] = useState(false);
@@ -616,6 +618,8 @@ export default function Home() {
   }, [running, seconds]);
 
   const selected = courses.find((course) => course.id === selectedId) ?? courses[0];
+  const selectedTopicId = `${selected.id}-${selectedCourseTopic}`;
+  const selectedDeepLesson = deepLessons[selectedTopicId] ?? deepLessons["math-0"];
   const nextCourse = useMemo(
     () => courses.find((course) => !completed.includes(course.id)) ?? courses[0],
     [completed],
@@ -668,6 +672,7 @@ export default function Home() {
 
   function chooseCourse(id: string) {
     setSelectedId(id);
+    setSelectedCourseTopic(0);
     setView("courses");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -1222,7 +1227,7 @@ export default function Home() {
                 aria-selected={selected.id === course.id}
                 className={selected.id === course.id ? "active" : ""}
                 style={{ "--accent": course.accent } as React.CSSProperties}
-                onClick={() => setSelectedId(course.id)}
+                onClick={() => { setSelectedId(course.id); setSelectedCourseTopic(0); }}
               >
                 {course.code}
               </button>
@@ -1237,20 +1242,117 @@ export default function Home() {
                 <small>{selected.name}</small>
               </div>
             </div>
-            <div className="topic-strip">
+            <div className="topic-strip" role="tablist" aria-label={lang === "zh" ? "课程知识点" : "Course topics"}>
               {selected.topics.map((topic, index) => (
-                <span key={topic.en} className={index === 0 ? "current-topic" : ""}>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedCourseTopic === index}
+                  key={topic.en}
+                  className={selectedCourseTopic === index ? "current-topic" : ""}
+                  onClick={() => setSelectedCourseTopic(index)}
+                >
                   {index + 1}. {pick(topic)}
-                </span>
+                </button>
               ))}
             </div>
-            <div className="lesson-card">
-              <p className="eyebrow">{copy.micro}</p>
-              <h3>{pick(selected.lesson.title)}</h3>
-              <p>{pick(selected.lesson.intro)}</p>
-              <ul>{selected.lesson.points.map((point) => <li key={point.en}>{pick(point)}</li>)}</ul>
-              <pre>{selected.lesson.formula}</pre>
-              <div className="example-box"><strong>{copy.think}</strong><p>{pick(selected.lesson.example)}</p></div>
+            <div className="deep-lesson">
+              <header className="deep-lesson-head">
+                <div>
+                  <p className="eyebrow">{lang === "zh" ? `完整章节 · 约 ${selectedDeepLesson.duration} 分钟` : `FULL CHAPTER · ABOUT ${selectedDeepLesson.duration} MIN`}</p>
+                  <h3>{pick(selected.topics[selectedCourseTopic])}</h3>
+                  <p>{lang === "zh" ? "不是只背结论：按定义 → 直觉 → 条件 → 例题 → 自测完整学一遍。" : "Learn the full chain: definition → intuition → conditions → worked example → self-check."}</p>
+                </div>
+                <span>{selectedCourseTopic + 1}/{selected.topics.length}</span>
+              </header>
+
+              <div className="lesson-route" aria-label={lang === "zh" ? "学习顺序" : "Learning sequence"}>
+                {[lang === "zh" ? "定义" : "Define", lang === "zh" ? "理解" : "Understand", lang === "zh" ? "会用" : "Apply", lang === "zh" ? "检验" : "Check"].map((item, index) => (
+                  <span key={item}><b>{index + 1}</b>{item}</span>
+                ))}
+              </div>
+
+              <section className="lesson-section definition-section">
+                <span className="lesson-section-number">01</span>
+                <div>
+                  <p className="eyebrow">{lang === "zh" ? "先把定义说清楚" : "START WITH THE DEFINITION"}</p>
+                  <h4>{lang === "zh" ? "它到底是什么？" : "What is it, exactly?"}</h4>
+                  <p>{selectedDeepLesson.definition[lang]}</p>
+                </div>
+              </section>
+
+              <section className="lesson-section intuition-section">
+                <span className="lesson-section-number">02</span>
+                <div>
+                  <p className="eyebrow">{lang === "zh" ? "建立直觉" : "BUILD INTUITION"}</p>
+                  <h4>{lang === "zh" ? "为什么要这样理解？" : "Why should it make sense?"}</h4>
+                  <p>{selectedDeepLesson.intuition[lang]}</p>
+                </div>
+              </section>
+
+              <section className="lesson-section">
+                <span className="lesson-section-number">03</span>
+                <div>
+                  <p className="eyebrow">{lang === "zh" ? "逐个术语拆开" : "UNPACK THE TERMS"}</p>
+                  <h4>{lang === "zh" ? "每个词和符号是什么意思？" : "What does each term mean?"}</h4>
+                  <div className="term-list">
+                    {selectedDeepLesson.terms.map((term) => (
+                      <article key={term.term}><strong>{term.term}</strong><p>{term.meaning[lang]}</p></article>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="lesson-section">
+                <span className="lesson-section-number">04</span>
+                <div>
+                  <p className="eyebrow">{lang === "zh" ? "公式与适用条件" : "FORMULAS AND CONDITIONS"}</p>
+                  <h4>{lang === "zh" ? "什么时候能用，什么时候不能用？" : "When can each formula be used?"}</h4>
+                  <div className="formula-list">
+                    {selectedDeepLesson.formulas.map((formula) => (
+                      <article key={formula.expression}><code>{formula.expression}</code><p>{formula.condition[lang]}</p></article>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {(selected.id === "math" || selected.id === "physics") && (
+                <MathPhysicsTools courseId={selected.id} topicId={selectedTopicId} lang={lang} />
+              )}
+
+              <section className="worked-example">
+                <div className="worked-example-title">
+                  <span>{lang === "zh" ? "完整例题" : "WORKED EXAMPLE"}</span>
+                  <strong>{selectedDeepLesson.example.prompt[lang]}</strong>
+                </div>
+                <ol>
+                  {selectedDeepLesson.example.steps.map((step, index) => (
+                    <li key={step.en}><b>{lang === "zh" ? `第 ${index + 1} 步` : `Step ${index + 1}`}</b><p>{step[lang]}</p></li>
+                  ))}
+                </ol>
+                <div className="worked-answer"><span>{lang === "zh" ? "答案与解释" : "Answer and interpretation"}</span><strong>{selectedDeepLesson.example.answer[lang]}</strong></div>
+              </section>
+
+              <section className="lesson-traps">
+                <p className="eyebrow">{lang === "zh" ? "常见错误" : "COMMON TRAPS"}</p>
+                <h4>{lang === "zh" ? "为什么“看懂了”仍然会做错？" : "Why can recognition still fail?"}</h4>
+                {selectedDeepLesson.traps.map((trap, index) => <p key={trap.en}><b>{index + 1}</b>{trap[lang]}</p>)}
+              </section>
+
+              <details className="lesson-checkpoint">
+                <summary>{lang === "zh" ? "理解检查：先自己回答，再展开" : "Checkpoint: answer before opening"}</summary>
+                <strong>{selectedDeepLesson.checkpoint.question[lang]}</strong>
+                <p>{selectedDeepLesson.checkpoint.answer[lang]}</p>
+              </details>
+
+              <div className="deep-lesson-actions">
+                <button onClick={() => { setTutorCourse(selected.id); setTutorTopic(selectedTopicId); resetTutorQuestion(); setView("tutor"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                  {lang === "zh" ? "让 AI 导师继续讲" : "Continue with AI tutor"}
+                </button>
+                <button className="secondary" onClick={() => { startQuiz(selected.id, undefined, selectedTopicId); setView("quiz"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                  {lang === "zh" ? "开始本知识点 10 题" : "Start this topic’s 10 questions"}
+                </button>
+              </div>
             </div>
             <div className="action-row">
               <button
