@@ -98,7 +98,7 @@ STUDENT'S ORIGINAL REASONING: ${clean(body.originalThought) || "Not provided yet
         ],
         thinking: { type: "enabled" },
         reasoning_effort: "high",
-        max_tokens: 1400,
+        max_tokens: 2200,
         temperature: 0.25,
         stream: false,
       }),
