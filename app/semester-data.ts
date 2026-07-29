@@ -3,7 +3,7 @@ export type SemesterBi = { zh: string; en: string };
 const bi = (zh: string, en: string): SemesterBi => ({ zh, en });
 
 export type TimetableItem = {
-  courseId: "math" | "iep" | "c" | "physics";
+  courseId: "math" | "eee" | "c" | "physics";
   activity: SemesterBi;
   day: number;
   dayLabel: SemesterBi;
@@ -60,8 +60,16 @@ export const timetable: TimetableItem[] = [
     venue: { kind: "physical", building: bi("6号楼 · Peter Johnson Building", "Building 6 · Peter Johnson Building"), level: bi("3层", "Level 3"), room: bi("028室 · Guthrie Theatre", "Room 028 · Guthrie Theatre"), address: "702 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+6+702+Harris+Street+Ultimo+NSW+2007" },
   },
   {
-    courseId: "iep", activity: bi("辅导课 Tut1", "Tutorial Tut1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "11:00", end: "14:00", location: "CB06.06.103",
-    venue: { kind: "physical", building: bi("6号楼 · Peter Johnson Building", "Building 6 · Peter Johnson Building"), level: bi("6层", "Level 6"), room: bi("103室", "Room 103"), address: "702 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+6+702+Harris+Street+Ultimo+NSW+2007" },
+    courseId: "eee", activity: bi("辅导课 Tut1 02", "Tutorial Tut1 02"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "08:30", end: "10:30", location: "CB10.02.470",
+    venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("2层", "Level 2"), room: bi("470室", "Room 470"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
+  },
+  {
+    courseId: "eee", activity: bi("实验课 Lab1 01", "Laboratory Lab1 01"), day: 5, dayLabel: bi("周五", "Friday"), start: "15:00", end: "18:00", location: "CB11.11.402",
+    venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("11层", "Level 11"), room: bi("402室", "Room 402"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
+  },
+  {
+    courseId: "eee", activity: bi("预录讲座 Rec1", "Prerecorded lecture Rec1"), day: 0, dayLabel: bi("周日", "Sunday"), start: "06:00", end: "07:00", location: "PRERECORDED.ACTIVITY026",
+    venue: { kind: "online", building: bi("Canvas 预录内容", "Canvas prerecorded content"), room: bi("按周观看，不需到校", "Watch weekly; no campus room"), zoomUrl: "https://canvas.uts.edu.au/courses/41070/modules" },
   },
   {
     courseId: "c", activity: bi("在线课 Olr1", "Online Olr1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "15:00", end: "17:00", location: "ONLINE060",
@@ -76,8 +84,8 @@ export const timetable: TimetableItem[] = [
     venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("地下1层", "Basement 1"), room: bi("100室", "Room 100"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
   },
   {
-    courseId: "math", activity: bi("辅导课 Tut1", "Tutorial Tut1"), day: 5, dayLabel: bi("周五", "Friday"), start: "15:00", end: "17:00", location: "CB10.03.470", startsWeek: 2,
-    venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("3层", "Level 3"), room: bi("470室", "Room 470"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
+    courseId: "math", activity: bi("辅导课 Tut1 18", "Tutorial Tut1 18"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "18:00", end: "20:00", location: "CB10.03.460", startsWeek: 2,
+    venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("3层", "Level 3"), room: bi("460室", "Room 460"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
   },
 ];
 
@@ -126,19 +134,19 @@ const physicsTopics = [
   bi("流体力学、直流电路实验", "Fluid mechanics and DC-circuit experiment"),
 ];
 
-const iepTopics = [
-  bi("工程、设计、团队与 Country", "Engineering, design, teamwork and Country"),
-  bi("EWB 情境、利益相关者与问题定义", "EWB context, stakeholders and problem framing"),
-  bi("思维导图展示与研究范围", "Mindmap presentation and research scope"),
-  bi("桌面研究：证据、APA 7 与论证", "Desktop study: evidence, APA 7 and argument"),
-  bi("桌面研究收尾与团队贡献记录", "Desktop-study completion and contribution records"),
-  bi("设计标准、创意生成与方案筛选", "Design criteria, ideation and concept selection"),
-  bi("设计评审展示与同伴反馈", "Design review presentation and peer feedback"),
-  bi("原型、测试和迭代", "Prototyping, testing and iteration"),
-  bi("设计提案：证据、风险与可行性", "Design proposal: evidence, risk and feasibility"),
-  bi("设计提案展示", "Design proposal presentation"),
-  bi("网站、过程文档与版本证据", "Website, process documentation and version evidence"),
-  bi("最终交付、反思与同伴评价", "Final delivery, reflection and peer assessment"),
+const eeeTopics = [
+  bi("电荷、电流、电压、电阻、欧姆定律与功率", "Charge, current, voltage, resistance, Ohm's law and power"),
+  bi("串并联、电流定律 KCL 与电压定律 KVL", "Series/parallel circuits, KCL and KVL"),
+  bi("网孔电流法与节点电压法", "Mesh-current and node-voltage analysis"),
+  bi("叠加原理、源变换、戴维南与诺顿等效", "Superposition, source transformations, Thevenin and Norton equivalents"),
+  bi("电容、电容连接与储能", "Capacitors, equivalent capacitance and stored energy"),
+  bi("电感、电感连接与储能", "Inductors, equivalent inductance and stored energy"),
+  bi("电容和电感的一阶瞬态响应", "First-order transients of capacitors and inductors"),
+  bi("二极管与整流电路", "Diodes and rectifier circuits"),
+  bi("交流正弦波、RMS 与相位", "AC sinusoids, RMS and phase"),
+  bi("相量、复阻抗与交流功率", "Phasors, complex impedance and AC power"),
+  bi("交流电路综合分析", "Integrated AC circuit analysis"),
+  bi("期末复习：DC、瞬态、二极管与 AC", "Final review: DC, transients, diodes and AC"),
 ];
 
 const weekRanges = [
@@ -176,13 +184,13 @@ const makePlan = (
   topic: SemesterBi,
   week: number,
 ): WeeklyCoursePlan => {
-  if (courseId === "iep") {
+  if (courseId === "eee") {
     return {
       courseId,
       topic,
-      prepare: bi("完成 Canvas 本周 preparation；带着 2 条证据和 1 个问题进课堂。", "Complete the Canvas preparation; bring two pieces of evidence and one question."),
-      after: bi("当天更新过程文档、会议决定和个人贡献记录；补齐 APA 7 引用。", "Update process documentation, decisions and your contribution log that day; fix APA 7 references."),
-      outcome: bi("产出一个可交付证据：研究卡、决策矩阵、原型记录或展示页。", "Produce one assessable artefact: a research card, decision matrix, prototype record or slide."),
+      prepare: bi("先看本周 Canvas 讲座并整理公式、方向约定和单位；实验前读完 lab instruction。", "Watch the Canvas lecture first and organise formulas, reference directions and units; read the lab instructions before class."),
+      after: bi("重画课堂电路并独立重算；完成 10 题，逐项检查 KCL/KVL、极性、单位和功率守恒。", "Redraw and independently re-solve the class circuits; do 10 questions and check KCL/KVL, polarity, units and power balance."),
+      outcome: bi(week >= 8 ? "能从波形或电路图选择相量、阻抗或二极管模型并完整求解。" : "能从电路图写出方程、计算结果并用物理意义核对。", week >= 8 ? "Choose an appropriate phasor, impedance or diode model from a waveform/circuit and solve it fully." : "Translate a circuit into equations, calculate it and verify the result physically."),
     };
   }
   if (courseId === "c") {
@@ -221,7 +229,7 @@ export const semesterWeeks: SemesterWeek[] = weekRanges.map(([range, start, end]
     end,
     plans: [
       makePlan("math", mathTopics[index], week),
-      makePlan("iep", iepTopics[index], week),
+      makePlan("eee", eeeTopics[index], week),
       makePlan("c", cTopics[index], week),
       makePlan("physics", physicsTopics[index], week),
     ],
@@ -229,32 +237,29 @@ export const semesterWeeks: SemesterWeek[] = weekRanges.map(([range, start, end]
 });
 
 export const assessments: Assessment[] = [
-  { id: "iep-opela", courseId: "iep", title: bi("OPELA", "OPELA"), date: "2026-07-31T23:59:00+10:00", displayDate: bi("7月31日 23:59", "31 Jul, 23:59"), weight: "0%", note: bi("入门必做任务", "Required setup task"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
   { id: "math-s1", courseId: "math", title: bi("技能测试 1（在线）", "Skills Test 1 (online)"), date: "2026-08-02T23:59:00+10:00", displayDate: bi("8月2日 23:59", "2 Aug, 23:59"), weight: "10%", note: bi("假定知识；Canvas 在线完成", "Assumed knowledge; complete in Canvas"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
-  { id: "iep-team", courseId: "iep", title: bi("完成团队协作设置", "Set up for teamwork"), date: "2026-08-03T23:59:00+10:00", displayDate: bi("8月3日 23:59", "3 Aug, 23:59"), weight: "0%", note: bi("小组与版本工具设置", "Group and version-tool setup"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
-  { id: "iep-doc2", courseId: "iep", title: bi("过程文档 Week 2", "Process documentation Week 2"), date: "2026-08-07T23:59:00+10:00", displayDate: bi("8月7日 23:59", "7 Aug, 23:59"), weight: "Task E", note: bi("持续积累过程证据", "Build process evidence continuously"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments", milestone: true },
-  { id: "iep-a", courseId: "iep", title: bi("Task A：思维导图展示", "Task A: Mindmap presentation"), date: "2026-08-10T23:59:00+10:00", displayDate: bi("8月10日 23:59", "10 Aug, 23:59"), weight: "5%", note: bi("小组提交，个人评分；第3周展示", "Group submission, individually assessed; Week 3 presentation"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
+  { id: "eee-practice", courseId: "eee", title: bi("每周 Tutorial Practice", "Weekly Tutorial Practice"), displayDate: bi("每周辅导课（第7次除外）", "Each tutorial except Tutorial 7"), weight: "15%", note: bi("课堂完成；用于持续检查电路分析步骤", "Completed in class; continuous checks of circuit-analysis method"), canvas: "https://canvas.uts.edu.au/courses/41070/assignments", milestone: true },
   { id: "c-q1", courseId: "c", title: bi("Quiz 01（两部分）", "Quiz 01 (two parts)"), date: "2026-08-16T23:59:00+10:00", displayDate: bi("8月16日 23:59", "16 Aug, 23:59"), weight: "20%组内", note: bi("Quiz 1–5 合计占 20%", "Quizzes 1–5 total 20%"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
   { id: "math-s2", courseId: "math", title: bi("技能测试 2（辅导课）", "Skills Test 2 (tutorial)"), date: "2026-08-21T15:00:00+10:00", displayDate: bi("8月21日 15:00", "21 Aug, 15:00"), weight: "10%", note: bi("向量、点积、叉积和平面", "Vectors, dot/cross products and planes"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
   { id: "c-q2", courseId: "c", title: bi("Quiz 02（两部分）", "Quiz 02 (two parts)"), date: "2026-08-23T23:59:00+10:00", displayDate: bi("8月23日 23:59", "23 Aug, 23:59"), weight: "20%组内", note: bi("控制结构与循环", "Control and loop statements"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
-  { id: "iep-b", courseId: "iep", title: bi("Task B：桌面研究", "Task B: Desktop study"), date: "2026-08-28T23:59:00+10:00", displayDate: bi("8月28日 23:59", "28 Aug, 23:59"), weight: "20%", note: bi("个人任务；APA 7", "Individual task; APA 7"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
   { id: "c-q3", courseId: "c", title: bi("Quiz 03（两部分）", "Quiz 03 (two parts)"), date: "2026-08-30T23:59:00+10:00", displayDate: bi("8月30日 23:59", "30 Aug, 23:59"), weight: "20%组内", note: bi("数组与字符串", "Arrays and strings"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
   { id: "math-s3", courseId: "math", title: bi("技能测试 3（辅导课）", "Skills Test 3 (tutorial)"), date: "2026-09-04T15:00:00+10:00", displayDate: bi("9月4日 15:00", "4 Sep, 15:00"), weight: "10%", note: bi("矩阵、微分、双曲函数与牛顿法", "Matrices, differentiation, hyperbolic functions and Newton’s method"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
   { id: "c-q4", courseId: "c", title: bi("Quiz 04（两部分）", "Quiz 04 (two parts)"), date: "2026-09-06T23:59:00+10:00", displayDate: bi("9月6日 23:59", "6 Sep, 23:59"), weight: "20%组内", note: bi("结构体与文件", "Structures and files"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
-  { id: "iep-c", courseId: "iep", title: bi("Task C：设计评审展示", "Task C: Design review presentation"), date: "2026-09-07T23:59:00+10:00", displayDate: bi("9月7日 23:59", "7 Sep, 23:59"), weight: "15%", note: bi("小组提交，个人评分；第7周课堂展示", "Group submission, individually assessed; Week 7 presentation"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
+  { id: "eee-lab1", courseId: "eee", title: bi("实验测试 1", "Lab Test 1"), date: "2026-09-11T15:00:00+10:00", displayDate: bi("第7周实验课 · 9月11日", "Week 7 laboratory · 11 Sep"), weight: "15%（实验测试合计30%）", note: bi("课堂完成；覆盖前半学期实验技能", "Completed in class; first-half laboratory skills"), canvas: "https://canvas.uts.edu.au/courses/41070/assignments" },
+  { id: "eee-mid", courseId: "eee", title: bi("期中测验", "Mid-term Quiz"), date: "2026-09-15T08:30:00+10:00", displayDate: bi("第8周辅导课 · 9月15日", "Week 8 tutorial · 15 Sep"), weight: "15%", note: bi("Tutorial 7 课堂测验；重点复习 DC 电路、KCL/KVL、等效电路与暂态基础", "In Tutorial 7; revise DC circuits, KCL/KVL, equivalents and transient foundations"), canvas: "https://canvas.uts.edu.au/courses/41070/assignments" },
   { id: "physics-t1", courseId: "physics", title: bi("课堂测试 1", "In-Class Test 1"), date: "2026-09-07T17:00:00+10:00", displayDate: bi("9月7日 17:00", "7 Sep, 17:00"), weight: "25%", note: bi("实践课内；覆盖第1–5周", "In practical class; covers Weeks 1–5"), canvas: "https://canvas.uts.edu.au/courses/41382/assignments" },
   { id: "c-q5", courseId: "c", title: bi("Quiz 05（两部分）", "Quiz 05 (two parts)"), date: "2026-09-13T23:59:00+10:00", displayDate: bi("9月13日 23:59", "13 Sep, 23:59"), weight: "20%组内", note: bi("指针与动态内存", "Pointers and dynamic memory"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
   { id: "math-s4", courseId: "math", title: bi("技能测试 4（辅导课）", "Skills Test 4 (tutorial)"), date: "2026-09-18T15:00:00+10:00", displayDate: bi("9月18日 15:00", "18 Sep, 15:00"), weight: "10%", note: bi("隐函数、隐式微分、积分概念与黎曼和", "Implicit functions/differentiation, integration concepts and Riemann sums"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
   { id: "c-a2", courseId: "c", title: bi("Assessment 2：个人编程作业", "Assessment 2: Programming assignment"), date: "2026-09-20T23:59:00+10:00", displayDate: bi("9月20日 23:59", "20 Sep, 23:59"), weight: "20%", note: bi("功能 15 分 + 代码风格 5 分", "Functionality 15 pts + coding style 5 pts"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
   { id: "math-s5", courseId: "math", title: bi("技能测试 5（辅导课）", "Skills Test 5 (tutorial)"), date: "2026-10-02T15:00:00+10:00", displayDate: bi("10月2日 15:00", "2 Oct, 15:00"), weight: "10%", note: bi("积分方法", "Methods of integration"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
   { id: "c-check", courseId: "c", title: bi("小组项目 Checkpoint 1", "Group project Checkpoint 1"), date: "2026-10-04T23:59:00+11:00", displayDate: bi("10月4日 23:59", "4 Oct, 23:59"), weight: "里程碑", note: bi("预览上传，不计分但必须按时检查", "Preview upload; ungraded but important"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments", milestone: true },
-  { id: "iep-d", courseId: "iep", title: bi("Task D：设计提案展示", "Task D: Design proposal presentation"), date: "2026-10-05T23:59:00+11:00", displayDate: bi("10月5日 23:59", "5 Oct, 23:59"), weight: "30%", note: bi("小组提交，个人评分；第10周展示", "Group submission, individually assessed; Week 10 presentation"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
   { id: "physics-t2", courseId: "physics", title: bi("课堂测试 2", "In-Class Test 2"), date: "2026-10-12T17:00:00+11:00", displayDate: bi("10月12日 17:00", "12 Oct, 17:00"), weight: "25%", note: bi("实践课内；覆盖第6–9周", "In practical class; covers Weeks 6–9"), canvas: "https://canvas.uts.edu.au/courses/41382/assignments" },
-  { id: "iep-e", courseId: "iep", title: bi("Task E：网站 + 过程文档", "Task E: Website + process documentation"), date: "2026-10-23T23:59:00+11:00", displayDate: bi("10月23日 23:59", "23 Oct, 23:59"), weight: "30%", note: bi("网站 15% + 过程文档 15%；另完成 SPARK", "Website 15% + documentation 15%; complete SPARK too"), canvas: "https://canvas.uts.edu.au/courses/39889/assignments" },
+  { id: "eee-lab2", courseId: "eee", title: bi("实验测试 2", "Lab Test 2"), date: "2026-10-23T15:00:00+11:00", displayDate: bi("第12周实验课 · 10月23日", "Week 12 laboratory · 23 Oct"), weight: "15%（实验测试合计30%）", note: bi("课堂完成；覆盖二极管、交流与实验分析", "Completed in class; diodes, AC and laboratory analysis"), canvas: "https://canvas.uts.edu.au/courses/41070/assignments" },
   { id: "math-final", courseId: "math", title: bi("期末考试（辅导课）", "Final exam (tutorial)"), date: "2026-10-23T15:00:00+11:00", displayDate: bi("10月23日 15:00", "23 Oct, 15:00"), weight: "40%", note: bi("90 分钟闭卷；可带一张双面手写 A4", "90-minute closed book; one double-sided handwritten A4 sheet"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
   { id: "math-s6", courseId: "math", title: bi("技能测试 6（在线）", "Skills Test 6 (online)"), date: "2026-10-30T23:59:00+11:00", displayDate: bi("10月30日 23:59", "30 Oct, 23:59"), weight: "10%", note: bi("10月26日 09:00 开放", "Opens 26 Oct at 09:00"), canvas: "https://canvas.uts.edu.au/courses/40822/assignments" },
   { id: "c-group", courseId: "c", title: bi("Assessment 3：小组项目", "Assessment 3: Group project"), date: "2026-11-01T23:59:00+11:00", displayDate: bi("11月1日 23:59", "1 Nov, 23:59"), weight: "30%", note: bi("报告与 C 源代码", "Report and C source code"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
   { id: "c-exam", courseId: "c", title: bi("Assessment 4：期末在线考试", "Assessment 4: Final online exam"), displayDate: bi("日期待 Canvas/考试安排公布", "Date pending Canvas/exam timetable"), weight: "30%", note: bi("每周累计复习，不等日期公布再开始", "Revise cumulatively; do not wait for the date"), canvas: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "eee-final", courseId: "eee", title: bi("期末考试", "Final Exam"), displayDate: bi("日期待 UTS 考试安排公布", "Date pending UTS exam timetable"), weight: "40%", note: bi("综合 DC 电路、暂态、二极管、相量与交流电路", "Comprehensive DC circuits, transients, diodes, phasors and AC circuits"), canvas: "https://canvas.uts.edu.au/courses/41070/assignments" },
 ];
 
 export const semesterBreak = bi("9月21–27日：期中休息周，无固定课", "21–27 Sep: mid-semester break, no scheduled classes");

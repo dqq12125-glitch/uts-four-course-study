@@ -65,48 +65,36 @@ export const advancedQuestionBank: AdvancedQuestion[] = [
     ),
   },
   {
-    id: "iep-0-9", courseId: "iep", topicId: "iep-0", kind: "calculation",
-    question: b("团队用加权决策矩阵比较方案。总分=0.5×安全+0.3×成本+0.2×可维护性。哪个方案得分最高？", "A team uses a weighted decision matrix: total=0.5×safety+0.3×cost+0.2×maintainability. Which concept scores highest?"),
-    options: [b("方案 A", "Concept A"), b("方案 B", "Concept B"), b("方案 C", "Concept C"), b("A 与 B 并列", "A and B tie")],
-    answer: 1,
-    visual: { kind: "table", title: b("评分（1–5，越高越好）", "Scores (1–5, higher is better)"), columns: [b("方案", "Concept"), b("安全", "Safety"), b("成本", "Cost"), b("维护", "Maintain.")], rows: [["A", "5", "2", "3"], ["B", "4", "4", "4"], ["C", "3", "5", "2"]] },
-    explanation: b(
-      "第 1 步｜确认权重\n安全 0.5、成本 0.3、维护 0.2，合计 1.0，说明可直接做加权和。\n\n第 2 步｜分别计算\nA=0.5×5+0.3×2+0.2×3=2.5+0.6+0.6=3.7。\nB=0.5×4+0.3×4+0.2×4=4.0。\nC=0.5×3+0.3×5+0.2×2=1.5+1.5+0.4=3.4。\n\n第 3 步｜比较并解释\nB 的 4.0 最高。A 虽然安全最好，但低成本分拉低总分。\n\n工程判断\n矩阵支持选择 B，但还要做敏感性分析：如果安全权重增加，结论可能变化。",
-      "Step 1 | Confirm weights\n0.5+0.3+0.2=1.0, so a weighted sum is appropriate.\n\nStep 2 | Calculate\nA=0.5×5+0.3×2+0.2×3=3.7.\nB=0.5×4+0.3×4+0.2×4=4.0.\nC=0.5×3+0.3×5+0.2×2=3.4.\n\nStep 3 | Compare and interpret\nB is highest at 4.0. A leads on safety but its low cost score reduces its total.\n\nEngineering judgement\nThe matrix supports B, but sensitivity analysis is still needed because a larger safety weight could change the ranking."
-    ),
+    id: "eee-0-9", courseId: "eee", topicId: "eee-0", kind: "calculation",
+    question: b("一个 12 V 电源连接 4 Ω 电阻。电阻吸收的功率是多少？", "A 12 V source is connected across a 4 Ω resistor. What power does the resistor absorb?"),
+    options: [b("3 W", "3 W"), b("12 W", "12 W"), b("36 W", "36 W"), b("48 W", "48 W")],
+    answer: 2,
+    visual: { kind: "table", title: b("电路数据", "Circuit data"), columns: [b("量", "Quantity"), b("数值", "Value")], rows: [["V", "12 V"], ["R", "4 Ω"]] },
+    explanation: b("第 1 步｜由欧姆定律求电流\nI=V/R=12/4=3 A。\n\n第 2 步｜计算功率\nP=VI=12×3=36 W。\n\n第 3 步｜交叉检查\nV²/R=144/4=36 W，结果一致。\n\n易错点\n3 A 是电流，不是功率；答案必须带 W。", "Step 1 | Use Ohm's law\nI=V/R=12/4=3 A.\n\nStep 2 | Calculate power\nP=VI=12×3=36 W.\n\nStep 3 | Cross-check\nV²/R=144/4=36 W.\n\nCommon trap\n3 A is current, not power; the answer needs watts."),
   },
   {
-    id: "iep-1-9", courseId: "iep", topicId: "iep-1", kind: "data",
-    question: b("风险分数=可能性×后果。根据表格，团队应优先处理哪项风险？", "Risk score=likelihood×consequence. Which risk should the team prioritise?"),
-    options: [b("材料延误", "Material delay"), b("电池过热", "Battery overheating"), b("用户培训不足", "Insufficient user training"), b("成本上涨", "Cost increase")],
+    id: "eee-1-9", courseId: "eee", topicId: "eee-1", kind: "data",
+    question: b("节点 A 有 5 A 与 1 A 流入，2 A 流出。未知流出电流 Ix 是多少？", "At node A, 5 A and 1 A enter while 2 A leaves. What is the unknown leaving current Ix?"),
+    options: [b("2 A", "2 A"), b("4 A", "4 A"), b("6 A", "6 A"), b("8 A", "8 A")],
     answer: 1,
-    visual: { kind: "table", title: b("风险登记表", "Risk register"), columns: [b("风险", "Risk"), b("可能性", "Likelihood"), b("后果", "Consequence")], rows: [["材料延误", "4", "3"], ["电池过热", "3", "5"], ["培训不足", "4", "2"], ["成本上涨", "3", "4"]] },
-    explanation: b(
-      "第 1 步｜明确规则\n用题目给定的半定量方法：风险分数 L×C。先计算再比较，不能只看“最可能”或“后果最大”。\n\n第 2 步｜计算四项\n材料延误=4×3=12；电池过热=3×5=15；培训不足=4×2=8；成本上涨=3×4=12。\n\n第 3 步｜确定优先级\n15 最高，所以优先处理电池过热。\n\n第 4 步｜转化为行动\n优先不等于只处理这一项。应先采用降低后果或可能性的控制措施，再记录负责人、期限和残余风险。\n\n易错点\n“培训不足”的可能性最高之一，但综合风险不是最高。",
-      "Step 1 | State the rule\nUse the given semi-quantitative score L×C. Calculate before ranking; do not look only at likelihood or consequence.\n\nStep 2 | Calculate\nDelay=4×3=12; overheating=3×5=15; training=4×2=8; cost=3×4=12.\n\nStep 3 | Prioritise\n15 is highest, so battery overheating comes first.\n\nStep 4 | Turn it into action\nPriority does not mean ignoring other risks. Add controls, an owner, a due date and a residual-risk rating.\n\nCommon trap\nTraining has high likelihood, but not the highest combined score."
-    ),
+    visual: { kind: "table", title: b("节点电流方向", "Node-current directions"), columns: [b("电流", "Current"), b("方向", "Direction"), b("数值", "Value")], rows: [["I1", "流入 / in", "5 A"], ["I2", "流入 / in", "1 A"], ["I3", "流出 / out", "2 A"], ["Ix", "流出 / out", "?"]] },
+    explanation: b("第 1 步｜写 KCL\n流入总和=流出总和。\n\n第 2 步｜代入\n5+1=2+Ix。\n\n第 3 步｜求解\nIx=4 A。\n\n第 4 步｜守恒检查\n6 A 流入、6 A 流出，节点不积累电荷。", "Step 1 | Write KCL\nTotal entering equals total leaving.\n\nStep 2 | Substitute\n5+1=2+Ix.\n\nStep 3 | Solve\nIx=4 A.\n\nStep 4 | Check\n6 A enters and 6 A leaves, so charge does not accumulate."),
   },
   {
-    id: "iep-3-9", courseId: "iep", topicId: "iep-3", kind: "data",
-    question: b("计划图显示四项任务的预计工时。团队本周只有 12 小时，且原型必须在测试前完成。哪种安排可行？", "The chart shows planned hours. The team has 12 hours this week, and the prototype must finish before testing. Which plan is feasible?"),
-    options: [b("完成研究、原型和测试", "Finish research, prototype and testing"), b("完成原型和测试，并开始报告", "Finish prototype and testing, then start the report"), b("只完成研究和报告", "Finish only research and report"), b("四项全部完成", "Finish all four tasks")],
+    id: "eee-3-9", courseId: "eee", topicId: "eee-3", kind: "calculation",
+    question: b("一个戴维南等效电路 Vth=10 V、Rth=2 Ω，连接 RL=3 Ω。负载电流是多少？", "A Thevenin equivalent has Vth=10 V and Rth=2 Ω, connected to RL=3 Ω. What is the load current?"),
+    options: [b("1 A", "1 A"), b("2 A", "2 A"), b("3.33 A", "3.33 A"), b("5 A", "5 A")],
     answer: 1,
-    visual: { kind: "bars", title: b("任务预计工时", "Estimated task hours"), labels: [b("研究", "Research"), b("原型", "Prototype"), b("测试", "Testing"), b("报告", "Report")], values: [5, 6, 4, 3], unit: "h" },
-    explanation: b(
-      "第 1 步｜识别约束\n总时间≤12 h；并且“原型→测试”存在先后依赖。\n\n第 2 步｜计算候选计划\nA：研究5+原型6+测试4=15 h，超时。\nB：原型6+测试4=10 h，剩2 h，可开始报告，且依赖顺序正确。\nC：研究5+报告3=8 h，但没有推进必须的原型—测试链。\nD：总计18 h，超时。\n\n第 3 步｜选择\nB 是唯一同时满足工时和依赖关系的方案。\n\n项目管理提醒\n“可行”不仅看总工时，还要看任务依赖、人员能力和交付优先级。",
-      "Step 1 | Identify constraints\nTotal time must be ≤12 h, and prototype must precede testing.\n\nStep 2 | Test each plan\nA=5+6+4=15 h, over capacity.\nB=6+4=10 h, leaving 2 h to start the report, with the dependency satisfied.\nC=8 h but fails to advance the required prototype–test chain.\nD=18 h, over capacity.\n\nStep 3 | Select\nB is the only plan satisfying both capacity and dependency.\n\nProject reminder\nFeasibility depends on dependencies, capability and delivery priority—not total hours alone."
-    ),
+    visual: { kind: "table", title: b("戴维南端口模型", "Thevenin port model"), columns: [b("参数", "Parameter"), b("值", "Value")], rows: [["Vth", "10 V"], ["Rth", "2 Ω"], ["RL", "3 Ω"]] },
+    explanation: b("第 1 步｜识别串联路径\nRth 与 RL 串联，总电阻为 2+3=5 Ω。\n\n第 2 步｜欧姆定律\nIL=Vth/(Rth+RL)=10/5=2 A。\n\n第 3 步｜检查负载电压\nVL=ILRL=2×3=6 V；Rth 压降 4 V，总和 10 V。", "Step 1 | Identify the series path\nRth and RL are in series, so total resistance is 5 Ω.\n\nStep 2 | Ohm's law\nIL=10/5=2 A.\n\nStep 3 | Check\nVL=2×3=6 V and the Rth drop is 4 V; together they equal 10 V."),
   },
   {
-    id: "iep-5-9", courseId: "iep", topicId: "iep-5", kind: "calculation",
-    question: b("原型预算为 $500。已花 $180，已承诺但未付款 $140，还需保留 15% 总预算作为应急金。现在最多还能新增多少支出？", "Prototype budget is $500. Spent cost is $180, committed cost is $140, and 15% of total budget must remain as contingency. What is the maximum new spend?"),
-    options: [b("$75", "$75"), b("$105", "$105"), b("$180", "$180"), b("$255", "$255")],
-    answer: 1,
-    visual: { kind: "table", title: b("预算状态", "Budget status"), columns: [b("项目", "Item"), b("金额", "Amount")], rows: [["总预算", "$500"], ["已花", "$180"], ["已承诺", "$140"], ["应急比例", "15%"]] },
-    explanation: b(
-      "第 1 步｜先算必须保留的应急金\n500×15%=$75。这部分不能用于新增支出。\n\n第 2 步｜把已花和已承诺都计入\n已占用预算=180+140=$320。承诺支出虽然尚未付款，但已经不能再分配。\n\n第 3 步｜求可新增金额\n500−320−75=$105。\n\n第 4 步｜反向验证\n320+105+75=500，刚好等于预算上限。\n\n易错点\n忽略 committed cost 会得到 $245；把应急金按“剩余预算”算也不符合题目所说的“总预算 15%”。",
-      "Step 1 | Reserve contingency\n500×15%=$75, which cannot be used for new spending.\n\nStep 2 | Include spent and committed costs\nOccupied budget=180+140=$320. A commitment is unavailable even before payment.\n\nStep 3 | Find available new spend\n500−320−75=$105.\n\nStep 4 | Reverse-check\n320+105+75=500, exactly the budget limit.\n\nCommon trap\nIgnoring committed cost overstates available funds; the contingency is 15% of total budget, not remaining budget."
-    ),
+    id: "eee-7-9", courseId: "eee", topicId: "eee-7", kind: "data",
+    question: b("根据表格，50 Hz 时哪个元件的阻抗是 −j31.8 Ω？", "From the table, which component has impedance −j31.8 Ω at 50 Hz?"),
+    options: [b("10 Ω 电阻", "10 Ω resistor"), b("0.1 H 电感", "0.1 H inductor"), b("100 μF 电容", "100 μF capacitor"), b("理想导线", "Ideal wire")],
+    answer: 2,
+    visual: { kind: "table", title: b("元件参数（f=50 Hz）", "Component data (f=50 Hz)"), columns: [b("元件", "Element"), b("参数", "Parameter"), b("阻抗公式", "Impedance")], rows: [["R", "10 Ω", "R"], ["L", "0.1 H", "jωL"], ["C", "100 μF", "1/(jωC)"]] },
+    explanation: b("第 1 步｜识别负虚部\n负虚阻抗属于电容：ZC=1/(jωC)=−j/(ωC)。\n\n第 2 步｜计算角频率\nω=2πf=2π×50≈314 rad/s。\n\n第 3 步｜代入\n|ZC|=1/(314×100×10⁻⁶)≈31.8 Ω，所以 ZC≈−j31.8 Ω。\n\n易错点\n电感是 +jωL，虚部符号相反。", "Step 1 | Identify the negative imaginary part\nA capacitor has ZC=−j/(ωC).\n\nStep 2 | Angular frequency\nω=2π×50≈314 rad/s.\n\nStep 3 | Substitute\n|ZC|=1/(314×100×10⁻⁶)≈31.8 Ω, so ZC≈−j31.8 Ω.\n\nCommon trap\nAn inductor has +jωL, the opposite sign."),
   },
   {
     id: "c-0-9", courseId: "c", topicId: "c-0", kind: "calculation",

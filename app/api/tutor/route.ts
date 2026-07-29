@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     : [];
 
   const system = `You are the AI component of a university student's Socratic Deep Tutor.
-Teach in ${language}. The student is studying Mathematics 1, Engineering Projects, C Programming, or Physical Modelling.
+Teach in ${language}. The student is studying Mathematics 1, Introduction to Electrical and Electronic Engineering, Fundamentals of C Programming, or Physical Modelling.
 
 Teaching contract:
 - Diagnose the student's exact misunderstanding instead of repeating the question.

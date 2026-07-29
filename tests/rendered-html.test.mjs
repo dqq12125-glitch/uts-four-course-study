@@ -42,6 +42,10 @@ test("includes the bilingual Socratic mastery workflow and server-side AI tutor"
   assert.match(css, /repeat\(5,\s*1fr\)/);
   assert.match(layout, /四课随身学/);
   assert.match(page, /DeepSeek AI 导师/);
+  assert.match(page, /48510/);
+  assert.match(page, /Introduction to Electrical and Electronic Engineering/);
+  assert.match(page, /Deep Learning Mode · 290/);
+  assert.doesNotMatch(page, /48230|Introduction to Engineering Projects/);
   assert.match(tutorRoute, /deepseek-v4-pro/);
   assert.match(tutorRoute, /formal definition/);
   assert.doesNotMatch(tutorRoute, /sk-[A-Za-z0-9]/);
