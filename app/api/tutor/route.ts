@@ -140,8 +140,10 @@ function cleanAnswerEvidence(value: unknown) {
 
 export async function POST(request: Request) {
   const id = requestId(request);
-  const user = await currentUserFromRequest(request);
-  if (!user || !isPersonalOwner(user.email)) {
+  const environment = getRuntimeEnvironment();
+  const personalDeployment = environment.PERSONAL_DEPLOYMENT === "true";
+  const user = personalDeployment ? null : await currentUserFromRequest(request);
+  if (!personalDeployment && (!user || !isPersonalOwner(user.email))) {
     return errorResponse(
       new ApiError(
         "PERSONAL_WORKSPACE_NOT_FOUND",
@@ -156,12 +158,16 @@ export async function POST(request: Request) {
   } catch (error) {
     return errorResponse(error, id);
   }
-  const apiKey = getRuntimeEnvironment().DEEPSEEK_API_KEY;
+  const apiKey = environment.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return Response.json({ error: "AI tutor is not configured on this server." }, { status: 503 });
   }
 
-  const clientId = user.id;
+  const clientId =
+    user?.id ??
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "personal";
   const now = Date.now();
   const usage = requestsByClient.get(clientId);
   if (usage && usage.resetAt > now && usage.count >= HOURLY_LIMIT) {

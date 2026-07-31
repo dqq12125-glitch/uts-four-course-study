@@ -1,5 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import PersonalFourCourseApp from "@/app/personal/four-course-app";
+import { getRuntimeEnvironment } from "@/src/infrastructure/environment";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "DeepStudy — 打开应用，就知道今天学什么",
@@ -8,6 +12,15 @@ export const metadata: Metadata = {
 };
 
 export default async function MarketingHomePage() {
+  let personalDeployment = false;
+  try {
+    personalDeployment =
+      getRuntimeEnvironment().PERSONAL_DEPLOYMENT === "true";
+  } catch {
+    personalDeployment = process.env.PERSONAL_DEPLOYMENT === "true";
+  }
+  if (personalDeployment) return <PersonalFourCourseApp />;
+
   const appHref = "/auth/sign-up";
 
   return (

@@ -80,7 +80,7 @@ test("preserves the private bilingual personal workspace with a server-only AI k
   assert.doesNotMatch(page, /https:\/\/api\.deepseek\.com\/chat\/completions/);
   assert.match(page, /fetch\(\"\/api\/tutor\"/);
   assert.match(tutorRoute, /PERSONAL_WORKSPACE_NOT_FOUND/);
-  assert.match(tutorRoute, /getRuntimeEnvironment\(\)\.DEEPSEEK_API_KEY/);
+  assert.match(tutorRoute, /(?:getRuntimeEnvironment\(\)|environment)\.DEEPSEEK_API_KEY/);
   assert.match(wrangler, /"name": "uts-deep-study"/);
   assert.doesNotMatch(wrangler, /compatibility_flags/);
   assert.match(page, /PREP → CLASS → REVIEW → RETRIEVAL/);

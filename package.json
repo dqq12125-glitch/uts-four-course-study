@@ -9,6 +9,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "build:pages": "vite build --config vite.pages.config.ts",
+    "deploy:personal": "npm run build && node scripts/prepare-personal-deploy.mjs && wrangler deploy",
     "start": "vinext start",
     "test": "npm run build && node --test \"tests/*.test.mjs\"",
     "test:unit": "node --test tests/milestone1-unit.test.mjs tests/milestone2-unit.test.mjs tests/milestone3-unit.test.mjs tests/milestone4-unit.test.mjs tests/milestone5-unit.test.mjs",

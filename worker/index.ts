@@ -21,6 +21,7 @@ interface Env extends RuntimeEnvironment {
   UNSUBSCRIBE_TOKEN_SECRET?: string;
   IP_HASH_SECRET?: string;
   PERSONAL_OWNER_EMAIL?: string;
+  PERSONAL_DEPLOYMENT?: string;
   DEEPSEEK_API_KEY?: string;
   AI_PROVIDER?: string;
   AI_API_KEY?: string;
@@ -145,6 +146,7 @@ const worker = {
     ctx: ExecutionContext,
   ): Promise<void> {
     setRuntimeEnvironment(env);
+    if (env.PERSONAL_DEPLOYMENT === "true") return;
     ctx.waitUntil(
       getScheduledJobService().run(event.scheduledTime).then(() => undefined),
     );

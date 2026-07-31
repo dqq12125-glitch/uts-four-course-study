@@ -13,6 +13,7 @@ export interface RuntimeEnvironment {
   UNSUBSCRIBE_TOKEN_SECRET?: string;
   IP_HASH_SECRET?: string;
   PERSONAL_OWNER_EMAIL?: string;
+  PERSONAL_DEPLOYMENT?: string;
   DEEPSEEK_API_KEY?: string;
   AI_PROVIDER?: string;
   AI_API_KEY?: string;
