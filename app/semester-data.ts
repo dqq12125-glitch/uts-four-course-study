@@ -22,8 +22,32 @@ export type TimetableItem = {
   };
 };
 
+export type TimetableChoice = {
+  id: string;
+  status: "allocated" | "waitlist";
+  activity: SemesterBi;
+  day: number;
+  dayLabel: SemesterBi;
+  start: string;
+  end: string;
+  location: string;
+  startsWeek?: number;
+  note: SemesterBi;
+  venue?: TimetableItem["venue"];
+};
+
+export type TimetableChoiceGroup = {
+  id: string;
+  courseId: TimetableItem["courseId"];
+  activityGroup: string;
+  title: SemesterBi;
+  checkedAt: SemesterBi;
+  choices: TimetableChoice[];
+};
+
 export type WeeklyCoursePlan = {
   courseId: TimetableItem["courseId"];
+  topicId: string;
   topic: SemesterBi;
   prepare: SemesterBi;
   after: SemesterBi;
@@ -89,6 +113,66 @@ export const timetable: TimetableItem[] = [
   },
 ];
 
+export const timetableChoiceGroups: TimetableChoiceGroup[] = [
+  {
+    id: "math-tutorial",
+    courseId: "math",
+    activityGroup: "Tut1",
+    title: bi("33130 数学辅导课", "33130 Mathematics tutorial"),
+    checkedAt: bi(
+      "UTS Allocate+ · 2026年7月31日核对",
+      "UTS Allocate+ · checked 31 July 2026",
+    ),
+    choices: [
+      {
+        id: "math-tut1-18",
+        status: "allocated",
+        activity: bi("辅导课 Tut1 18", "Tutorial Tut1 18"),
+        day: 2,
+        dayLabel: bi("周二", "Tuesday"),
+        start: "18:00",
+        end: "20:00",
+        location: "CB10.03.460",
+        startsWeek: 2,
+        note: bi(
+          "UTS 当前正式分配；个人版默认按这个时段安排学习。",
+          "Currently allocated by UTS; this is the default personal timetable.",
+        ),
+      },
+      {
+        id: "math-tut1-14",
+        status: "waitlist",
+        activity: bi("辅导课 Tut1 14", "Tutorial Tut1 14"),
+        day: 2,
+        dayLabel: bi("周二", "Tuesday"),
+        start: "11:00",
+        end: "13:00",
+        location: "CB10.03.460",
+        startsWeek: 2,
+        note: bi(
+          "UTS 显示候补中。这里只预览计划，正式换班成功前仍应参加 Tut1 18。",
+          "UTS shows this as waitlisted. Preview only; attend Tut1 18 until the swap succeeds.",
+        ),
+      },
+      {
+        id: "math-tut1-09",
+        status: "waitlist",
+        activity: bi("辅导课 Tut1 09", "Tutorial Tut1 09"),
+        day: 2,
+        dayLabel: bi("周二", "Tuesday"),
+        start: "13:00",
+        end: "15:00",
+        location: "CB10.03.460",
+        startsWeek: 2,
+        note: bi(
+          "UTS 显示候补中。这里只预览计划，正式换班成功前仍应参加 Tut1 18。",
+          "UTS shows this as waitlisted. Preview only; attend Tut1 18 until the swap succeeds.",
+        ),
+      },
+    ],
+  },
+];
+
 const mathTopics = [
   bi("向量与三维空间：点积和投影", "Vectors & 3D space: dot products and projections"),
   bi("向量续：叉积和平面", "Vectors continued: cross products and planes"),
@@ -149,6 +233,28 @@ const eeeTopics = [
   bi("期末复习：DC、瞬态、二极管与 AC", "Final review: DC, transients, diodes and AC"),
 ];
 
+// The teaching timetable has 12 weeks, while the in-app course library groups
+// closely related weeks into broader knowledge points. Keep this mapping
+// explicit so a weekly preparation card never opens an unrelated quiz.
+const weeklyTopicIds: Record<TimetableItem["courseId"], readonly string[]> = {
+  math: [
+    "math-0", "math-0", "math-1", "math-2", "math-3", "math-4",
+    "math-4", "math-5", "math-6", "math-6", "math-6", "math-6",
+  ],
+  eee: [
+    "eee-0", "eee-1", "eee-2", "eee-3", "eee-4", "eee-5",
+    "eee-5", "eee-6", "eee-7", "eee-7", "eee-7", "eee-7",
+  ],
+  c: [
+    "c-0", "c-1", "c-2", "c-3", "c-4", "c-5",
+    "c-5", "c-6", "c-7", "c-6", "c-6", "c-6",
+  ],
+  physics: [
+    "physics-0", "physics-0", "physics-3", "physics-3", "physics-3", "physics-6",
+    "physics-6", "physics-7", "physics-8", "physics-8", "physics-9", "physics-9",
+  ],
+};
+
 const weekRanges = [
   ["27 Jul–2 Aug", "2026-07-27", "2026-08-02"],
   ["3–9 Aug", "2026-08-03", "2026-08-09"],
@@ -181,12 +287,14 @@ const zhWeekRanges = [
 
 const makePlan = (
   courseId: WeeklyCoursePlan["courseId"],
+  topicId: string,
   topic: SemesterBi,
   week: number,
 ): WeeklyCoursePlan => {
   if (courseId === "eee") {
     return {
       courseId,
+      topicId,
       topic,
       prepare: bi("先看本周 Canvas 讲座并整理公式、方向约定和单位；实验前读完 lab instruction。", "Watch the Canvas lecture first and organise formulas, reference directions and units; read the lab instructions before class."),
       after: bi("重画课堂电路并独立重算；完成 10 题，逐项检查 KCL/KVL、极性、单位和功率守恒。", "Redraw and independently re-solve the class circuits; do 10 questions and check KCL/KVL, polarity, units and power balance."),
@@ -196,6 +304,7 @@ const makePlan = (
   if (courseId === "c") {
     return {
       courseId,
+      topicId,
       topic,
       prepare: bi("先读对应章节并手写 1 个最小程序；机房课前尝试 lab 任务。", "Read the listed chapter and hand-write one minimal program; attempt the lab before class."),
       after: bi("重写课堂代码，不复制粘贴；完成 10 题并把错误代码加入调试日志。", "Rebuild the class code without copy-paste; do 10 questions and add failures to your debug log."),
@@ -205,6 +314,7 @@ const makePlan = (
   if (courseId === "math") {
     return {
       courseId,
+      topicId,
       topic,
       prepare: bi("工作坊前看例题并做 2 道基础题；标出不会的代数步骤。", "Before the workshop, review examples and attempt two basics; flag unclear algebra steps."),
       after: bi("辅导课后 24 小时内完成 10 题；错题隔天不看答案重做。", "Within 24 hours of the tutorial, do 10 questions; redo errors the next day without notes."),
@@ -213,6 +323,7 @@ const makePlan = (
   }
   return {
     courseId,
+    topicId,
     topic,
     prepare: bi("课前完成 Canvas 概念检查，写出已知量、单位和模型假设。", "Complete the Canvas concept check; list knowns, units and model assumptions."),
     after: bi("实践课后整理数据/步骤，完成 10 题，并检查量纲和正负号。", "After class, clean up data/steps, do 10 questions and check dimensions and signs."),
@@ -228,10 +339,10 @@ export const semesterWeeks: SemesterWeek[] = weekRanges.map(([range, start, end]
     start,
     end,
     plans: [
-      makePlan("math", mathTopics[index], week),
-      makePlan("eee", eeeTopics[index], week),
-      makePlan("c", cTopics[index], week),
-      makePlan("physics", physicsTopics[index], week),
+      makePlan("math", weeklyTopicIds.math[index], mathTopics[index], week),
+      makePlan("eee", weeklyTopicIds.eee[index], eeeTopics[index], week),
+      makePlan("c", weeklyTopicIds.c[index], cTopics[index], week),
+      makePlan("physics", weeklyTopicIds.physics[index], physicsTopics[index], week),
     ],
   };
 });

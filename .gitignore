@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,6 +13,11 @@
 
 # testing
 /coverage
+/.playwright-cli/
+/.hallmark/
+/audit-output/
+/output/
+/tmp/
 
 # next.js
 /.next/
@@ -27,16 +33,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+dev-*.log
 
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+/.dev.vars
 
 # vercel
 .vercel
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /site-dist/
 /.wrangler/
@@ -44,3 +53,11 @@ next-env.d.ts
 /work/
 /.openai/*.log
 /.openai/*.tar.gz
+
+# Expo mobile client
+apps/mobile/.expo/
+apps/mobile/.env*
+!apps/mobile/.env.example
+apps/mobile/ios/
+apps/mobile/android/
+apps/mobile/web-build/

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `user_semesters_one_active_unique` ON `user_semesters` (`user_id`) WHERE "user_semesters"."status" = 'active';

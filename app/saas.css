@@ -1,0 +1,3396 @@
+:root {
+  --saas-ink: #17211b;
+  --saas-muted: #647168;
+  --saas-canvas: #f4f4ed;
+  --saas-surface: #fffef9;
+  --saas-line: #d9ddd5;
+  --saas-accent: #176b4d;
+  --saas-accent-dark: #0d4a34;
+  --saas-danger: #a23b32;
+  --saas-success: #146b49;
+  --saas-shadow: 0 16px 44px rgba(30, 44, 35, 0.08);
+}
+
+.marketing-page,
+.legal-page {
+  --marketing-ink: #142019;
+  --marketing-muted: #617067;
+  --marketing-paper: #f5f4ec;
+  --marketing-card: #fffef8;
+  --marketing-green: #176b4d;
+  --marketing-line: #d8ddd4;
+  min-height: 100dvh;
+  color: var(--marketing-ink);
+  background:
+    radial-gradient(circle at 15% 2%, rgba(143, 195, 160, 0.25), transparent 31rem),
+    var(--marketing-paper);
+  font-family:
+    Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+    sans-serif;
+}
+
+.marketing-page *,
+.legal-page * {
+  box-sizing: border-box;
+}
+
+.marketing-header,
+.marketing-footer,
+.legal-page > header,
+.legal-page > nav {
+  display: flex;
+  width: min(calc(100% - 30px), 1180px);
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-inline: auto;
+}
+
+.marketing-header {
+  min-height: 68px;
+  padding-top: env(safe-area-inset-top);
+}
+
+.marketing-wordmark {
+  color: var(--marketing-ink);
+  font-size: 1.12rem;
+  font-weight: 850;
+  letter-spacing: -0.045em;
+  text-decoration: none;
+}
+
+.marketing-header nav,
+.marketing-footer nav,
+.legal-page > nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.marketing-header nav a,
+.marketing-footer nav a,
+.legal-page a {
+  color: var(--marketing-ink);
+  font-size: 0.82rem;
+  font-weight: 720;
+  text-decoration: none;
+}
+
+.marketing-header nav a:first-child,
+.marketing-header nav a:nth-child(2) {
+  display: none;
+}
+
+.marketing-hero {
+  display: grid;
+  width: min(calc(100% - 30px), 1180px);
+  min-height: min(780px, calc(100dvh - 68px));
+  align-items: center;
+  gap: clamp(34px, 7vw, 88px);
+  margin-inline: auto;
+  padding: clamp(58px, 10vw, 118px) 0;
+}
+
+.marketing-hero-copy {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+}
+
+.marketing-kicker,
+.marketing-section-heading > p {
+  margin: 0;
+  color: var(--marketing-green);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.marketing-hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 12vw, 6.8rem);
+  line-height: 0.92;
+  letter-spacing: -0.075em;
+  text-wrap: balance;
+}
+
+.marketing-subtitle {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: clamp(1.02rem, 3vw, 1.22rem);
+  line-height: 1.72;
+}
+
+.marketing-english {
+  margin: -5px 0 0;
+  color: var(--marketing-green);
+  font-size: 0.88rem;
+  font-weight: 720;
+}
+
+.marketing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.marketing-primary,
+.marketing-secondary,
+.marketing-price-grid a {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--marketing-green);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0 22px;
+  text-decoration: none;
+}
+
+.marketing-primary {
+  background: var(--marketing-green);
+  color: #fff;
+}
+
+.marketing-secondary {
+  background: transparent;
+  color: var(--marketing-green);
+}
+
+.marketing-today-card {
+  display: grid;
+  gap: 16px;
+  border: 1px solid #39483e;
+  border-radius: 24px;
+  background: #0e1812;
+  box-shadow: 0 32px 72px rgba(27, 48, 35, 0.2);
+  color: #f4f8f4;
+  padding: clamp(20px, 5vw, 34px);
+  transform: rotate(0.5deg);
+}
+
+.marketing-card-topline {
+  display: flex;
+  justify-content: space-between;
+  color: #9eb0a4;
+  font-size: 0.72rem;
+}
+
+.marketing-course {
+  margin: 0;
+  color: #7bd3a5;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+}
+
+.marketing-today-card h2 {
+  margin: -4px 0 0;
+  font-size: clamp(1.45rem, 5vw, 2.2rem);
+  letter-spacing: -0.04em;
+}
+
+.marketing-today-card > p:not(.marketing-course) {
+  margin: 0;
+  color: #c4d0c7;
+  line-height: 1.65;
+}
+
+.marketing-today-card dl {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid #344238;
+  border-radius: 13px;
+  background: #344238;
+}
+
+.marketing-today-card dl > div {
+  display: grid;
+  gap: 4px;
+  background: #131f17;
+  padding: 12px;
+}
+
+.marketing-today-card dt {
+  color: #91a398;
+  font-size: 0.68rem;
+}
+
+.marketing-today-card dd {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.marketing-today-card button {
+  min-height: 50px;
+  border: 0;
+  border-radius: 12px;
+  background: #72c99e;
+  color: #092117;
+  font: inherit;
+  font-weight: 820;
+  opacity: 1;
+}
+
+.marketing-today-card small {
+  color: #829087;
+  text-align: center;
+}
+
+.marketing-values,
+.marketing-demo,
+.marketing-audience,
+.marketing-pricing,
+.marketing-integrity {
+  width: min(calc(100% - 30px), 1180px);
+  margin-inline: auto;
+  padding: clamp(72px, 11vw, 132px) 0;
+}
+
+.marketing-section-heading {
+  display: grid;
+  max-width: 780px;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.marketing-section-heading h2,
+.marketing-audience h2,
+.marketing-integrity h2 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.06em;
+  text-wrap: balance;
+}
+
+.marketing-value-grid {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--marketing-line);
+  border-radius: 20px;
+  background: var(--marketing-line);
+}
+
+.marketing-value-grid article {
+  background: var(--marketing-card);
+  padding: clamp(22px, 5vw, 34px);
+}
+
+.marketing-value-grid article > span {
+  color: var(--marketing-green);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.marketing-value-grid h3 {
+  margin: 34px 0 8px;
+  font-size: 1.22rem;
+  letter-spacing: -0.035em;
+}
+
+.marketing-value-grid p {
+  margin: 0;
+  color: var(--marketing-muted);
+  line-height: 1.65;
+}
+
+.marketing-demo {
+  width: min(calc(100% - 20px), 1220px);
+  border-radius: 28px;
+  background: #101b14;
+  color: #f1f6f2;
+  padding-inline: clamp(18px, 5vw, 50px);
+}
+
+.marketing-demo .marketing-section-heading > p {
+  color: #75cca0;
+}
+
+.marketing-demo-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.marketing-demo-grid article {
+  display: grid;
+  gap: 9px;
+  border: 1px solid #38483e;
+  border-radius: 15px;
+  background: #16221a;
+  padding: 18px;
+}
+
+.marketing-demo-grid article > span,
+.marketing-mastery-line span {
+  color: #8ca097;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.marketing-demo-grid article > small {
+  color: #aab9b0;
+  line-height: 1.45;
+}
+
+.marketing-demo-arrow {
+  display: grid;
+  place-items: center;
+  color: #75cca0;
+  font-size: 1.3rem;
+  transform: rotate(90deg);
+}
+
+.marketing-mastery-line {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  margin-top: 22px;
+  border: 1px solid #38483e;
+  border-radius: 15px;
+  background: #38483e;
+}
+
+.marketing-mastery-line > div {
+  display: grid;
+  gap: 5px;
+  background: #101b14;
+  padding: 16px;
+}
+
+.marketing-audience {
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+}
+
+.marketing-audience > p:last-child {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.marketing-price-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.marketing-price-grid article {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  border: 1px solid var(--marketing-line);
+  border-radius: 22px;
+  background: var(--marketing-card);
+  padding: clamp(22px, 5vw, 34px);
+}
+
+.marketing-price-grid article.is-featured {
+  border-color: var(--marketing-green);
+  background:
+    linear-gradient(145deg, rgba(23, 107, 77, 0.1), transparent 48%),
+    var(--marketing-card);
+}
+
+.marketing-price-grid article > span {
+  color: var(--marketing-green);
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.marketing-price-grid h3 {
+  margin: 0;
+  font-size: clamp(2.5rem, 9vw, 4.2rem);
+  letter-spacing: -0.06em;
+}
+
+.marketing-price-grid p {
+  margin: 0;
+  color: var(--marketing-muted);
+  line-height: 1.65;
+}
+
+.marketing-price-grid a {
+  width: fit-content;
+  color: var(--marketing-green);
+}
+
+.marketing-integrity {
+  display: grid;
+  gap: 24px;
+  border-top: 1px solid var(--marketing-line);
+}
+
+.marketing-integrity > p {
+  max-width: 65ch;
+  margin: 0;
+  color: var(--marketing-muted);
+  line-height: 1.75;
+}
+
+.marketing-footer {
+  align-items: start;
+  border-top: 1px solid var(--marketing-line);
+  padding: 34px 0 max(34px, env(safe-area-inset-bottom));
+}
+
+.marketing-footer > div {
+  max-width: 650px;
+}
+
+.marketing-footer p {
+  margin: 8px 0 0;
+  color: var(--marketing-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.marketing-footer nav {
+  flex-wrap: wrap;
+  justify-content: end;
+}
+
+.legal-page {
+  padding-bottom: 60px;
+}
+
+.legal-page > header {
+  min-height: 68px;
+}
+
+.legal-page > article {
+  width: min(calc(100% - 30px), 780px);
+  margin: clamp(50px, 10vw, 110px) auto;
+}
+
+.legal-page h1 {
+  margin: 12px 0 34px;
+  font-size: clamp(2.6rem, 9vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+}
+
+.legal-page h2 {
+  margin: 38px 0 8px;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+}
+
+.legal-page article p {
+  color: var(--marketing-muted);
+  line-height: 1.75;
+}
+
+.legal-page article .legal-review {
+  width: fit-content;
+  border-radius: 99px;
+  background: #fff0c9;
+  color: #744b0b;
+  font-size: 0.72rem;
+  font-weight: 850;
+  padding: 7px 10px;
+}
+
+.legal-page > nav {
+  flex-wrap: wrap;
+  justify-content: start;
+  border-top: 1px solid var(--marketing-line);
+  padding-top: 24px;
+}
+
+@media (min-width: 700px) {
+  .marketing-header nav a:first-child,
+  .marketing-header nav a:nth-child(2) {
+    display: inline;
+  }
+
+  .marketing-value-grid,
+  .marketing-mastery-line {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .marketing-price-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .marketing-integrity {
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: end;
+  }
+}
+
+@media (min-width: 900px) {
+  .marketing-hero {
+    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+  }
+
+  .marketing-demo-grid {
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center;
+  }
+
+  .marketing-demo-arrow {
+    transform: none;
+  }
+}
+
+.saas-shell,
+.saas-app {
+  min-height: 100dvh;
+  color: var(--saas-ink);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(174, 210, 183, 0.26), transparent 34rem),
+    var(--saas-canvas);
+  font-family:
+    Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+    sans-serif;
+}
+
+.saas-shell *,
+.saas-app * {
+  box-sizing: border-box;
+}
+
+.saas-wordmark {
+  color: var(--saas-ink);
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  text-decoration: none;
+}
+
+.saas-card {
+  border: 1px solid var(--saas-line);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--saas-surface) 94%, transparent);
+  box-shadow: 0 2px 0 rgba(23, 33, 27, 0.03);
+  padding: clamp(18px, 4vw, 28px);
+}
+
+.saas-auth-shell {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 28px;
+  padding: max(24px, env(safe-area-inset-top)) 16px
+    max(24px, env(safe-area-inset-bottom));
+}
+
+.saas-auth-card {
+  width: min(100%, 480px);
+  margin-top: clamp(30px, 10vh, 88px);
+  box-shadow: var(--saas-shadow);
+}
+
+.saas-auth-card h1,
+.saas-wizard-card h1,
+.saas-page-heading h1,
+.saas-course-hero h1 {
+  margin: 6px 0 12px;
+  font-size: clamp(1.8rem, 6vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.saas-eyebrow {
+  margin: 0;
+  color: var(--saas-accent);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.saas-lead {
+  max-width: 64ch;
+  margin: 0 0 24px;
+  color: var(--saas-muted);
+  font-size: clamp(0.98rem, 2.5vw, 1.08rem);
+  line-height: 1.65;
+}
+
+.saas-form {
+  display: grid;
+  gap: 18px;
+}
+
+.saas-form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.saas-field {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+}
+
+.saas-field label {
+  color: var(--saas-ink);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.saas-field input,
+.saas-field select,
+.saas-field textarea {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #bdc6bd;
+  border-radius: 11px;
+  outline: 0;
+  background: #fff;
+  color: var(--saas-ink);
+  font: inherit;
+  font-size: 16px;
+  padding: 11px 12px;
+}
+
+.saas-field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.saas-field input:focus-visible,
+.saas-field select:focus-visible,
+.saas-field textarea:focus-visible,
+.saas-button:focus-visible,
+.saas-text-button:focus-visible,
+.saas-segmented button:focus-visible,
+.saas-bottom-nav a:focus-visible {
+  outline: 3px solid rgba(23, 107, 77, 0.25);
+  outline-offset: 2px;
+  border-color: var(--saas-accent);
+}
+
+.saas-help,
+.saas-footnote,
+.saas-muted {
+  margin: 0;
+  color: var(--saas-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.saas-footnote {
+  margin-top: 4px;
+  text-align: center;
+}
+
+.saas-footnote a,
+.saas-dev-link,
+.saas-back-link {
+  color: var(--saas-accent-dark);
+  font-weight: 700;
+}
+
+.saas-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 780;
+  line-height: 1.1;
+  padding: 0 18px;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.saas-button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.saas-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.saas-button-primary {
+  background: var(--saas-accent);
+  color: #fff;
+}
+
+.saas-button-primary:not(:disabled):hover {
+  background: var(--saas-accent-dark);
+}
+
+.saas-button-secondary {
+  border-color: var(--saas-line);
+  background: #fff;
+  color: var(--saas-ink);
+}
+
+.saas-error,
+.saas-success {
+  margin: 0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 11px 12px;
+}
+
+.saas-error {
+  background: #fff0ed;
+  color: #8a2f28;
+}
+
+.saas-success {
+  background: #eaf8ef;
+  color: #125a3e;
+}
+
+.saas-dev-link {
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.saas-onboarding-shell {
+  padding: max(18px, env(safe-area-inset-top)) 14px
+    max(30px, env(safe-area-inset-bottom));
+}
+
+.saas-onboarding-header,
+.saas-onboarding {
+  width: min(100%, 920px);
+  margin-inline: auto;
+}
+
+.saas-onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.saas-stepper {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.saas-stepper li {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  min-width: 0;
+  color: #839087;
+}
+
+.saas-stepper li::before {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border-radius: 99px;
+  background: #d9ddd5;
+  content: "";
+}
+
+.saas-stepper li.is-current::before,
+.saas-stepper li.is-complete::before {
+  background: var(--saas-accent);
+}
+
+.saas-stepper li > span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid var(--saas-line);
+  border-radius: 50%;
+  background: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.saas-stepper li.is-current,
+.saas-stepper li.is-complete {
+  color: var(--saas-accent-dark);
+}
+
+.saas-stepper small {
+  display: none;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saas-wizard-card {
+  min-height: 470px;
+  box-shadow: var(--saas-shadow);
+}
+
+.saas-segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: #e6e9e2;
+  padding: 4px;
+}
+
+.saas-segmented button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #526058;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+
+.saas-segmented button.is-selected {
+  background: #fff;
+  color: var(--saas-ink);
+  box-shadow: 0 2px 8px rgba(23, 33, 27, 0.08);
+}
+
+.saas-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-bottom: 18px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.saas-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--saas-accent);
+}
+
+.saas-wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+  border-top: 1px solid var(--saas-line);
+  padding-top: 20px;
+}
+
+.saas-wizard-actions .saas-button {
+  min-width: 112px;
+}
+
+.saas-summary {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  border: 1px solid var(--saas-line);
+  border-radius: 14px;
+  background: var(--saas-line);
+}
+
+.saas-summary > div {
+  display: grid;
+  gap: 4px;
+  background: #fff;
+  padding: 14px;
+}
+
+.saas-summary span,
+.saas-overview span,
+.saas-task-facts span {
+  color: var(--saas-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.saas-summary strong {
+  overflow-wrap: anywhere;
+}
+
+.saas-app {
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+.saas-app-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(217, 221, 213, 0.85);
+  background: color-mix(in srgb, var(--saas-canvas) 88%, transparent);
+  padding: 8px max(16px, calc((100vw - 1120px) / 2));
+  backdrop-filter: blur(16px);
+}
+
+.saas-account {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  color: var(--saas-muted);
+  font-size: 0.84rem;
+}
+
+.saas-account > span {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saas-account a {
+  color: var(--saas-accent-dark);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.saas-public-page {
+  min-height: 100dvh;
+  color: var(--saas-ink);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(174, 210, 183, 0.3), transparent 32rem),
+    var(--saas-canvas);
+  font-family:
+    Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+    sans-serif;
+  padding-bottom: 64px;
+}
+
+.saas-public-page * {
+  box-sizing: border-box;
+}
+
+.saas-public-header {
+  display: flex;
+  width: min(100%, 1120px);
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  margin-inline: auto;
+  padding: max(12px, env(safe-area-inset-top)) 18px 12px;
+}
+
+.saas-public-header nav a {
+  color: var(--saas-accent-dark);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.saas-pricing-hero,
+.saas-pricing-grid,
+.saas-integrity-note {
+  width: min(calc(100% - 28px), 980px);
+  margin-inline: auto;
+}
+
+.saas-pricing-hero {
+  padding: clamp(54px, 10vw, 112px) 0 42px;
+  text-align: center;
+}
+
+.saas-pricing-hero h1 {
+  max-width: 18ch;
+  margin: 10px auto 16px;
+  font-size: clamp(2.15rem, 7vw, 4.8rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  text-wrap: balance;
+}
+
+.saas-pricing-hero > p:last-child {
+  max-width: 58ch;
+  margin: 0 auto;
+  color: var(--saas-muted);
+  line-height: 1.65;
+}
+
+.saas-pricing-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.saas-price-card {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  border: 1px solid var(--saas-line);
+  border-radius: 24px;
+  background: var(--saas-surface);
+  box-shadow: var(--saas-shadow);
+  padding: clamp(22px, 5vw, 34px);
+}
+
+.saas-price-card.is-featured {
+  border-color: var(--saas-accent);
+  background:
+    linear-gradient(150deg, rgba(23, 107, 77, 0.09), transparent 48%),
+    var(--saas-surface);
+}
+
+.saas-price-card h2 {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  letter-spacing: -0.05em;
+}
+
+.saas-price-card > p:not(.saas-eyebrow) {
+  margin: 0;
+  color: var(--saas-muted);
+  line-height: 1.6;
+}
+
+.saas-price-card ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.5;
+}
+
+.saas-integrity-note {
+  margin-top: 34px;
+  border-left: 3px solid var(--saas-accent);
+  padding: 4px 0 4px 18px;
+}
+
+.saas-integrity-note h2,
+.saas-integrity-note p {
+  margin: 0;
+}
+
+.saas-integrity-note p {
+  margin-top: 6px;
+  color: var(--saas-muted);
+  line-height: 1.6;
+}
+
+.saas-checkout-action {
+  display: grid;
+  justify-items: stretch;
+  gap: 8px;
+}
+
+.saas-billing-summary {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  padding: 0;
+  background: var(--saas-line);
+}
+
+.saas-billing-summary > div {
+  display: grid;
+  gap: 4px;
+  background: var(--saas-surface);
+  padding: 18px;
+}
+
+.saas-billing-summary span,
+.saas-purchase-list span,
+.saas-purchase-list time {
+  color: var(--saas-muted);
+  font-size: 0.78rem;
+}
+
+.saas-billing-summary strong {
+  font-size: 1.3rem;
+}
+
+.saas-upgrade-card {
+  display: grid;
+  gap: 18px;
+}
+
+.saas-upgrade-card h2 {
+  margin: 6px 0;
+}
+
+.saas-upgrade-card p:last-child {
+  margin: 0;
+  color: var(--saas-muted);
+}
+
+.saas-purchase-list {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  background: var(--saas-line);
+}
+
+.saas-purchase-list article,
+.saas-purchase-list article > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.saas-purchase-list article {
+  background: var(--saas-surface);
+  padding: 14px;
+}
+
+.saas-purchase-list article > div {
+  display: grid;
+  justify-items: end;
+}
+
+.saas-purchase-list article > div:first-child {
+  justify-items: start;
+}
+
+.saas-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: 10px;
+}
+
+.saas-text-button {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--saas-accent-dark);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 6px;
+}
+
+.saas-text-button.is-danger {
+  color: var(--saas-danger);
+}
+
+.saas-app-main {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.saas-page {
+  display: grid;
+  gap: 18px;
+  padding: 28px 14px 36px;
+}
+
+.saas-page-heading {
+  padding: 12px 2px 4px;
+}
+
+.saas-page-heading h1 {
+  max-width: 760px;
+}
+
+.saas-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--saas-line);
+  border-radius: 16px;
+  background: var(--saas-line);
+}
+
+.saas-overview > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  background: var(--saas-surface);
+  padding: 14px;
+}
+
+.saas-overview strong {
+  overflow: hidden;
+  font-size: 0.94rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saas-current-task {
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--saas-ink);
+  color: #f7faf6;
+  box-shadow: 0 20px 52px rgba(18, 30, 22, 0.16);
+  padding: clamp(20px, 5vw, 36px);
+}
+
+.saas-task-topline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c5d0c8;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.saas-task-topline > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saas-priority {
+  border: 1px solid #607068;
+  border-radius: 99px;
+  color: #eef7f0;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 5px 8px;
+  text-transform: uppercase;
+}
+
+.saas-priority.is-critical {
+  border-color: #ffad9d;
+  color: #ffd5cd;
+}
+
+.saas-current-task h2 {
+  max-width: 760px;
+  margin: 16px 0 8px;
+  font-size: clamp(1.55rem, 5vw, 2.65rem);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+
+.saas-current-task > p {
+  margin: 0;
+  color: #c5d0c8;
+  line-height: 1.65;
+}
+
+.saas-task-facts {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.saas-task-facts > div {
+  display: grid;
+  gap: 5px;
+  border-left: 2px solid #4d6256;
+  padding-left: 12px;
+}
+
+.saas-task-facts span {
+  color: #9fafa5;
+}
+
+.saas-task-facts strong {
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.saas-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.saas-current-task .saas-button-primary {
+  background: #deefdf;
+  color: #123c2b;
+}
+
+.saas-current-task .saas-button-secondary {
+  border-color: #526159;
+  background: transparent;
+  color: #f2f7f3;
+}
+
+.saas-empty {
+  border: 1px dashed #b8c0b9;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.45);
+  padding: clamp(22px, 5vw, 34px);
+}
+
+.saas-empty h2 {
+  margin: 6px 0 8px;
+}
+
+.saas-empty p:last-child {
+  color: var(--saas-muted);
+}
+
+.saas-two-column {
+  display: grid;
+  gap: 18px;
+}
+
+.saas-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.saas-section-heading h2 {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.saas-section-heading > span {
+  color: var(--saas-muted);
+  font-size: 0.82rem;
+}
+
+.saas-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saas-list li {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid #e8eae5;
+  padding: 14px 0;
+}
+
+.saas-list li:first-child {
+  border-top: 0;
+}
+
+.saas-list li > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.saas-list strong,
+.saas-list span {
+  overflow-wrap: anywhere;
+}
+
+.saas-list span {
+  color: var(--saas-muted);
+  font-size: 0.82rem;
+}
+
+.saas-dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  color: #829087;
+}
+
+.saas-dot.is-high,
+.saas-dot.is-critical {
+  color: #b94e3f;
+}
+
+.saas-dot.is-medium {
+  color: #b7791f;
+}
+
+.saas-deadline-list time {
+  flex: 0 0 auto;
+  color: var(--saas-ink);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.saas-assessment-row {
+  align-items: flex-start !important;
+}
+
+.saas-assessment-copy {
+  padding-top: 9px;
+}
+
+.saas-assessment-meta {
+  display: grid !important;
+  justify-items: end;
+  gap: 4px !important;
+}
+
+.saas-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.saas-row-actions .saas-text-button {
+  min-height: 36px;
+  padding: 4px 7px;
+}
+
+.saas-row-actions .saas-error {
+  width: 100%;
+}
+
+.saas-row-editor {
+  width: 100%;
+  min-width: min(620px, calc(100vw - 58px));
+  margin-top: 8px;
+  border: 1px solid var(--saas-line);
+  border-radius: 14px;
+  background: var(--saas-surface);
+  padding: 14px;
+}
+
+.saas-assessment-row:has(.saas-row-editor) {
+  display: block;
+}
+
+.saas-bottom-nav {
+  position: fixed;
+  z-index: 30;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 84px));
+  justify-content: center;
+  border-top: 1px solid var(--saas-line);
+  background: rgba(255, 254, 249, 0.96);
+  padding: 6px 12px max(6px, env(safe-area-inset-bottom));
+  backdrop-filter: blur(18px);
+}
+
+.saas-tutor-layout,
+.saas-resource-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.saas-tutor-context {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.saas-checkbox-list {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.saas-checkbox-list legend {
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.saas-checkbox-list label,
+.saas-check-row {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  line-height: 1.45;
+}
+
+.saas-checkbox-list input,
+.saas-check-row input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  accent-color: var(--saas-accent);
+}
+
+.saas-chat-panel {
+  display: grid;
+  gap: 16px;
+  min-height: 560px;
+}
+
+.saas-integrity-banner {
+  display: grid;
+  gap: 3px;
+  border-left: 3px solid #b7791f;
+  border-radius: 10px;
+  background: #fff7df;
+  color: #5f4518;
+  padding: 12px 14px;
+}
+
+.saas-integrity-banner span {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.saas-chat-log {
+  display: grid;
+  align-content: end;
+  gap: 10px;
+  min-height: 220px;
+}
+
+.saas-chat-message {
+  display: grid;
+  max-width: min(92%, 680px);
+  gap: 4px;
+  border-radius: 16px;
+  background: #edf1eb;
+  padding: 13px 15px;
+}
+
+.saas-chat-message.is-user {
+  justify-self: end;
+  background: var(--saas-accent);
+  color: #fff;
+}
+
+.saas-chat-message > span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  opacity: 0.75;
+}
+
+.saas-chat-message p {
+  margin: 0;
+  line-height: 1.62;
+  white-space: pre-wrap;
+}
+
+.saas-chat-empty {
+  align-self: center;
+  justify-self: center;
+  max-width: 46ch;
+  color: var(--saas-muted);
+  text-align: center;
+}
+
+.saas-chat-empty h2 {
+  margin: 0 0 6px;
+  color: var(--saas-ink);
+}
+
+.saas-chat-empty p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.saas-tutor-form {
+  display: grid;
+  gap: 13px;
+  align-self: end;
+  border-top: 1px solid var(--saas-line);
+  padding-top: 16px;
+}
+
+.saas-tutor-submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.saas-tutor-submit > span {
+  color: var(--saas-muted);
+  font-size: 0.78rem;
+}
+
+.saas-paywall-note {
+  display: grid;
+  gap: 12px;
+}
+
+.saas-paywall-note p {
+  margin: 0;
+  color: var(--saas-muted);
+}
+
+.saas-resource-list {
+  display: grid;
+  gap: 9px;
+}
+
+.saas-resource-list article {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.saas-resource-list article.is-selected {
+  border-color: var(--saas-accent);
+  background: color-mix(in srgb, var(--saas-accent) 7%, var(--saas-surface));
+}
+
+.saas-resource-list article > button {
+  display: grid;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.saas-resource-list article > button span {
+  color: var(--saas-muted);
+  font-size: 0.76rem;
+}
+
+.saas-resource-list article > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.saas-resource-list article > div a,
+.saas-resource-list article > div button {
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--saas-accent-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 750;
+  padding: 8px;
+  text-decoration: none;
+}
+
+.saas-resource-confirm {
+  display: grid;
+  gap: 20px;
+}
+
+.saas-resource-confirm h2 {
+  margin: 6px 0;
+}
+
+.saas-status-message {
+  position: sticky;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 10;
+  margin: 0;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  background: var(--saas-surface);
+  box-shadow: var(--saas-shadow);
+  padding: 12px 14px;
+}
+
+.saas-settings-nav {
+  display: flex;
+  width: min(100%, 1120px);
+  gap: 4px;
+  overflow-x: auto;
+  margin-inline: auto;
+  border-bottom: 1px solid var(--saas-line);
+  padding: 8px 14px 0;
+  scrollbar-width: thin;
+}
+
+.saas-settings-nav a {
+  display: inline-flex;
+  min-height: 44px;
+  flex: 0 0 auto;
+  align-items: center;
+  border-radius: 10px 10px 0 0;
+  color: var(--saas-muted);
+  font-size: 0.8rem;
+  font-weight: 750;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.saas-settings-nav a:hover,
+.saas-settings-nav a:focus-visible {
+  background: color-mix(in srgb, var(--saas-accent) 8%, transparent);
+  color: var(--saas-accent-dark);
+}
+
+.saas-settings-stack,
+.saas-danger-zone {
+  display: grid;
+  gap: 16px;
+}
+
+.saas-danger-zone {
+  border-color: color-mix(in srgb, var(--saas-danger) 48%, var(--saas-line));
+}
+
+.saas-danger-zone h2 {
+  margin: 6px 0;
+}
+
+.saas-danger-zone p:last-child {
+  margin: 0;
+  color: var(--saas-muted);
+  line-height: 1.55;
+}
+
+.saas-button-danger {
+  background: var(--saas-danger);
+  color: #fff;
+}
+
+.saas-notification-list {
+  display: grid;
+  gap: 10px;
+}
+
+.saas-notification-list article {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--saas-line);
+  border-left: 4px solid var(--saas-accent);
+  border-radius: 13px;
+  background: var(--saas-surface);
+  padding: 16px;
+}
+
+.saas-notification-list article.is-read {
+  border-left-color: var(--saas-line);
+  opacity: 0.78;
+}
+
+.saas-notification-list article > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.saas-notification-list span,
+.saas-notification-list time {
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+}
+
+.saas-notification-list h2,
+.saas-notification-list p {
+  margin: 0;
+}
+
+.saas-admin {
+  display: grid;
+  width: min(calc(100% - 28px), 1240px);
+  gap: 18px;
+  margin-inline: auto;
+  color: var(--saas-ink);
+  font-family:
+    Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+    sans-serif;
+  padding: 30px 0 72px;
+}
+
+.saas-admin * {
+  box-sizing: border-box;
+}
+
+.saas-admin-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 2px;
+}
+
+.saas-admin-header h1 {
+  margin: 7px 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  letter-spacing: -0.055em;
+}
+
+.saas-admin-header p:last-child {
+  margin: 0;
+  color: var(--saas-muted);
+}
+
+.saas-admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--saas-line);
+  border-radius: 18px;
+  background: var(--saas-line);
+}
+
+.saas-admin-metrics article {
+  display: grid;
+  gap: 5px;
+  background: var(--saas-surface);
+  padding: 16px;
+}
+
+.saas-admin-metrics span {
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+}
+
+.saas-admin-metrics strong {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  letter-spacing: -0.04em;
+}
+
+.saas-admin-section {
+  display: grid;
+  gap: 18px;
+}
+
+.saas-admin-section h2 {
+  margin: 6px 0 0;
+}
+
+.saas-admin-list,
+.saas-admin-form-list {
+  display: grid;
+  gap: 9px;
+}
+
+.saas-admin-list article {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  padding: 11px 13px;
+}
+
+.saas-admin-list article > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.saas-admin-list article span,
+.saas-admin-list article time {
+  overflow-wrap: anywhere;
+  color: var(--saas-muted);
+  font-size: 0.75rem;
+}
+
+.saas-admin-table-wrap {
+  overflow-x: auto;
+}
+
+.saas-admin-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.saas-admin-table th,
+.saas-admin-table td {
+  border-bottom: 1px solid var(--saas-line);
+  padding: 12px;
+}
+
+.saas-admin-table th {
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+}
+
+.saas-admin-table td:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.saas-admin-table small {
+  color: var(--saas-muted);
+}
+
+.saas-admin-template-form {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--saas-line);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+@media (min-width: 760px) {
+  .saas-admin-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .saas-admin-template-form {
+    grid-template-columns: 0.45fr 1fr 1.4fr 0.55fr auto auto;
+    align-items: end;
+  }
+}
+
+.saas-notification-list h2 {
+  font-size: 1.05rem;
+}
+
+.saas-notification-list p {
+  line-height: 1.55;
+}
+
+.saas-bottom-nav a {
+  display: grid;
+  min-height: 54px;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  border-radius: 11px;
+  color: #4d5b52;
+  font-size: 0.7rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.saas-bottom-nav a:hover {
+  background: #edf1eb;
+  color: var(--saas-accent-dark);
+}
+
+.saas-bottom-nav span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid #cdd4cd;
+  border-radius: 8px;
+  font-size: 0.72rem;
+}
+
+.saas-course-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.saas-course-card,
+.saas-course-hero {
+  --course-color: #347c67;
+}
+
+.saas-course-card.is-forest,
+.saas-course-hero.is-forest {
+  --course-color: #46704c;
+}
+
+.saas-course-card.is-amber,
+.saas-course-hero.is-amber {
+  --course-color: #9a641d;
+}
+
+.saas-course-card.is-violet,
+.saas-course-hero.is-violet {
+  --course-color: #6e5591;
+}
+
+.saas-course-card.is-rose,
+.saas-course-hero.is-rose {
+  --course-color: #9b5363;
+}
+
+.saas-course-card.is-slate,
+.saas-course-hero.is-slate {
+  --course-color: #58656d;
+}
+
+.saas-course-card {
+  display: grid;
+  min-height: 180px;
+  align-content: end;
+  border: 1px solid color-mix(in srgb, var(--course-color) 28%, white);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--course-color) 16%, white),
+      #fffef9 70%
+    );
+  color: var(--saas-ink);
+  padding: 20px;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.saas-course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--saas-shadow);
+}
+
+.saas-course-card > span {
+  color: var(--course-color);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.saas-course-card h2 {
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+  font-size: 1.3rem;
+}
+
+.saas-course-card p {
+  margin: 0;
+  color: var(--saas-muted);
+  font-size: 0.84rem;
+}
+
+.saas-plan-note {
+  display: grid;
+  gap: 6px;
+  border-left: 3px solid var(--saas-accent);
+  color: var(--saas-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  padding: 10px 14px;
+}
+
+.saas-plan-note strong {
+  color: var(--saas-ink);
+}
+
+.saas-back-link {
+  width: fit-content;
+  min-height: 44px;
+  align-content: center;
+  text-decoration: none;
+}
+
+.saas-course-hero {
+  border-left: 6px solid var(--course-color);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--course-color) 10%, white);
+  padding: clamp(20px, 5vw, 34px);
+}
+
+.saas-course-hero p:last-child {
+  margin: 0;
+  color: var(--saas-muted);
+}
+
+.saas-inline-form {
+  margin-top: 14px;
+  border-top: 1px solid var(--saas-line);
+  padding-top: 18px;
+}
+
+.saas-review-alert {
+  display: grid;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid #d6a74f;
+  border-radius: 16px;
+  background: #fff7df;
+  color: #49320f;
+  padding: 16px;
+}
+
+.saas-review-alert > div {
+  display: grid;
+  gap: 4px;
+}
+
+.saas-review-alert span {
+  color: #8c5c0e;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.saas-review-alert strong {
+  font-size: 1rem;
+}
+
+.saas-review-alert p {
+  margin: 0;
+  color: #745624;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.saas-focus-block {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  border: 1px solid #43544a;
+  border-radius: 16px;
+  background: #101b14;
+  padding: 16px;
+}
+
+.saas-focus-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.saas-focus-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.saas-focus-heading span {
+  color: #91a398;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.saas-focus-heading strong {
+  color: #f1f7f2;
+  font-size: 0.9rem;
+}
+
+.saas-focus-heading output {
+  color: #deefdf;
+  font-size: clamp(1.8rem, 8vw, 3rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 780;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.saas-duration-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.saas-duration-options button,
+.saas-duration-options label {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid #43544a;
+  border-radius: 10px;
+  background: #17241b;
+  color: #c8d5cc;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.saas-duration-options button.is-selected {
+  border-color: #b9dbbe;
+  background: #deefdf;
+  color: #123c2b;
+}
+
+.saas-duration-options label {
+  grid-column: 1 / -1;
+  grid-template-columns: auto 72px;
+  justify-content: center;
+  gap: 10px;
+  cursor: text;
+  padding: 4px 10px;
+}
+
+.saas-duration-options input {
+  width: 64px;
+  min-height: 36px;
+  border: 1px solid #66796d;
+  border-radius: 8px;
+  background: #0e1811;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+}
+
+.saas-button-focus {
+  background: #deefdf;
+  color: #123c2b;
+}
+
+.saas-button-focus:not(:disabled):hover {
+  background: #c9e4cc;
+}
+
+.saas-focus-progress {
+  overflow: hidden;
+  height: 5px;
+  border-radius: 99px;
+  background: #324138;
+}
+
+.saas-focus-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #a9d4af;
+  transition: width 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.saas-focus-reflection {
+  display: grid;
+  gap: 14px;
+  border-radius: 12px;
+  background: #f7faf6;
+  color: #17211b;
+  padding: 14px;
+}
+
+.saas-focus-reflection .saas-check {
+  margin: 0;
+}
+
+.saas-retest-start {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.saas-retest-start label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c5d0c8;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.saas-retest-start select {
+  min-height: 44px;
+  border: 1px solid #526159;
+  border-radius: 10px;
+  background: #101b14;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  padding: 8px 10px;
+}
+
+.saas-rebalance {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 12px;
+  border-top: 1px solid #e8eae5;
+  padding-top: 12px;
+}
+
+.saas-integrity-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-left: 3px solid var(--saas-accent);
+  color: var(--saas-muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  padding: 8px 12px;
+}
+
+.saas-integrity-note strong {
+  flex: 0 0 auto;
+  color: var(--saas-ink);
+}
+
+.saas-practice-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.saas-practice-launch {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--saas-ink);
+  color: var(--saas-surface);
+  box-shadow: 0 20px 52px rgba(18, 30, 22, 0.14);
+  padding: clamp(20px, 5vw, 32px);
+}
+
+.saas-practice-launch h2 {
+  margin: 6px 0 0;
+  font-size: clamp(1.45rem, 5vw, 2.2rem);
+  letter-spacing: -0.035em;
+}
+
+.saas-practice-launch .saas-field label {
+  color: #dfe9e1;
+}
+
+.saas-practice-launch .saas-field select {
+  border-color: #526159;
+  background: #101b14;
+  color: #fff;
+}
+
+.saas-practice-course-state {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid #45554b;
+  border-radius: 12px;
+  background: #45554b;
+}
+
+.saas-practice-course-state > div {
+  display: grid;
+  gap: 4px;
+  background: #101b14;
+  padding: 12px;
+}
+
+.saas-practice-course-state span {
+  color: #91a398;
+  font-size: 0.72rem;
+}
+
+.saas-practice-course-state strong {
+  color: #f2f7f3;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.saas-resume-session {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #526159;
+  border-radius: 14px;
+  background: #101b14;
+  padding: 16px;
+}
+
+.saas-resume-session > span {
+  color: #91a398;
+  font-size: 0.75rem;
+}
+
+.saas-question-builder summary {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.saas-question-builder summary::-webkit-details-marker {
+  display: none;
+}
+
+.saas-question-builder summary > span:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.saas-question-builder summary small {
+  color: var(--saas-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.saas-question-builder[open] summary {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--saas-line);
+  padding-bottom: 16px;
+}
+
+.saas-option-builder,
+.saas-answer-options {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.saas-option-builder legend,
+.saas-answer-options legend {
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.saas-option-builder > label {
+  display: grid;
+  grid-template-columns: 22px 28px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.saas-option-builder input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--saas-accent);
+}
+
+.saas-option-builder > label > span {
+  color: var(--saas-muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.saas-option-builder input:last-child {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #bdc6bd;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--saas-ink);
+  font: inherit;
+  font-size: 16px;
+  padding: 9px 11px;
+}
+
+.saas-practice-page {
+  width: min(100%, 860px);
+  margin-inline: auto;
+}
+
+.saas-practice-card {
+  display: grid;
+  gap: 22px;
+  border: 1px solid var(--saas-line);
+  border-radius: 22px;
+  background: var(--saas-surface);
+  box-shadow: var(--saas-shadow);
+  padding: clamp(18px, 5vw, 34px);
+}
+
+.saas-practice-card > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.saas-practice-card > header h1 {
+  margin: 5px 0 0;
+  font-size: clamp(1.35rem, 5vw, 2rem);
+  letter-spacing: -0.035em;
+}
+
+.saas-practice-card > header > span {
+  flex: 0 0 auto;
+  border-radius: 99px;
+  background: #edf1eb;
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 6px 9px;
+}
+
+.saas-question-prompt {
+  display: grid;
+  gap: 8px;
+  border-left: 3px solid var(--saas-accent);
+  padding: 4px 0 4px 16px;
+}
+
+.saas-question-prompt > span {
+  color: var(--saas-accent);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.saas-question-prompt h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 4vw, 1.55rem);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.saas-answer-options > label {
+  display: grid;
+  grid-template-columns: 22px 34px 1fr;
+  min-height: 54px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--saas-surface) 86%, var(--saas-canvas));
+  cursor: pointer;
+  padding: 10px 12px;
+}
+
+.saas-answer-options > label.is-selected {
+  border-color: var(--saas-accent);
+  background: color-mix(in srgb, var(--saas-accent) 9%, var(--saas-surface));
+}
+
+.saas-answer-options input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--saas-accent);
+}
+
+.saas-answer-options label > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid var(--saas-line);
+  border-radius: 8px;
+  color: var(--saas-muted);
+  font-size: 0.78rem;
+}
+
+.saas-answer-options strong {
+  line-height: 1.45;
+}
+
+.saas-hint-stack {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saas-hint-stack li {
+  display: grid;
+  gap: 4px;
+  border-radius: 12px;
+  background: #fff7df;
+  color: #5f4518;
+  padding: 12px;
+}
+
+.saas-hint-stack span {
+  color: #8c5c0e;
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.saas-hint-stack p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.saas-retry-feedback {
+  display: grid;
+  gap: 4px;
+  border-left: 4px solid #c98116;
+  border-radius: 10px;
+  background: #fff8e9;
+  color: #5f4518;
+  padding: 12px 14px;
+}
+
+.saas-retry-feedback p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.saas-retry-feedback span {
+  color: #826329;
+  font-size: 0.78rem;
+}
+
+.saas-practice-actions,
+.saas-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.saas-attempt-result {
+  display: grid;
+  gap: 18px;
+  border-radius: 16px;
+  background: #f2f5ef;
+  padding: clamp(16px, 4vw, 24px);
+}
+
+.saas-attempt-result.is-incorrect {
+  background: #fff2ee;
+}
+
+.saas-result-verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.saas-result-verdict > span {
+  font-size: 1.1rem;
+  font-weight: 850;
+}
+
+.saas-result-verdict > strong {
+  border-radius: 99px;
+  background: #dcebdd;
+  color: #185439;
+  font-size: 0.75rem;
+  padding: 6px 9px;
+}
+
+.saas-attempt-result.is-incorrect .saas-result-verdict > strong {
+  background: #ffe0d9;
+  color: #8a2f28;
+}
+
+.saas-attempt-result dl {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  background: var(--saas-line);
+}
+
+.saas-attempt-result dl > div {
+  display: grid;
+  gap: 4px;
+  background: var(--saas-surface);
+  padding: 12px;
+}
+
+.saas-attempt-result dt {
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.saas-attempt-result dd {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.saas-reflection-card {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--saas-line);
+  padding-top: 18px;
+}
+
+.saas-reflection-card h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.saas-mastery-overview {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--saas-line);
+  border-radius: 16px;
+  background: var(--saas-line);
+}
+
+.saas-mastery-overview > div {
+  display: grid;
+  gap: 4px;
+  background: var(--saas-surface);
+  padding: 16px;
+}
+
+.saas-mastery-overview > div.is-due {
+  background: #fff7df;
+}
+
+.saas-mastery-overview span,
+.saas-mastery-overview small {
+  color: var(--saas-muted);
+  font-size: 0.75rem;
+}
+
+.saas-mastery-overview strong {
+  font-size: 1.8rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.saas-mastery-list {
+  display: grid;
+  gap: 10px;
+}
+
+.saas-mastery-row {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--saas-line);
+  border-left: 4px solid #8a978e;
+  border-radius: 14px;
+  background: var(--saas-surface);
+  padding: 16px;
+}
+
+.saas-mastery-row.is-review_due {
+  border-left-color: #b7791f;
+}
+
+.saas-mastery-row.is-stable {
+  border-left-color: var(--saas-success);
+}
+
+.saas-mastery-course,
+.saas-mastery-state {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.saas-mastery-course span,
+.saas-mastery-state time {
+  color: var(--saas-muted);
+  font-size: 0.75rem;
+}
+
+.saas-mastery-course strong {
+  font-size: 0.88rem;
+}
+
+.saas-mastery-topic h2 {
+  margin: 0 0 5px;
+  font-size: 1.08rem;
+}
+
+.saas-mastery-topic p {
+  margin: 0;
+  color: var(--saas-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.saas-mastery-state > span {
+  width: fit-content;
+  border-radius: 99px;
+  background: #edf1eb;
+  color: var(--saas-ink);
+  font-size: 0.73rem;
+  font-weight: 800;
+  padding: 6px 9px;
+}
+
+.saas-mastery-row.is-review_due .saas-mastery-state > span {
+  background: #fff0c9;
+  color: #744b0b;
+}
+
+@media (min-width: 640px) {
+  .saas-auth-shell,
+  .saas-onboarding-shell {
+    padding-inline: 24px;
+  }
+
+  .saas-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .saas-field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .saas-stepper small {
+    display: block;
+  }
+
+  .saas-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .saas-page {
+    padding: 34px 24px 48px;
+  }
+
+  .saas-overview {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .saas-task-facts {
+    grid-template-columns: 1.3fr 0.55fr 1.5fr;
+  }
+
+  .saas-course-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .saas-review-alert {
+    grid-template-columns: 1fr auto;
+  }
+
+  .saas-duration-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .saas-duration-options label {
+    grid-column: auto;
+  }
+
+  .saas-mastery-overview {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .saas-mastery-row {
+    grid-template-columns: minmax(120px, 0.65fr) minmax(220px, 1.5fr) auto;
+    align-items: center;
+  }
+
+  .saas-mastery-state {
+    min-width: 132px;
+    justify-items: end;
+    text-align: right;
+  }
+}
+
+@media (min-width: 920px) {
+  .saas-two-column {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .saas-course-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .saas-practice-layout {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+
+  .saas-tutor-layout {
+    grid-template-columns: minmax(250px, 0.7fr) minmax(0, 1.5fr);
+    align-items: start;
+  }
+
+  .saas-tutor-context {
+    position: sticky;
+    top: 82px;
+  }
+
+  .saas-resource-layout {
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+
+  .saas-resource-confirm,
+  .saas-status-message {
+    grid-column: 1 / -1;
+  }
+
+  .saas-pricing-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --saas-ink: #edf4ee;
+    --saas-muted: #a8b5ab;
+    --saas-canvas: #121914;
+    --saas-surface: #1a231c;
+    --saas-line: #354139;
+    --saas-accent: #72c99e;
+    --saas-accent-dark: #9cdbb9;
+    --saas-danger: #ff9c8f;
+  }
+
+  .saas-field input,
+  .saas-field select,
+  .saas-field textarea,
+  .saas-button-secondary,
+  .saas-stepper li > span,
+  .saas-segmented button.is-selected,
+  .saas-summary > div {
+    background: #202a22;
+    color: var(--saas-ink);
+  }
+
+  .saas-segmented {
+    background: #0e1510;
+  }
+
+  .saas-current-task {
+    background: #07110b;
+  }
+
+  .saas-bottom-nav {
+    background: rgba(20, 28, 22, 0.96);
+  }
+
+  .saas-course-card,
+  .saas-course-hero {
+    background: color-mix(in srgb, var(--course-color) 20%, #172019);
+    color: var(--saas-ink);
+  }
+
+  .saas-review-alert,
+  .saas-mastery-overview > div.is-due,
+  .saas-hint-stack li,
+  .saas-retry-feedback {
+    background: #302818;
+    color: #f2dcae;
+  }
+
+  .saas-review-alert p {
+    color: #d2bc8f;
+  }
+
+  .saas-retry-feedback span {
+    color: #d2bc8f;
+  }
+
+  .saas-focus-reflection,
+  .saas-attempt-result,
+  .saas-attempt-result dl > div {
+    background: #202a22;
+    color: var(--saas-ink);
+  }
+
+  .saas-attempt-result.is-incorrect {
+    background: #30201d;
+  }
+
+  .saas-option-builder input:last-child,
+  .saas-answer-options > label,
+  .saas-practice-card,
+  .saas-mastery-row,
+  .saas-mastery-overview > div {
+    background: var(--saas-surface);
+    color: var(--saas-ink);
+  }
+
+  .saas-practice-card > header > span,
+  .saas-mastery-state > span {
+    background: #273229;
+  }
+
+  .saas-integrity-banner {
+    background: #302818;
+    color: #f2dcae;
+  }
+
+  .saas-chat-message {
+    background: #273229;
+  }
+
+  .saas-chat-message.is-user {
+    background: var(--saas-accent);
+    color: #07110b;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-button,
+  .saas-course-card,
+  .saas-focus-progress span {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}
+
+.saas-plan-toolbar {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.saas-plan-toolbar > label {
+  display: grid;
+  flex: 1 1 170px;
+  gap: 6px;
+  color: var(--saas-muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.saas-plan-toolbar input,
+.saas-plan-toolbar select {
+  min-height: 46px;
+  border: 1px solid var(--saas-line);
+  border-radius: 10px;
+  background: var(--saas-surface);
+  color: var(--saas-ink);
+  font: inherit;
+  padding: 0 12px;
+}
+
+.saas-segmented {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 0 0 auto;
+  border: 1px solid var(--saas-line);
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.saas-segmented button {
+  min-height: 46px;
+  border: 0;
+  background: var(--saas-surface);
+  color: var(--saas-muted);
+  font: inherit;
+  font-weight: 760;
+  padding: 0 16px;
+}
+
+.saas-segmented button[aria-pressed="true"] {
+  background: var(--saas-ink);
+  color: var(--saas-surface);
+}
+
+.saas-plan-board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(220px, 1fr));
+  gap: 12px;
+  overflow-x: auto;
+  padding: 2px 2px 16px;
+  scroll-snap-type: x proximity;
+}
+
+.saas-plan-day {
+  min-height: 310px;
+  border: 1px solid var(--saas-line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--saas-surface) 88%, transparent);
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.saas-plan-day > header {
+  display: grid;
+  gap: 7px;
+  border-bottom: 1px solid var(--saas-line);
+  padding: 14px;
+}
+
+.saas-plan-day > header > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.saas-plan-day > header time {
+  color: var(--saas-ink);
+  font-weight: 820;
+}
+
+.saas-plan-day > header span,
+.saas-plan-day > header strong {
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+}
+
+.saas-plan-day.is-overload {
+  border-color: #bc761f;
+}
+
+.saas-plan-day.is-overload > header {
+  background: #fff4d9;
+}
+
+.saas-plan-day > ol {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+}
+
+.saas-plan-day > .saas-muted {
+  padding: 10px 14px;
+}
+
+.saas-plan-day li {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  background: var(--saas-surface);
+  cursor: grab;
+  padding: 12px;
+}
+
+.saas-plan-day li.is-completed {
+  opacity: 0.64;
+  cursor: default;
+}
+
+.saas-plan-task-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.saas-plan-task-copy strong {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.saas-plan-task-copy small {
+  color: var(--saas-muted);
+}
+
+.saas-plan-task-copy p {
+  margin: 0;
+  color: var(--saas-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.saas-plan-task-actions {
+  display: grid;
+  gap: 7px;
+}
+
+.saas-plan-task-actions label {
+  display: grid;
+  gap: 4px;
+  color: var(--saas-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.saas-plan-task-actions input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--saas-line);
+  border-radius: 8px;
+  background: var(--saas-surface);
+  color: var(--saas-ink);
+  padding: 0 8px;
+}
+
+.saas-plan-task-actions button {
+  min-height: 42px;
+  border: 1px solid var(--saas-line);
+  border-radius: 8px;
+  background: var(--saas-surface);
+  color: var(--saas-ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.saas-plan-done {
+  color: var(--saas-success);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .saas-plan-toolbar {
+    align-items: stretch;
+  }
+
+  .saas-plan-toolbar > *,
+  .saas-plan-toolbar .saas-button {
+    width: 100%;
+  }
+
+  .saas-plan-board {
+    grid-template-columns: repeat(7, minmax(82vw, 1fr));
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .saas-plan-day.is-overload > header {
+    background: #302818;
+  }
+}
+
+.saas-management-list {
+  display: grid;
+  gap: 9px;
+}
+
+.saas-management-list details,
+.saas-card > details {
+  border: 1px solid var(--saas-line);
+  border-radius: 12px;
+  background: var(--saas-surface);
+  overflow: hidden;
+}
+
+.saas-management-list summary {
+  display: grid;
+  gap: 3px;
+  cursor: pointer;
+  padding: 13px 15px;
+}
+
+.saas-management-list summary span {
+  color: var(--saas-muted);
+  font-size: 0.78rem;
+}
+
+.saas-management-list form,
+.saas-card > details > form {
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--saas-line);
+  padding: 15px;
+}
+
+.saas-card > details > summary.saas-button {
+  width: fit-content;
+  cursor: pointer;
+  list-style: none;
+}
+
+.saas-report-grid,
+.saas-more-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.saas-report-course {
+  display: grid;
+  gap: 9px;
+  border: 1px solid var(--saas-line);
+  border-left: 5px solid var(--course-color, var(--saas-accent));
+  border-radius: 13px;
+  background: var(--saas-surface);
+  padding: 15px;
+}
+
+.saas-report-course > span {
+  color: var(--saas-muted);
+  font-size: 0.72rem;
+  font-weight: 760;
+}
+
+.saas-report-course h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.saas-report-course dl {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+  margin: 0;
+}
+
+.saas-report-course dl div {
+  display: grid;
+  gap: 2px;
+}
+
+.saas-report-course dt {
+  color: var(--saas-muted);
+  font-size: 0.7rem;
+}
+
+.saas-report-course dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.saas-more-grid a {
+  color: var(--saas-ink);
+  text-decoration: none;
+}
+
+.saas-more-grid h2,
+.saas-more-grid p {
+  margin: 0;
+}
+
+.saas-more-grid p {
+  color: var(--saas-muted);
+  line-height: 1.6;
+}
+
+.saas-more-grid span {
+  color: var(--saas-accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+@media (max-width: 620px) {
+  .saas-app-header {
+    min-height: 58px;
+    padding-inline: 14px;
+  }
+
+  .saas-account {
+    gap: 0;
+  }
+
+  .saas-account a,
+  .saas-account > span {
+    display: none;
+  }
+
+  .saas-account .saas-text-button {
+    padding-inline: 10px;
+  }
+
+  .saas-report-grid,
+  .saas-more-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.saas-today-queue li {
+  align-items: start;
+  cursor: grab;
+}
+
+.saas-queue-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.saas-queue-actions button {
+  min-height: 36px;
+  border: 1px solid var(--saas-line);
+  border-radius: 8px;
+  background: var(--saas-surface);
+  color: var(--saas-ink);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 760;
+  padding: 0 8px;
+}
+
+.saas-error-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  background: var(--saas-canvas);
+  color: var(--saas-ink);
+  padding: 20px;
+}
+
+.saas-error-page .saas-card {
+  width: min(100%, 560px);
+}

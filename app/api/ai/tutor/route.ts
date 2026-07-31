@@ -1,0 +1,37 @@
+import { getAiTutorService } from "@/src/application/runtime";
+import { requireUserFromRequest } from "@/src/application/session";
+import {
+  ApiError,
+  errorResponse,
+  jsonOk,
+  requestId,
+} from "@/src/lib/api-errors";
+import { assertSameOrigin } from "@/src/lib/request-security";
+import { aiTutorInputSchema } from "@/src/lib/schemas";
+
+export async function POST(request: Request): Promise<Response> {
+  const id = requestId(request);
+  try {
+    assertSameOrigin(request);
+    const user = await requireUserFromRequest(request);
+    const parsed = aiTutorInputSchema.safeParse(
+      await request.json().catch(() => null),
+    );
+    if (!parsed.success) {
+      throw new ApiError(
+        "VALIDATION_ERROR",
+        400,
+        parsed.error.issues[0]?.message ?? "Check the tutor message.",
+      );
+    }
+    const result = await getAiTutorService().tutor({
+      userId: user.id,
+      role: user.role,
+      timezone: user.timezone,
+      request: parsed.data,
+    });
+    return jsonOk(result, 200, { "x-request-id": id });
+  } catch (error) {
+    return errorResponse(error, id);
+  }
+}

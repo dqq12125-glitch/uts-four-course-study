@@ -1,6 +1,15 @@
 import { advancedQuestionBank, type QuestionVisual } from "./advanced-questions";
+import type { AnswerToolKind } from "./answer-workspace";
+import type { LearningVisualIntent } from "./question-visuals";
 
 export type LocalizedText = { zh: string; en: string };
+
+export type QuestionDifficulty =
+  | "foundation"
+  | "application"
+  | "complex"
+  | "challenge"
+  | "instructor";
 
 export type TopicQuestion = {
   id: string;
@@ -12,6 +21,14 @@ export type TopicQuestion = {
   answer: number | number[];
   explanation: LocalizedText;
   visual?: QuestionVisual;
+  learningVisual?: LearningVisualIntent;
+  answerTools?: AnswerToolKind[];
+  difficulty?: QuestionDifficulty;
+  estimatedMinutes?: number;
+  rubric?: {
+    zh: string[];
+    en: string[];
+  };
 };
 
 type Check = [zh: string, en: string, truth: boolean];
@@ -524,6 +541,86 @@ const specs: TopicSpec[] = [
       ["增加小数位数会自动提高实验准确度。", "Adding decimal places automatically improves experimental accuracy.", false],
     ],
   },
+  {
+    courseId: "physics",
+    topicId: "physics-6",
+    note: b(
+      "热学用温度描述热平衡状态，用内能描述微观粒子总能量；热量是因温差而传递的能量，不是物体“含有”的物质。量热问题必须先划定系统，统一质量和温度单位，再用能量守恒检查吸热与放热。",
+      "Thermal physics uses temperature to describe thermal state and internal energy for microscopic energy. Heat is energy transferred because of a temperature difference, not a substance stored in an object. Calorimetry requires a defined system, consistent units and an energy-balance check.",
+    ),
+    checks: [
+      ["热量是由于温差而传递的能量。", "Heat is energy transferred because of a temperature difference.", true],
+      ["温度和内能是完全相同的物理量。", "Temperature and internal energy are exactly the same quantity.", false],
+      ["比热容表示单位质量升高单位温度所需的能量。", "Specific heat capacity is energy per unit mass per unit temperature rise.", true],
+      ["Q=mcΔT 中 ΔT 可以保留摄氏温差。", "A Celsius temperature difference may be used in Q=mcΔT.", true],
+      ["相变过程中温度一定持续升高。", "Temperature must keep rising during a phase change.", false],
+      ["理想隔热量热系统中总吸热量与总放热量代数和为零。", "In an ideal insulated calorimeter, total heat gained and lost sums to zero.", true],
+      ["热总会自发地从低温物体流向高温物体。", "Heat flows spontaneously from a colder body to a hotter one.", false],
+      ["功和热都可以改变系统内能。", "Both work and heat can change a system's internal energy.", true],
+      ["开尔文温标的零点是任意选定的。", "The zero of the Kelvin scale is arbitrarily chosen.", false],
+      ["做热学计算时应明确系统边界和能量损失假设。", "Thermal calculations should state system boundaries and heat-loss assumptions.", true],
+    ],
+  },
+  {
+    courseId: "physics",
+    topicId: "physics-7",
+    note: b(
+      "电学从电荷、电场、电势差和电流建立模型。电势差是单位电荷的能量变化，电流是电荷流率；分析直流电路时要先标参考方向，再用欧姆定律、KCL、KVL 和功率守恒交叉检查。",
+      "Electricity models charge, electric field, potential difference and current. Potential difference is energy change per unit charge; current is charge-flow rate. Mark reference directions before applying Ohm's law, KCL, KVL and power checks.",
+    ),
+    checks: [
+      ["电流 I=dq/dt 表示电荷通过截面的速率。", "Current I=dq/dt is the rate of charge flow through a cross-section.", true],
+      ["电压的单位伏特等于焦耳每库仑。", "One volt equals one joule per coulomb.", true],
+      ["欧姆定律 V=IR 适用于所有元件在所有工作条件下。", "V=IR applies to every component under all conditions.", false],
+      ["并联支路两端电压相同。", "Parallel branches share the same voltage.", true],
+      ["串联元件中的电流一定互不相同。", "Series elements must carry different currents.", false],
+      ["KCL 的物理基础是电荷守恒。", "KCL follows from conservation of charge.", true],
+      ["电阻耗散功率可写成 P=I²R。", "Power dissipated by a resistor can be written P=I²R.", true],
+      ["负电流一定表示计算错误。", "A negative current always means the calculation is wrong.", false],
+      ["电路中供给功率与吸收功率应满足能量守恒。", "Power supplied and absorbed in a circuit should satisfy energy conservation.", true],
+      ["测得电压前不需要说明两端和极性。", "A voltage needs no stated terminals or polarity.", false],
+    ],
+  },
+  {
+    courseId: "physics",
+    topicId: "physics-8",
+    note: b(
+      "振动是系统围绕平衡位置的重复运动；波把振动和能量从一处传到另一处，而介质整体不随波持续前进。简谐运动需要回复力与位移成正比且方向相反，正弦波满足 v=fλ。",
+      "Oscillation is repeated motion about equilibrium. A wave transfers disturbance and energy without carrying the medium forward overall. Simple harmonic motion requires a restoring force proportional and opposite to displacement; sinusoidal waves satisfy v=fλ.",
+    ),
+    checks: [
+      ["简谐运动的回复力与位移方向相反。", "In SHM, the restoring force points opposite to displacement.", true],
+      ["振幅是从一个极端位置到另一个极端位置的距离。", "Amplitude is the distance from one extreme to the other.", false],
+      ["周期 T 与频率 f 满足 T=1/f。", "Period and frequency satisfy T=1/f.", true],
+      ["波速、频率和波长满足 v=fλ。", "Wave speed, frequency and wavelength satisfy v=fλ.", true],
+      ["机械波可以在真空中传播。", "A mechanical wave can propagate through a vacuum.", false],
+      ["驻波的节点处位移振幅为零。", "Displacement amplitude is zero at a standing-wave node.", true],
+      ["提高同一介质中波源频率一定提高波速。", "Increasing source frequency must increase wave speed in the same medium.", false],
+      ["共振发生在驱动频率接近系统固有频率时。", "Resonance occurs when driving frequency is close to a natural frequency.", true],
+      ["波传递能量时介质粒子会随波永久移动到远处。", "Medium particles permanently travel with a wave as it carries energy.", false],
+      ["相位差可以描述两个振动在周期中的相对位置。", "Phase difference describes the relative stage of two oscillations.", true],
+    ],
+  },
+  {
+    courseId: "physics",
+    topicId: "physics-9",
+    note: b(
+      "流体静力学用压强随深度变化描述静止流体，动力学用连续性方程和伯努利方程连接流速、截面积、压强和高度。使用伯努利方程前必须检查稳态、不可压缩、低黏性和同一流线等条件。",
+      "Fluid statics uses pressure variation with depth; fluid dynamics links speed, area, pressure and height through continuity and Bernoulli equations. Before Bernoulli, check steady, incompressible, low-viscosity flow along a streamline.",
+    ),
+    checks: [
+      ["静止流体中的压强随深度增加。", "Pressure in a static fluid increases with depth.", true],
+      ["液体密度为 ρ 时，深度差 h 对应压强差 Δp=ρgh。", "For density ρ, a depth difference h gives Δp=ρgh.", true],
+      ["同一深度的静止连通流体压强可以不同而无需外因。", "A connected static fluid can have different pressures at the same depth without an external cause.", false],
+      ["不可压缩稳态流满足 A₁v₁=A₂v₂。", "Steady incompressible flow satisfies A₁v₁=A₂v₂.", true],
+      ["管道变窄时，不可压缩稳态流速会减小。", "Speed decreases when a steady incompressible pipe narrows.", false],
+      ["伯努利方程表达单位体积机械能的关系。", "Bernoulli's equation relates mechanical energy per unit volume.", true],
+      ["黏性损耗很大时仍可无修正地使用理想伯努利方程。", "Ideal Bernoulli can be used without correction when viscous losses are large.", false],
+      ["浮力等于物体排开流体的重量。", "Buoyant force equals the weight of displaced fluid.", true],
+      ["物体漂浮时浮力小于物体重量。", "For a floating object, buoyancy is less than its weight.", false],
+      ["使用流体公式前应明确表压还是绝对压强。", "Fluid calculations should distinguish gauge from absolute pressure.", true],
+    ],
+  },
 ];
 
 const pick = <T,>(items: T[], index: number) => items[index % items.length];
@@ -533,20 +630,49 @@ const rotate = <T,>(items: T[], amount: number) => {
   return [...items.slice(shift), ...items.slice(0, shift)];
 };
 
-const explainChecks = (spec: TopicSpec, checks: Check[]) => {
+const difficultyMeta = (id: number) => {
+  const difficulty: QuestionDifficulty =
+    id <= 3 ? "foundation" : id === 4 || id === 6 ? "application" : "complex";
+  const estimatedMinutes =
+    difficulty === "foundation" ? 4 : difficulty === "application" ? 6 : difficulty === "complex" ? 8 : 10;
+  return { difficulty, estimatedMinutes };
+};
+
+const markingRubric = () => ({
+  zh: [
+    "确认题目要选正确项、错误项还是全部正确项。",
+    "写出本题使用的定义、公式或适用条件。",
+    "逐项说明关键理由；错误项要指出缺失条件或给出反例。",
+    "检查符号、单位和题目条件后，再写最终选项。",
+  ],
+  en: [
+    "Confirm whether the task asks for a correct, incorrect or all-correct selection.",
+    "State the definition, equation or validity condition used.",
+    "Justify each option; identify a missing condition or counterexample for rejected claims.",
+    "Check signs, units and stated conditions before giving the final selection.",
+  ],
+});
+
+const explainChecks = (spec: TopicSpec, checks: Check[], correctIndexes: number[]) => {
   const zhDetails = checks
     .map(([zh, , truth], index) =>
-      `${String.fromCharCode(65 + index)}：${truth ? "正确" : "错误"}。${zh}${truth ? " 这与本知识点的定义和适用条件一致。" : " 这句话忽略了必要条件或混淆了概念，不能作为正确结论。"}`
+      `${String.fromCharCode(65 + index)}：${truth ? "正确" : "错误"}。${zh}${truth ? " 这与本知识点的定义和适用条件一致。" : " 这项不成立；请用下面的核心规则定位它缺失的条件、错误的量或混淆的概念。"}`
     )
     .join("\n");
   const enDetails = checks
     .map(([, en, truth], index) =>
-      `${String.fromCharCode(65 + index)}: ${truth ? "Correct" : "Incorrect"}. ${en} ${truth ? "This is consistent with the definition and its conditions." : "This drops a required condition or mixes concepts, so it cannot be accepted."}`
+      `${String.fromCharCode(65 + index)}: ${truth ? "Correct" : "Incorrect"}. ${en} ${truth ? "This is consistent with the definition and its conditions." : "This claim fails; use the core rule below to locate the missing condition, wrong quantity or mixed concept."}`
     )
     .join("\n");
+  const zhCorrectAnswer = correctIndexes
+    .map((index) => `${String.fromCharCode(65 + index)}．${checks[index][0]}`)
+    .join("；");
+  const enCorrectAnswer = correctIndexes
+    .map((index) => `${String.fromCharCode(65 + index)}. ${checks[index][1]}`)
+    .join("; ");
   return b(
-    `第 1 步｜识别任务\n先确认题目要找“正确项”还是“错误项”，避免知识会了却选反。\n\n第 2 步｜逐项验证\n${zhDetails}\n\n第 3 步｜回到核心规则\n${spec.note.zh}\n\n第 4 步｜形成可迁移的方法\n合上解析，尝试用自己的话解释每个选项为什么成立或不成立。能解释条件和反例，才不只是记住答案。\n\n易错提醒\n不要只记选项字母；下次选项顺序改变时，必须仍能从定义、公式或证据推出结论。`,
-    `Step 1 | Identify the task\nConfirm whether the question asks for the correct or incorrect statement so you do not reverse a sound analysis.\n\nStep 2 | Test every option\n${enDetails}\n\nStep 3 | Return to the core rule\n${spec.note.en}\n\nStep 4 | Make the method transferable\nClose the explanation and justify each option in your own words. Understanding means you can state conditions and counterexamples—not merely remember an answer.\n\nCommon trap\nDo not memorise option letters. You should still derive the result when choices are reordered.`,
+    `第 1 步｜识别任务与输出\n先确认题目要找“正确项”还是“错误项”，并判断答案应是一个选项还是多个选项，避免推理正确却提交反了。\n\n本题正确答案｜${zhCorrectAnswer}\n\n第 2 步｜写出定义、公式与适用条件\n${spec.note.zh}\n不要先看哪个选项“眼熟”；先把判断标准写出来。\n\n第 3 步｜逐项推理\n${zhDetails}\n每个选项都要和第 2 步的标准比较，错误项要能指出遗漏条件、概念混淆或反例。\n\n第 4 步｜整体检查\n把保留的答案重新代入题干，核对题目问的是正确项还是错误项；再检查绝对词、单位、符号和结论类型是否一致。\n\n第 5 步｜形成可迁移的方法\n合上解析，用自己的话解释每个选项，并把其中一个条件改变后重新判断。能预测条件变化后的答案，才算真正掌握。\n\n易错提醒\n不要只记选项字母；下次顺序或数值改变时，必须仍能从定义、公式或证据推出结论。`,
+    `Step 1 | Identify the task and output\nConfirm whether the prompt asks for a correct or incorrect claim and whether one or several selections are required, so sound reasoning is not submitted backwards.\n\nCorrect answer | ${enCorrectAnswer}\n\nStep 2 | State definitions, equations and validity conditions\n${spec.note.en}\nDo not begin with the option that looks familiar; write the decision rule first.\n\nStep 3 | Reason through every option\n${enDetails}\nCompare each option with the rule from Step 2. For a rejected claim, identify the missing condition, mixed concept or counterexample.\n\nStep 4 | Check the whole answer\nSubstitute the retained selection back into the prompt, re-check whether correct or incorrect claims were requested, and inspect absolute wording, units, signs and result type.\n\nStep 5 | Make the method transferable\nClose the explanation, justify every option in your own words, then change one condition and judge again. Predicting how the answer changes is evidence of understanding.\n\nCommon trap\nDo not memorise option letters. You should still derive the result when wording, order or values change.`,
   );
 };
 
@@ -558,6 +684,8 @@ const makeTrueFalse = (spec: TopicSpec, check: Check, index: number): TopicQuest
   question: b(`${check[0]}（判断正误）`, `${check[1]} True or false?`),
   options: [b("正确", "True"), b("错误", "False")],
   answer: check[2] ? 0 : 1,
+  ...difficultyMeta(index),
+  rubric: markingRubric(),
   explanation: b(
     `第 1 步｜圈出关键词\n命题是：“${check[0]}”\n\n第 2 步｜调用核心规则\n${spec.note.zh}\n\n第 3 步｜比较命题与规则\n该命题${check[2] ? "符合定义及适用条件，因此成立" : "忽略必要条件或混淆概念，因此不成立"}。\n\n结论\n答案是“${check[2] ? "正确" : "错误"}”。\n\n第 4 步｜自我检验\n尝试举一个例子${check[2] ? "验证它，并说明适用条件" : "作为反例推翻它"}。\n\n易错提醒\n“一定”“所有”“只要”等绝对表达尤其需要检查。`,
     `Step 1 | Mark key wording\nThe claim is: “${check[1]}”\n\nStep 2 | Recall the core rule\n${spec.note.en}\n\nStep 3 | Compare claim with rule\nThe claim ${check[2] ? "matches the definition and its conditions, so it holds" : "drops a required condition or mixes concepts, so it fails"}.\n\nConclusion\nThe answer is ${check[2] ? "True" : "False"}.\n\nStep 4 | Self-test\nTry to give ${check[2] ? "a confirming example and its conditions" : "a counterexample that disproves it"}.\n\nCommon trap\nAbsolute words such as “always”, “every” and “only” deserve extra scrutiny.`,
@@ -578,6 +706,7 @@ const makeStatementQuestion = (
       : [pick(truths, seed), pick(falses, seed), pick(falses, seed + 1), pick(falses, seed + 2)];
   const checks = rotate(raw, seed + id);
   const wantedTruth = mode !== "incorrect";
+  const answer = checks.findIndex((item) => item[2] === wantedTruth);
   return {
     id: `${spec.topicId}-${id}`,
     courseId: spec.courseId,
@@ -590,8 +719,10 @@ const makeStatementQuestion = (
           ? b("下面哪一项表述错误？", "Which statement is incorrect?")
           : b("一位同学准备把下面一条结论写进复习卡。哪一项可以保留？", "A student wants to keep one claim on a revision card. Which one should stay?"),
     options: checks.map(([zh, en]) => b(zh, en)),
-    answer: checks.findIndex((item) => item[2] === wantedTruth),
-    explanation: explainChecks(spec, checks),
+    answer,
+    explanation: explainChecks(spec, checks, [answer]),
+    ...difficultyMeta(id),
+    rubric: markingRubric(),
   };
 };
 
@@ -602,6 +733,7 @@ const makeMultiple = (spec: TopicSpec, id: number, seed: number): TopicQuestion 
     [pick(truths, seed), pick(falses, seed), pick(truths, seed + 1), pick(falses, seed + 1)],
     seed + 1,
   );
+  const answer = checks.map((item, index) => item[2] ? index : -1).filter((index) => index >= 0);
   return {
     id: `${spec.topicId}-${id}`,
     courseId: spec.courseId,
@@ -609,15 +741,33 @@ const makeMultiple = (spec: TopicSpec, id: number, seed: number): TopicQuestion 
     kind: "multiple",
     question: b("多选题：选择所有正确的表述。", "Multiple select: choose every correct statement."),
     options: checks.map(([zh, en]) => b(zh, en)),
-    answer: checks.map((item, index) => item[2] ? index : -1).filter((index) => index >= 0),
-    explanation: explainChecks(spec, checks),
+    answer,
+    explanation: explainChecks(spec, checks, answer),
+    ...difficultyMeta(id),
+    rubric: markingRubric(),
   };
 };
 
 const makeCombination = (spec: TopicSpec, id: number, seed: number): TopicQuestion => {
   const truths = spec.checks.filter((item) => item[2]);
   const falses = spec.checks.filter((item) => !item[2]);
-  const statements = [pick(truths, seed), pick(falses, seed), pick(truths, seed + 1)];
+  const patterns: Check[][] = [
+    [pick(truths, seed), pick(truths, seed + 1), pick(falses, seed)],
+    [pick(truths, seed), pick(falses, seed), pick(truths, seed + 1)],
+    [pick(falses, seed), pick(truths, seed), pick(truths, seed + 1)],
+    [pick(truths, seed), pick(truths, seed + 1), pick(truths, seed + 2)],
+  ];
+  const patternIndex = seed % patterns.length;
+  const statements = patterns[patternIndex];
+  const answer = patternIndex;
+  const zhJudgements = statements
+    .map(([zh, , truth], index) => `${["①", "②", "③"][index]} ${truth ? "正确" : "错误"}：${zh}`)
+    .join("\n");
+  const enJudgements = statements
+    .map(([, en, truth], index) => `${["①", "②", "③"][index]} ${truth ? "Correct" : "Incorrect"}: ${en}`)
+    .join("\n");
+  const answerLabels = ["只有①②", "只有①③", "只有②③", "①②③全部"];
+  const answerLabelsEn = ["① and ② only", "① and ③ only", "② and ③ only", "All of ①, ② and ③"];
   return {
     id: `${spec.topicId}-${id}`,
     courseId: spec.courseId,
@@ -628,29 +778,152 @@ const makeCombination = (spec: TopicSpec, id: number, seed: number): TopicQuesti
       `Combination question: which statements are correct?\n① ${statements[0][1]}\n② ${statements[1][1]}\n③ ${statements[2][1]}`,
     ),
     options: [b("只有①②", "① and ② only"), b("只有①③", "① and ③ only"), b("只有②③", "② and ③ only"), b("①②③全部", "All of ①, ② and ③")],
-    answer: 1,
+    answer,
+    ...difficultyMeta(id),
+    rubric: markingRubric(),
     explanation: b(
-      `第 1 步｜先遮住组合选项\n不要一开始就在 A–D 中猜，先独立判断三句话。\n\n第 2 步｜逐句判断\n① 正确：${statements[0][0]}\n② 错误：${statements[1][0]} 这句话忽略了必要条件或混淆了概念。\n③ 正确：${statements[2][0]}\n\n第 3 步｜编码结果\n三句结果为“对、错、对”，也就是①③。\n\n第 4 步｜匹配选项\n“只有①③”对应 B。\n\n核心规则\n${spec.note.zh}\n\n易错提醒\n先判断语句、后匹配组合，可以避免被相似选项带偏。`,
-      `Step 1 | Hide the combinations\nDo not guess among A–D first. Judge each statement independently.\n\nStep 2 | Judge each claim\n① Correct: ${statements[0][1]}\n② Incorrect: ${statements[1][1]} It drops a condition or mixes concepts.\n③ Correct: ${statements[2][1]}\n\nStep 3 | Encode the result\nThe pattern is true, false, true: ① and ③.\n\nStep 4 | Match a choice\n“① and ③ only” is B.\n\nCore rule\n${spec.note.en}\n\nCommon trap\nJudge statements before matching combinations to resist distractors.`,
+      `第 1 步｜明确任务\n组合题不是猜字母。先遮住 A–D，分别判断 ①②③，再把结果映射到组合。\n\n第 2 步｜写出定义与条件\n${spec.note.zh}\n\n第 3 步｜逐句推理\n${zhJudgements}\n每一句都必须能指出所用定义、公式、条件或反例。\n\n第 4 步｜匹配组合\n正确组合是“${answerLabels[answer]}”，对应 ${String.fromCharCode(65 + answer)}。\n\n第 5 步｜反向检查\n把所选组合逐项代回题干；若其中任何一句与你刚才的独立判断冲突，就说明匹配出错。\n\n迁移练习\n合上解析，改变任意一句的一个条件，再判断正确组合如何变化。\n\n易错提醒\n先判断语句、后匹配组合，可以避免把固定答案位置当成知识。`,
+      `Step 1 | Define the task\nA combination question is not a letter-guessing exercise. Hide A–D, judge ①②③ independently, then map the result.\n\nStep 2 | State definitions and conditions\n${spec.note.en}\n\nStep 3 | Reason through each claim\n${enJudgements}\nEvery judgement should cite a definition, equation, condition or counterexample.\n\nStep 4 | Match the combination\nThe correct combination is “${answerLabelsEn[answer]}”, choice ${String.fromCharCode(65 + answer)}.\n\nStep 5 | Reverse-check\nSubstitute the selected combination back into the prompt. Any conflict with your independent judgements signals a mapping error.\n\nTransfer practice\nClose the explanation, change one condition in one claim, and decide how the combination changes.\n\nCommon trap\nJudge the statements before matching the combination so answer position cannot replace understanding.`,
     ),
   };
 };
 
-const generatedQuestionBank: TopicQuestion[] = specs.flatMap((spec) => [
-  makeTrueFalse(spec, spec.checks[0], 1),
-  makeTrueFalse(spec, spec.checks[1], 2),
-  makeStatementQuestion(spec, 3, "correct", 0),
-  makeStatementQuestion(spec, 4, "incorrect", 1),
-  makeMultiple(spec, 5, 0),
-  makeStatementQuestion(spec, 6, "scenario", 2),
-  makeMultiple(spec, 7, 2),
-  makeCombination(spec, 8, 1),
-  makeStatementQuestion(spec, 9, "correct", 3),
-  makeStatementQuestion(spec, 10, "incorrect", 4),
-]);
+const generatedQuestionBank: TopicQuestion[] = specs.flatMap((spec, specIndex) => {
+  const truths = spec.checks.filter((item) => item[2]);
+  const falses = spec.checks.filter((item) => !item[2]);
+  const seed = specIndex * 3;
+  const firstTruth = specIndex % 2 === 0;
+  return [
+    makeTrueFalse(spec, pick(firstTruth ? truths : falses, seed), 1),
+    makeTrueFalse(spec, pick(firstTruth ? falses : truths, seed + 1), 2),
+    makeStatementQuestion(spec, 3, "correct", seed),
+    makeStatementQuestion(spec, 4, "incorrect", seed + 1),
+    makeMultiple(spec, 5, seed + 2),
+    makeStatementQuestion(spec, 6, "scenario", seed + 3),
+    makeMultiple(spec, 7, seed + 4),
+    makeCombination(spec, 8, specIndex),
+    makeStatementQuestion(spec, 9, "correct", seed + 5),
+    makeStatementQuestion(spec, 10, "incorrect", seed + 6),
+  ];
+});
 
 const advancedById = new Map(advancedQuestionBank.map((question) => [question.id, question]));
 
+const advancedAnswerTools: Record<string, AnswerToolKind[]> = {
+  "math-0-1": ["scientific-calculator", "coordinate-board"],
+  "math-0-9": ["scientific-calculator", "coordinate-board"],
+  "math-1-9": ["scientific-calculator"],
+  "math-2-9": ["scientific-calculator", "coordinate-board"],
+  "math-4-9": ["scientific-calculator", "coordinate-board"],
+  "eee-0-9": ["scientific-calculator", "circuit-sketch", "unit-conversion"],
+  "eee-1-9": ["scientific-calculator", "circuit-sketch", "unit-conversion"],
+  "eee-3-9": ["scientific-calculator", "circuit-sketch", "unit-conversion"],
+  "eee-7-9": ["scientific-calculator", "circuit-sketch", "unit-conversion"],
+  "c-0-9": ["code-draft"],
+  "c-2-9": ["code-draft"],
+  "c-4-9": ["code-draft"],
+  "c-5-9": ["code-draft"],
+  "physics-0-9": ["scientific-calculator", "coordinate-board", "unit-conversion"],
+  "physics-1-9": ["scientific-calculator", "diagram-board", "unit-conversion"],
+  "physics-3-9": ["scientific-calculator", "diagram-board", "unit-conversion"],
+  "physics-5-9": ["scientific-calculator", "coordinate-board", "unit-conversion"],
+  "physics-6-9": ["scientific-calculator", "unit-conversion"],
+  "physics-7-9": ["scientific-calculator", "circuit-sketch", "unit-conversion"],
+  "physics-8-9": ["scientific-calculator", "coordinate-board", "unit-conversion"],
+  "physics-9-9": ["scientific-calculator", "diagram-board", "unit-conversion"],
+};
+
+const advancedLearningVisuals: Record<string, LearningVisualIntent> = {
+  "math-0-1": {
+    id: "vector-magnitude",
+    alt: b("向量 (3,4) 从原点指向点 (3,4)，横纵分量组成直角三角形。", "Vector (3,4) runs from the origin to (3,4); its components form a right triangle."),
+    caption: b("先标出两条直角边，再用勾股定理求斜边。", "Label the perpendicular components before using Pythagoras."),
+    vector: [3, 4],
+    vectorLabel: "a",
+  },
+  "math-0-9": {
+    id: "vector-plane",
+    alt: b("三维位移 a=(6,8,0)、b=(-2,1,2) 首尾相接，合位移为 (4,9,2)。", "The 3D displacements a=(6,8,0) and b=(-2,1,2) join head-to-tail, giving resultant (4,9,2)."),
+    caption: b("旋转后检查 x、y、z 三个分量是否都进入合位移。", "Rotate the view and check that all x, y and z components enter the resultant."),
+      vectors: [
+        { label: "a", value: [6, 8, 0] },
+        { label: "b", value: [-2, 1, 2] },
+        { label: "a+b", value: [4, 9, 2] },
+      ],
+      spatial: { mode: "head-to-tail" },
+      interactive: true,
+  },
+  "math-2-9": {
+    id: "function-graph",
+    alt: b("储水量随时间上升，t=2 到 t=4 的割线连接 (2,32) 与 (4,52)。", "Stored volume rises over time; the secant from t=2 to t=4 joins (2,32) and (4,52)."),
+    caption: b("割线斜率是 ΔV/Δt，不是单独的体积变化量。", "The secant slope is ΔV/Δt, not volume change alone."),
+    points: [[0, 20], [2, 32], [4, 52], [6, 80]],
+    xLabel: "t (min)",
+    yLabel: "V (L)",
+    shadeBetweenX: [2, 4],
+  },
+  "math-4-9": {
+    id: "function-graph",
+    alt: b("速度 v(t)=3t²-4t 在 t=1 到 t=3 的有符号面积表示位移。", "For v(t)=3t²-4t, signed area from t=1 to t=3 represents displacement."),
+    caption: b("图帮助辨认积分区间；最终数值仍需由定积分计算。", "Use the graph to identify the interval; evaluate the displacement with a definite integral."),
+    points: [[0, 0], [1, -1], [2, 4], [3, 15]],
+    xLabel: "t (s)",
+    yLabel: "v (m/s)",
+    shadeBetweenX: [1, 3],
+  },
+  "physics-0-9": {
+    id: "motion-graph",
+    alt: b("汽车速度从 t=0 时的 6 m/s 线性增加到 t=4 s 时的 16 m/s，曲线下面积是位移。", "Car velocity increases linearly from 6 m/s at t=0 to 16 m/s at t=4 s; area under the line is displacement."),
+    caption: b("位移也可看成速度—时间图下的矩形加三角形面积。", "Displacement is the rectangle plus triangle under the velocity–time graph."),
+    points: [[0, 6], [4, 16]],
+    xLabel: "t (s)",
+    yLabel: "v (m/s)",
+    shadeBetweenX: [0, 4],
+  },
+  "physics-3-9": {
+    id: "bar-chart",
+    alt: b("四个连续时间段的合力依次为 4、8、6、0 N，第二段最高。", "Net force over four intervals is 4, 8, 6 and 0 N; the second interval is highest."),
+    caption: b("先从第二个柱读取 8 N，再使用 a=F/m。", "Read 8 N from the second bar before applying a=F/m."),
+    labels: ["0–1 s", "1–2 s", "2–3 s", "3–4 s"],
+    values: [4, 8, 6, 0],
+    unit: "N",
+    highlightIndex: 1,
+  },
+  "physics-5-9": {
+    id: "function-graph",
+    alt: b("F-x 数据点 (0.02,0.5)、(0.04,1.0)、(0.06,1.5)、(0.08,2.0) 位于一条直线上。", "The F-x points (0.02,0.5), (0.04,1.0), (0.06,1.5), (0.08,2.0) lie on a straight line."),
+    caption: b("纵轴 F 对横轴 x 的斜率就是弹簧常量 k。", "With F vertical and x horizontal, the slope is the spring constant k."),
+    points: [[0.02, 0.5], [0.04, 1], [0.06, 1.5], [0.08, 2]],
+    xLabel: "x (m)",
+    yLabel: "F (N)",
+  },
+};
+
 export const topicQuestionBank: TopicQuestion[] = generatedQuestionBank.map(
-  (question) => advancedById.get(question.id) ?? question,
+  (question) => {
+    const advanced = advancedById.get(question.id);
+    if (!advanced) return question;
+    return {
+      ...question,
+      ...advanced,
+      difficulty: "challenge",
+      estimatedMinutes: 10,
+      rubric: {
+        zh: [
+          "从题干、图表或代码中准确提取已知量与目标量。",
+          "写出所用定义、公式、程序状态或模型条件。",
+          "分步完成计算、推演或数据读取，并保留单位与符号。",
+          "用数量级、边界、量纲或替代方法复核结论。",
+        ],
+        en: [
+          "Extract the givens and target accurately from the prompt, visual or code.",
+          "State the definition, equation, program state or model condition used.",
+          "Show the calculation, trace or data reading step by step with units and signs.",
+          "Check the result using scale, boundaries, dimensions or an alternative method.",
+        ],
+      },
+      answerTools: advancedAnswerTools[advanced.id] ?? [],
+      learningVisual: advancedLearningVisuals[advanced.id],
+    };
+  },
 );
