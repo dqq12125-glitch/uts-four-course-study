@@ -16,6 +16,7 @@ import { eeeDifficultyQuestionBank } from "@/app/eee-difficulty-bank";
 import { MathPhysicsTools } from "@/app/learning-tools";
 import type { LearningVisualIntent } from "@/app/learning-tools";
 import { mathDifficultyQuestionBank } from "@/app/math-difficulty-bank";
+import { IOSTimetableWidget } from "@/app/personal/ios-timetable-widget";
 import { physicsDifficultyQuestionBank } from "@/app/physics-difficulty-bank";
 import {
   normalizeQuestionProgress,
@@ -2006,6 +2007,13 @@ export default function Home() {
               </button>
             ))}
           </div>
+
+          <IOSTimetableWidget
+            lang={lang}
+            now={now}
+            timetable={activeTimetable}
+            selectedMathChoiceId={selectedChoiceForGroup("math-tutorial")?.id}
+          />
 
           <details className="schedule-disclosure">
             <summary>
