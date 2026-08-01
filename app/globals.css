@@ -2013,41 +2013,40 @@ blockquote span {
   box-shadow: 0 0 12px rgba(255, 159, 10, 0.25);
 }
 
-.ios-widget-progress-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+.ios-widget-today-row {
+  display: flex;
   align-items: center;
-  gap: 13px;
+  justify-content: space-between;
+  gap: 18px;
   margin-top: 15px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #2a2a2e;
 }
 
-.ios-widget-progress-row > span {
-  color: #96969c;
-  font-size: 11px;
+.ios-widget-today-row > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
 }
 
-.ios-widget-progress-row > b {
-  color: #ffb321;
-  font: 700 14px var(--font-geist-mono), monospace;
+.ios-widget-today-row > span:last-child {
+  justify-items: end;
+  text-align: right;
 }
 
-.ios-widget-progress-track,
-.ios-widget-completion-track {
-  height: 5px;
+.ios-widget-today-row small {
+  color: #8f8f96;
+  font-size: 8px;
+}
+
+.ios-widget-today-row strong {
   overflow: hidden;
-  border-radius: 999px;
-  background: #3b3b3f;
-}
-
-.ios-widget-progress-track > span,
-.ios-widget-completion-track > span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-}
-
-.ios-widget-progress-track > span {
-  background: #ff9f0a;
+  color: #f5f5f7;
+  font-size: 11px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ios-widget-section-head {
@@ -2142,17 +2141,30 @@ blockquote span {
 
 .ios-widget-footer {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   flex: 1 1 auto;
-  gap: 7px;
+  gap: 5px;
   margin-top: 14px;
+}
+
+.ios-widget-completion-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .ios-widget-completion-track {
   height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #3b3b3f;
 }
 
 .ios-widget-completion-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
   background: #30d158;
 }
 

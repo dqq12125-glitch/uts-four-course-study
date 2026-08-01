@@ -36,18 +36,22 @@ const copy = {
     eyebrow: "IOS HOME SCREEN",
     title: "把课表放到 iPhone 主屏幕",
     intro: "抬手就看下一节课、时间和课室。小组件离线可用，点击会打开你的个人学习版。",
-    widgetTitle: "本周课表",
+    widgetTitle: "课表",
     offline: "离线可用",
-    sevenDays: "7 天",
+    today: "今天",
+    nextClass: "下一节",
+    noNextClass: "暂无固定课程",
+    weekClasses: "本周课程",
+    completed: (done: number, total: number) => `已完成 ${done}/${total}`,
     upcoming: "接下来",
-    recent: "未来课程",
+    recent: "未来 7 天",
     noClass: "未来 7 天没有固定课程",
     noClassMeta: "休息周或学期外",
     more: (count: number) => `另有 ${count} 节课`,
     updated: "更新",
     tapOpen: "点击打开个人版",
     setupTitle: "在 iPhone 上安装",
-    setupIntro: "按下面 3 步即可；推荐选择“大号”，效果与参考图最接近。",
+    setupIntro: "脚本只需安装一次；需要几个组件，就在主屏幕重复添加几次。",
     installScriptable: "没有 Scriptable？先免费安装",
     copyScript: "1. 复制课表脚本",
     copied: "脚本已复制",
@@ -55,6 +59,7 @@ const copy = {
     openScriptable: "2. 打开 Scriptable 新建脚本",
     download: "下载 .js 备用",
     homeStep: "3. 长按主屏幕 → ＋ → Scriptable → 大号 → 选择“DeepStudy课表”",
+    secondWidgetStep: "显示两个组件：重复第 3 步再添加一次。两个都选“DeepStudy课表”；可以一个大号、一个小号。",
     pasteStep: "在 Scriptable 点右上角 ＋，粘贴后命名为“DeepStudy课表”，先点运行预览一次。",
     parameter: "Widget Parameter",
     parameterHelp: (value: string) => `你当前的数学课表对应参数：${value}。添加小组件后，长按它 → 编辑小组件 → Parameter 填 ${value}。`,
@@ -65,18 +70,22 @@ const copy = {
     eyebrow: "IOS HOME SCREEN",
     title: "Put your timetable on the iPhone Home Screen",
     intro: "See the next class, time and room at a glance. The widget works offline and opens your personal study app when tapped.",
-    widgetTitle: "Weekly timetable",
+    widgetTitle: "Timetable",
     offline: "Works offline",
-    sevenDays: "7 days",
+    today: "Today",
+    nextClass: "Next class",
+    noNextClass: "No scheduled class",
+    weekClasses: "This week's classes",
+    completed: (done: number, total: number) => `${done}/${total} completed`,
     upcoming: "Up next",
-    recent: "Upcoming classes",
+    recent: "Next 7 days",
     noClass: "No scheduled classes in the next 7 days",
     noClassMeta: "Semester break or outside teaching weeks",
     more: (count: number) => `${count} more classes`,
     updated: "updated",
     tapOpen: "Tap to open your personal app",
     setupTitle: "Install on iPhone",
-    setupIntro: "Three steps. Choose the Large widget for the closest match to your reference.",
+    setupIntro: "Install the script once, then add as many Home Screen widgets as you need.",
     installScriptable: "Need Scriptable? Install it free",
     copyScript: "1. Copy timetable script",
     copied: "Script copied",
@@ -84,6 +93,7 @@ const copy = {
     openScriptable: "2. Open Scriptable and add a script",
     download: "Download .js backup",
     homeStep: "3. Long-press Home Screen → ＋ → Scriptable → Large → choose “DeepStudy Timetable”",
+    secondWidgetStep: "To show two widgets, repeat step 3. Choose the same “DeepStudy Timetable” script for both; one can be Large and the other Small.",
     pasteStep: "Tap ＋ in Scriptable, paste the code, name it “DeepStudy Timetable”, then run one preview.",
     parameter: "Widget Parameter",
     parameterHelp: (value: string) => `Your current Mathematics option uses parameter ${value}. After adding the widget, long-press it → Edit Widget → enter ${value} in Parameter.`,
@@ -164,10 +174,30 @@ function widgetParameter(choiceId?: string) {
   return "18";
 }
 
-function weekElapsed(now: Date) {
-  const day = now.getDay() === 0 ? 7 : now.getDay();
-  const completed = day - 1 + (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
-  return Math.max(0, Math.min(100, Math.round((completed / 7) * 100)));
+function weekdayLabel(date: Date, lang: Lang) {
+  return new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-AU", {
+    weekday: "long",
+  }).format(date);
+}
+
+function eventsForCurrentWeek(timetable: TimetableItem[], now: Date) {
+  const weekday = now.getDay() === 0 ? 7 : now.getDay();
+  const monday = startOfLocalDay(new Date(now.getTime() - (weekday - 1) * DAY_MS));
+  const events: WidgetEvent[] = [];
+
+  for (let offset = 0; offset < 7; offset += 1) {
+    const date = new Date(monday.getTime() + offset * DAY_MS);
+    const week = teachingWeek(date);
+    if (!week) continue;
+
+    for (const item of timetable) {
+      if (item.day === date.getDay() && (!item.startsWeek || week >= item.startsWeek)) {
+        events.push(eventOnDate(item, date));
+      }
+    }
+  }
+
+  return events;
 }
 
 export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId }: Props) {
@@ -178,7 +208,14 @@ export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId 
     [now, timetable],
   );
   const shown = upcoming.slice(0, 4);
-  const percent = weekElapsed(now);
+  const currentWeek = useMemo(
+    () => eventsForCurrentWeek(timetable, now),
+    [now, timetable],
+  );
+  const completedCount = currentWeek.filter((event) => event.end.getTime() < now.getTime()).length;
+  const completionPercent = currentWeek.length
+    ? Math.round((completedCount / currentWeek.length) * 100)
+    : 0;
   const parameter = widgetParameter(selectedMathChoiceId);
   const mathIsWaitlisted = parameter !== "18";
 
@@ -223,12 +260,19 @@ export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId 
           </small>
         </div>
 
-        <div className="ios-widget-progress-row">
-          <span>{t.sevenDays}</span>
-          <div className="ios-widget-progress-track" aria-label={`${percent}%`}>
-            <span style={{ width: `${percent}%` }} />
-          </div>
-          <b>{percent}%</b>
+        <div className="ios-widget-today-row">
+          <span>
+            <small>{t.today}</small>
+            <strong>{weekdayLabel(now, lang)}</strong>
+          </span>
+          <span>
+            <small>{t.nextClass}</small>
+            <strong>
+              {upcoming[0]
+                ? `${relationLabel(upcoming[0].start, now, lang)} ${timeLabel(upcoming[0].start)}`
+                : t.noNextClass}
+            </strong>
+          </span>
         </div>
 
         <div className="ios-widget-section-head">
@@ -267,8 +311,12 @@ export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId 
         </div>
 
         <div className="ios-widget-footer">
+          <div className="ios-widget-completion-meta">
+            <small>{t.weekClasses}</small>
+            <small>{t.completed(completedCount, currentWeek.length)}</small>
+          </div>
           <div className="ios-widget-completion-track">
-            <span style={{ width: `${Math.max(8, Math.min(100, percent))}%` }} />
+            <span style={{ width: `${completionPercent}%` }} />
           </div>
           <div>
             <small>
@@ -315,6 +363,7 @@ export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId 
           <ol className="ios-widget-steps">
             <li>{t.pasteStep}</li>
             <li>{t.homeStep}</li>
+            <li>{t.secondWidgetStep}</li>
           </ol>
 
           <div className={`ios-widget-parameter ${mathIsWaitlisted ? "waitlist" : "official"}`}>

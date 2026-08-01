@@ -114,12 +114,6 @@ function formatTime(date) {
   return String(date.getHours()).padStart(2, "0") + ":" + String(date.getMinutes()).padStart(2, "0");
 }
 
-function weekElapsed(now) {
-  const day = now.getDay() === 0 ? 7 : now.getDay();
-  const elapsed = day - 1 + (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
-  return Math.max(0, Math.min(1, elapsed / 7));
-}
-
 function addDot(parent, color, size) {
   const dot = parent.addStack();
   dot.size = new Size(size, size);
@@ -149,7 +143,7 @@ function addHeader(widget, now) {
   header.centerAlignContent();
   addDot(header, palette.orange, 7);
   header.addSpacer(8);
-  const title = header.addText("本周课表");
+  const title = header.addText("课表");
   title.font = Font.semiboldSystemFont(16);
   title.textColor = palette.primary;
   header.addSpacer();
@@ -158,21 +152,42 @@ function addHeader(widget, now) {
   status.textColor = palette.secondary;
 }
 
-function addWeekProgress(widget, now, width) {
-  const percent = weekElapsed(now);
+function weekdayName(date) {
+  return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][date.getDay()];
+}
+
+function addTodaySummary(widget, now, nextEvent, compact) {
   const row = widget.addStack();
   row.layoutHorizontally();
   row.centerAlignContent();
+  row.backgroundColor = new Color("#2A2A2E");
+  row.cornerRadius = 10;
+  row.setPadding(compact ? 8 : 9, compact ? 9 : 11, compact ? 8 : 9, compact ? 9 : 11);
 
-  const label = row.addText("7 天");
-  label.font = Font.mediumSystemFont(11);
-  label.textColor = palette.secondary;
-  row.addSpacer(12);
-  addProgress(row, percent, width, 5, palette.orange);
-  row.addSpacer(12);
-  const value = row.addText(Math.round(percent * 100) + "%");
-  value.font = Font.semiboldSystemFont(14);
-  value.textColor = palette.orange;
+  const today = row.addStack();
+  today.layoutVertically();
+  const todayLabel = today.addText("今天");
+  todayLabel.font = Font.mediumSystemFont(compact ? 7 : 8);
+  todayLabel.textColor = palette.secondary;
+  today.addSpacer(2);
+  const todayValue = today.addText(weekdayName(now));
+  todayValue.font = Font.semiboldSystemFont(compact ? 10 : 11);
+  todayValue.textColor = palette.primary;
+
+  row.addSpacer();
+
+  const next = row.addStack();
+  next.layoutVertically();
+  const nextLabel = next.addText("下一节");
+  nextLabel.font = Font.mediumSystemFont(compact ? 7 : 8);
+  nextLabel.textColor = palette.secondary;
+  nextLabel.rightAlignText();
+  next.addSpacer(2);
+  const nextValue = next.addText(nextEvent ? relation(nextEvent.start, now) + " " + formatTime(nextEvent.start) : "暂无固定课程");
+  nextValue.font = Font.semiboldSystemFont(compact ? 9 : 10);
+  nextValue.textColor = palette.primary;
+  nextValue.lineLimit = 1;
+  nextValue.rightAlignText();
 }
 
 function addSectionHeading(widget) {
@@ -243,6 +258,17 @@ function addFooter(widget, now, futureCount, shownCount, width) {
   const weekEvents = currentWeekEvents(now);
   const completed = weekEvents.filter(function (event) { return event.end.getTime() < now.getTime(); }).length;
   const completion = weekEvents.length ? completed / weekEvents.length : 0;
+
+  const completionMeta = widget.addStack();
+  completionMeta.layoutHorizontally();
+  const completionLabel = completionMeta.addText("本周课程");
+  completionLabel.font = Font.systemFont(8);
+  completionLabel.textColor = palette.secondary;
+  completionMeta.addSpacer();
+  const completionValue = completionMeta.addText("已完成 " + completed + "/" + weekEvents.length);
+  completionValue.font = Font.mediumSystemFont(8);
+  completionValue.textColor = palette.secondary;
+  widget.addSpacer(4);
   addProgress(widget, completion, width, 4, palette.green);
   widget.addSpacer();
 
@@ -266,7 +292,6 @@ function buildWidget() {
   const events = collectEvents(now, 7);
   const maxRows = isSmall ? 2 : isMedium ? 3 : 5;
   const shown = events.slice(0, maxRows);
-  const progressWidth = isSmall ? 46 : isMedium ? 160 : 190;
   const footerWidth = isSmall ? 120 : isMedium ? 285 : 300;
 
   const widget = new ListWidget();
@@ -280,7 +305,7 @@ function buildWidget() {
 
   addHeader(widget, now);
   widget.addSpacer(isSmall ? 10 : 14);
-  addWeekProgress(widget, now, progressWidth);
+  addTodaySummary(widget, now, events[0], isSmall || isMedium);
   widget.addSpacer(isSmall ? 10 : 15);
   addSectionHeading(widget);
   widget.addSpacer(isSmall ? 8 : 10);

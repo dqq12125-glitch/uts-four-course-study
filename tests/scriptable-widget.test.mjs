@@ -19,6 +19,10 @@ test("the iOS timetable widget is a real Scriptable widget with the current time
   assert.match(source, /CB11\.11\.402/);
   assert.match(source, /2026, 8, 21/);
   assert.match(source, /uts-deep-study\.dqq12125-study\.workers\.dev/);
+  assert.match(source, /addTodaySummary/);
+  assert.match(source, /下一节/);
+  assert.match(source, /本周课程/);
+  assert.doesNotMatch(source, /addWeekProgress|weekElapsed|"7 天"/);
   assert.doesNotMatch(source, /sk-[A-Za-z0-9_-]{12,}/);
 });
 
@@ -32,6 +36,9 @@ test("the personal app includes a visible iPhone widget preview and installation
   assert.match(component, /open\.scriptable\.app\/add/);
   assert.match(component, /id1405459188/);
   assert.match(component, /Widget Parameter/);
+  assert.match(component, /ios-widget-today-row/);
+  assert.match(component, /secondWidgetStep/);
+  assert.doesNotMatch(component, /weekElapsed|ios-widget-progress-row/);
   assert.match(app, /<IOSTimetableWidget/);
   assert.match(app, /selectedChoiceForGroup\("math-tutorial"\)/);
   assert.match(css, /\.ios-widget-preview/);

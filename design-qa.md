@@ -19,22 +19,22 @@
 
 **Full-view comparison evidence**
 
-- The implementation preserves the reference composition: near-square dark card, rounded corners, orange status/progress treatment, compact section heading, four colour-coded rows, green completion track, and quiet bottom metadata.
+- The implementation preserves the reference composition: near-square dark card, rounded corners, orange status marker, compact section heading, four colour-coded rows, labelled green completion track, and quiet bottom metadata.
 - The surrounding personal-app view keeps the existing light-paper design and clearly explains that this is an iOS Home Screen widget rather than an in-page timetable replacement.
 
 **Focused region comparison evidence**
 
 - The combined comparison board places the normalized source widget on the left and the normalized implementation on the right.
 - Typography uses the project/system sans stack; the native Scriptable script uses iOS system fonts, so the installed widget will use San Francisco as expected.
-- Horizontal padding, progress-track length, row alignment, coloured course dots, corner radius, and bottom metadata placement are visually aligned with the reference.
-- Source task copy was intentionally replaced with current course code, activity, time, room/online location, and relative day. Dynamic progress and update time are also intentional product differences.
+- Horizontal padding, completion-track length, row alignment, coloured course dots, corner radius, and bottom metadata placement are visually aligned with the reference.
+- Source task copy was intentionally replaced with current course code, activity, time, room/online location, and relative day. The top status area now shows the current weekday and the actual next class instead of an ambiguous elapsed-week percentage.
 - No external image assets appear inside the source widget, so no raster asset substitution was required.
 
 **Findings**
 
 - No actionable P0, P1, or P2 differences remain.
 - P3: The web preview’s course-detail text is slightly denser than the reference task subtitles. This is acceptable because room codes and activity names are functional timetable data; the native Scriptable version uses iOS system font scaling and line limits.
-- P3: The displayed percentage differs from the static reference because it is calculated from the actual day and time.
+- The former orange elapsed-week percentage was removed after mobile review because “91%” on Sunday was mathematically valid but not useful in a future-seven-day timetable.
 
 **Primary interactions tested**
 
@@ -55,12 +55,15 @@
 2. Final pass
    - Evidence: source-sized render measured 517.8125 × 533.34375 CSS px and normalized comparison is 510 × 530 px on both sides.
    - Result: no actionable P0/P1/P2 mismatch remains.
+3. Clarity pass
+   - Finding: the orange “7 days / 91%” row mixed calendar-week elapsed time with a rolling future-seven-day class list.
+   - Fix: replaced it with explicit “Today” and “Next class” values; labelled the green bar as completed classes `X/Y`; documented how to add two instances of the same Scriptable widget.
 
 **Implementation checklist**
 
 - [x] Actual Scriptable `ListWidget`, not a decorative web-only mock.
 - [x] Large, medium, and small family handling.
-- [x] Future seven-day classes, room/online labels, weekly progress, offline data, and app deep link.
+- [x] Future seven-day classes, room/online labels, labelled weekly class completion, offline data, and app deep link.
 - [x] Semester teaching weeks and 21–27 September break.
 - [x] Mathematics parameters `18`, `11`, and `13`.
 - [x] Touch-sized copy/open/download installation controls.
