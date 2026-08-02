@@ -50,6 +50,7 @@ test("the personal app includes a visible iPhone widget preview and installation
   assert.match(component, /assessmentsDueSoon/);
   assert.match(component, /item\.submissionDue/);
   assert.match(app, /assessments=\{assessments\}/);
+  assert.match(app, /dueDay\.getTime\(\) - today\.getTime\(\)/);
   assert.doesNotMatch(component, /weekElapsed|ios-widget-progress-row/);
   assert.match(app, /<IOSTimetableWidget/);
   assert.match(app, /selectedChoiceForGroup\("math-tutorial"\)/);

@@ -1395,7 +1395,10 @@ export default function Home() {
 
   function daysUntil(date?: string) {
     if (!date) return null;
-    return Math.max(0, Math.ceil((new Date(date).getTime() - now.getTime()) / 86400000));
+    const due = new Date(date);
+    const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.max(0, Math.round((dueDay.getTime() - today.getTime()) / 86400000));
   }
 
   function assessmentAdvice(date?: string) {
