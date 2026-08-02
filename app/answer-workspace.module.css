@@ -341,6 +341,323 @@
   touch-action: none;
 }
 
+.coordinateBoardTool {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+
+.coordinateToolbar {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(52px, 1fr));
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--color-rule);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--color-paper-2) 90%, transparent);
+}
+
+.coordinateToolbar button {
+  display: grid;
+  min-width: 0;
+  min-height: 52px;
+  place-items: center;
+  gap: 2px;
+  padding: 5px 3px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 780;
+  line-height: 1.1;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 100ms ease-out;
+}
+
+.coordinateToolbar button:active,
+.coordinateZoom button:active,
+.coordinateInputs > button:active,
+.coordinateStatus button:active {
+  transform: scale(.96);
+}
+
+.coordinateToolbar button span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.coordinateToolbar .controlActive {
+  border-color: color-mix(in srgb, var(--color-info) 40%, transparent);
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.coordinateViewport {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-info) 22%, var(--color-rule));
+  border-radius: 18px;
+  background: #fffdf8;
+  box-shadow: 0 14px 36px rgba(19, 41, 33, .11), inset 0 1px rgba(255, 255, 255, .75);
+}
+
+.coordinateCanvas {
+  display: block;
+  width: 100%;
+  height: clamp(320px, 76vw, 470px);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.coordinateViewport[data-tool="pan"] .coordinateCanvas {
+  cursor: grab;
+}
+
+.coordinateViewport[data-tool="pan"] .coordinateCanvas:active {
+  cursor: grabbing;
+}
+
+.coordinateViewport[data-tool="eraser"] .coordinateCanvas {
+  cursor: cell;
+}
+
+.coordinateReadout {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 116px);
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, .68);
+  border-radius: 10px;
+  background: rgba(23, 53, 42, .84);
+  color: white;
+  backdrop-filter: blur(12px) saturate(150%);
+  font: 750 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .01em;
+  pointer-events: none;
+}
+
+.coordinateZoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  overflow: hidden;
+  border: 1px solid rgba(23, 53, 42, .16);
+  border-radius: 11px;
+  background: rgba(255, 253, 248, .86);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: 0 6px 18px rgba(23, 53, 42, .12);
+}
+
+.coordinateZoom button {
+  width: 34px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid rgba(23, 53, 42, .12);
+  background: transparent;
+  color: #17352a;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.coordinateZoom button:last-child {
+  border-right: 0;
+  font-size: 15px;
+}
+
+.coordinateStatus {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.coordinateStatus > span,
+.coordinateStatus button {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: var(--color-paper-2);
+}
+
+.coordinateStatus button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-muted);
+  cursor: pointer;
+  font: inherit;
+}
+
+.coordinateStatus .snapActive {
+  border-color: color-mix(in srgb, var(--color-info) 35%, var(--color-rule));
+  background: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.plottedFunctions {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.plottedFunctions > div {
+  display: grid;
+  min-width: 0;
+  min-height: 40px;
+  grid-template-columns: 10px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px 3px 11px;
+  border: 1px solid var(--color-rule);
+  border-radius: 11px;
+  background: var(--color-paper-2);
+}
+
+.plottedFunctions > div > span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.plottedFunctions code {
+  overflow: hidden;
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plottedFunctions button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.coordinateInputs {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--color-rule);
+  border-radius: 15px;
+  background: var(--color-paper-2);
+}
+
+.coordinateInputs label {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.coordinateInputs input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid var(--color-rule);
+  border-radius: 10px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: 650 14px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.coordinateInputs > button {
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--color-ink);
+  border-radius: 10px;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+.coordinateInputs > button:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+.inputWithPrefix {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+.inputWithPrefix b {
+  color: var(--color-ink);
+  font: 750 14px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.exactPointInputs {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@container (max-width: 520px) {
+  .coordinateToolbar {
+    grid-template-columns: repeat(3, minmax(64px, 1fr));
+  }
+
+  .coordinateInputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .coordinateInputs > button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .coordinateReadout,
+  .coordinateZoom {
+    background: #fffdf8;
+    backdrop-filter: none;
+  }
+
+  .coordinateReadout {
+    color: #17352a;
+    border-color: #17352a;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coordinateToolbar button,
+  .coordinateZoom button,
+  .coordinateInputs > button,
+  .coordinateStatus button {
+    transition: none;
+  }
+}
+
 .boardOptions {
   display: grid;
   min-width: 0;
@@ -464,6 +781,15 @@
 }
 
 @container (max-width: 270px) {
+  .workspaceBody {
+    padding-inline: 6px;
+  }
+
+  .toolPicker {
+    margin-inline: -6px;
+    padding-inline: 6px;
+  }
+
   .calculatorKeys {
     grid-template-columns: repeat(4, minmax(44px, 1fr));
   }

@@ -126,6 +126,43 @@ type Course = {
 
 const bi = (zh: string, en: string): Bi => ({ zh, en });
 
+function buildTutorVisualContext(question: Question, language: Lang) {
+  const visual = question.visual
+    ? question.visual.kind === "table"
+      ? {
+          kind: "table",
+          title: question.visual.title[language],
+          columns: question.visual.columns.map((column) => column[language]),
+          rows: question.visual.rows,
+        }
+      : question.visual.kind === "bars"
+        ? {
+            kind: "bar-chart",
+            title: question.visual.title[language],
+            labels: question.visual.labels.map((label) => label[language]),
+            values: question.visual.values,
+            unit: question.visual.unit,
+          }
+        : {
+            kind: "code",
+            title: question.visual.title[language],
+            code: question.visual.code,
+          }
+    : null;
+  const learningVisual = question.learningVisual
+    ? (() => {
+        const { alt, caption, ...data } = question.learningVisual;
+        return {
+          ...data,
+          alt: alt[language],
+          caption: caption?.[language],
+        };
+      })()
+    : null;
+  if (!visual && !learningVisual) return "No separate visual data.";
+  return JSON.stringify({ questionVisual: visual, learningVisual });
+}
+
 const difficultyOrder: QuestionDifficulty[] = [
   "foundation",
   "application",
@@ -1564,34 +1601,56 @@ export default function Home() {
     }
   }
 
-  function handoffMistake(question: Question, value: AnswerValue) {
+  function handoffToAiExplanation(question: Question, value: AnswerValue) {
     const topicId = question.topicId ?? "all";
     const scopedQuestions = practiceBank.filter(
       (item) => item.courseId === question.courseId && (topicId === "all" || item.topicId === topicId),
     );
     const nextIndex = Math.max(0, scopedQuestions.findIndex((item) => item.id === question.id));
+    const correct = answerIsCorrect(question, value);
     const selectedLabels = (Array.isArray(value) ? value : [value])
       .map((index) => `${String.fromCharCode(65 + index)}. ${pick(question.options[index])}`)
       .join(", ");
+    const originalThought = correct
+      ? lang === "zh"
+        ? `我刚才选择了 ${selectedLabels}，答案正确，但我需要确认这不是猜对的。`
+        : `I chose ${selectedLabels}. It was correct, but I need to verify that it was not a guess.`
+      : lang === "zh"
+        ? `我刚才选择了 ${selectedLabels}，但答案错误。请从我最早出错的概念或计算步骤开始修正。`
+        : `I chose ${selectedLabels}, but it was incorrect. Start from my earliest conceptual or calculation error.`;
+    const request = correct
+      ? lang === "zh"
+        ? "请把这道题作为教师难度题完整地、一步一步讲解：先解释定义和适用条件，再读取题目中的图表或数据，列出公式并解释每个符号，展示计算，检查单位、符号和合理性，最后给一道新的迁移题。"
+        : "Teach this instructor-style problem completely, step by step: define the ideas and conditions, read the visual or data, explain every symbol in the formula, calculate, check units/signs/reasonableness, then give one fresh transfer problem."
+      : lang === "zh"
+        ? "请针对我的错误做完整教学讲解：先指出我最早错在哪里，再从定义和条件开始一步一步重建解法，读取图表或数据，展示计算并检查单位、符号和合理性，最后给一道新的迁移题。"
+        : "Teach from my error: identify the earliest wrong step, rebuild the solution from definitions and conditions, read the visual or data, show the calculation and check units/signs/reasonableness, then give one fresh transfer problem.";
     setTutorCourse(question.courseId);
     setTutorTopic(topicId);
     setTutorIndex(nextIndex);
     setTutorStage("feedback");
-    setTutorThought(
-      lang === "zh"
-        ? `我刚才选择了 ${selectedLabels}，但这一步判断错了。`
-        : `I chose ${selectedLabels}, but that step was incorrect.`,
-    );
+    setTutorThought(originalThought);
     setTutorChoice(Array.isArray(value) ? value : [value]);
     setTutorAttempts(1);
-    setTutorCorrect(false);
+    setTutorCorrect(correct);
+    setTutorMasteryEligible(false);
+    setTutorMasteryCredit(false);
     setTutorScopeFinished(false);
-    setTutorHintLevel(0);
+    setTutorHintLevel(5);
     setAiMessages([]);
     setAiInput("");
     setAiError("");
     setView("tutor");
     window.scrollTo({ top: 0, behavior: "smooth" });
+    void requestAiTutor({
+      question,
+      content: request,
+      hintLevel: 5,
+      originalThought,
+      attempted: true,
+      correct,
+      history: [],
+    });
   }
 
   function startQuiz(
@@ -1801,52 +1860,59 @@ export default function Home() {
     setTutorScopeFinished(true);
   }
 
-  async function askAiTutor(message?: string, hintOverride?: number) {
-    if (!tutorQuestion || aiLoading) return;
-    if (!aiTutorUnlocked) {
-      setAiError(
-        lang === "zh"
-          ? "先写出你的思路并提交一次答案，AI 才会根据真实错误提供提示。"
-          : "Write your reasoning and commit one answer before asking AI for a targeted hint.",
-      );
-      return;
-    }
-    const content = (message ?? aiInput).trim();
-    if (!content) return;
-    const effectiveHintLevel = hintOverride ?? tutorHintLevel;
+  async function requestAiTutor({
+    question,
+    content,
+    hintLevel,
+    originalThought,
+    attempted,
+    correct,
+    history,
+  }: {
+    question: Question;
+    content: string;
+    hintLevel: number;
+    originalThought: string;
+    attempted: boolean;
+    correct: boolean;
+    history: AiTutorMessage[];
+  }) {
+    if (aiLoading || !content.trim()) return;
+    const effectiveHintLevel = Math.max(0, Math.min(5, hintLevel));
     if (effectiveHintLevel >= 5) {
       setViewedSolutionIds((items) =>
-        items.includes(tutorQuestion.id) ? items : [...items, tutorQuestion.id],
+        items.includes(question.id) ? items : [...items, question.id],
       );
       setTutorMasteryCredit(false);
     }
-    const userEntry: AiTutorMessage = { role: "user", content };
-    const history = [...aiMessages, userEntry];
-    setAiMessages(history);
+    const userEntry: AiTutorMessage = { role: "user", content: content.trim() };
+    setAiMessages([...history, userEntry]);
     setAiInput("");
     setAiError("");
     setAiLoading(true);
 
-    const answerIndexes = Array.isArray(tutorQuestion.answer) ? tutorQuestion.answer : [tutorQuestion.answer];
-    const topicIndex = tutorQuestion.topicId ? Number(tutorQuestion.topicId.split("-").at(-1)) : -1;
+    const courseData = courses.find((course) => course.id === question.courseId) ?? courses[0];
+    const answerIndexes = Array.isArray(question.answer) ? question.answer : [question.answer];
+    const topicIndex = question.topicId ? Number(question.topicId.split("-").at(-1)) : -1;
     const requestPayload = {
       language: lang,
-      course: `${tutorCourseData.code} ${tutorCourseData.name}`,
-      topic: topicIndex >= 0 ? pick(tutorCourseData.topics[topicIndex]) : pick(tutorCourseData.focus),
-      question: pick(tutorQuestion.question),
-      options: tutorQuestion.options.map(pick),
-      correctAnswer: answerIndexes.map((index) => `${String.fromCharCode(65 + index)}. ${pick(tutorQuestion.options[index])}`).join("; "),
-      explanation: pick(tutorQuestion.explanation),
-      originalThought: tutorThought,
-      answerEvidence: tutorAnswerEvidence ?? null,
+      course: `${courseData.code} ${courseData.name}`,
+      topic: topicIndex >= 0 ? pick(courseData.topics[topicIndex]) : pick(courseData.focus),
+      question: pick(question.question),
+      options: question.options.map(pick),
+      correctAnswer: answerIndexes.map((index) => `${String.fromCharCode(65 + index)}. ${pick(question.options[index])}`).join("; "),
+      explanation: pick(question.explanation),
+      visualContext: buildTutorVisualContext(question, lang),
+      originalThought,
+      answerEvidence: answerEvidenceByQuestion[question.id] ?? null,
       userMessage:
         effectiveHintLevel >= 5
-          ? content
-          : `${content}\n\nTutor constraint: preserve what is correct, diagnose one gap only, do not reveal the correct option or final answer, and end with exactly one next-step question.`,
-      attempted: tutorAttempts > 0,
-      correct: tutorAttempts > 0 && tutorCorrect,
+          ? content.trim()
+          : `${content.trim()}\n\nTutor constraint: preserve what is correct, diagnose one gap only, do not reveal the correct option or final answer, and end with exactly one next-step question.`,
+      attempted,
+      correct,
       hintLevel: effectiveHintLevel,
-      history: aiMessages.slice(-8).map(({ role, content: messageContent }) => ({ role, content: messageContent })),
+      history: history.slice(-8).map(({ role, content: messageContent }) => ({ role, content: messageContent })),
     };
     try {
       const response = await fetch("/api/tutor", {
@@ -1872,6 +1938,29 @@ export default function Home() {
     } finally {
       setAiLoading(false);
     }
+  }
+
+  async function askAiTutor(message?: string, hintOverride?: number) {
+    if (!tutorQuestion || aiLoading) return;
+    if (!aiTutorUnlocked) {
+      setAiError(
+        lang === "zh"
+          ? "先写出你的思路并提交一次答案，AI 才会根据真实错误提供提示。"
+          : "Write your reasoning and commit one answer before asking AI for a targeted hint.",
+      );
+      return;
+    }
+    const content = (message ?? aiInput).trim();
+    if (!content) return;
+    await requestAiTutor({
+      question: tutorQuestion,
+      content,
+      hintLevel: hintOverride ?? tutorHintLevel,
+      originalThought: tutorThought,
+      attempted: tutorAttempts > 0,
+      correct: tutorAttempts > 0 && tutorCorrect,
+      history: aiMessages,
+    });
   }
 
   function renderTutorVisual(visual?: QuestionVisual) {
@@ -3357,11 +3446,34 @@ export default function Home() {
                         </ul>
                       </details>
                     )}
-                    {!currentIsCorrect && (
-                      <button className="mistake-handoff" onClick={() => handoffMistake(currentQuestion, answeredCurrent)}>
-                        {lang === "zh" ? "让 AI 导师定位这次错误 →" : "Ask AI to diagnose this mistake →"}
-                      </button>
-                    )}
+                    <button
+                      className="ai-explanation-handoff"
+                      data-difficulty={questionDifficulty}
+                      onClick={() => handoffToAiExplanation(currentQuestion, answeredCurrent)}
+                    >
+                      <span className="ai-explanation-mark" aria-hidden="true">AI</span>
+                      <span>
+                        <strong>
+                          {questionDifficulty === "instructor"
+                            ? lang === "zh"
+                              ? "教师难度题 · AI 分步讲解"
+                              : "Instructor-style · AI walkthrough"
+                            : lang === "zh"
+                              ? "让 AI 一步一步讲这道题"
+                              : "Ask AI for a step-by-step explanation"}
+                        </strong>
+                        <small>
+                          {currentIsCorrect
+                            ? lang === "zh"
+                              ? "检查是不是猜对，并补齐定义、图表读取、计算与迁移题"
+                              : "Check for guessing, then teach definitions, visual reading, calculation and transfer"
+                            : lang === "zh"
+                              ? "从你最早出错的位置开始重建解法，不只重复标准答案"
+                              : "Rebuild from your earliest error instead of repeating the model answer"}
+                        </small>
+                      </span>
+                      <span aria-hidden="true">→</span>
+                    </button>
                     {currentIsCorrect && (
                       <aside
                         className="mastery-decision"

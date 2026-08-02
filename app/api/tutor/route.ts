@@ -61,6 +61,38 @@ function cleanAnswerEvidence(value: unknown) {
     .slice(0, 3)
     .map((drawing) => {
       const item = drawing as Record<string, unknown>;
+      const coordinateObjects = Array.isArray(item.coordinateObjects)
+        ? item.coordinateObjects
+            .filter((object) => object && typeof object === "object")
+            .slice(0, 12)
+            .map((object) => {
+              const coordinate = object as Record<string, unknown>;
+              const points = Array.isArray(coordinate.points)
+                ? coordinate.points
+                    .filter((point) => point && typeof point === "object")
+                    .slice(0, 24)
+                    .map((point) => {
+                      const value = point as Record<string, unknown>;
+                      return {
+                        x: typeof value.x === "number" && Number.isFinite(value.x)
+                          ? Number(value.x.toFixed(4))
+                          : 0,
+                        y: typeof value.y === "number" && Number.isFinite(value.y)
+                          ? Number(value.y.toFixed(4))
+                          : 0,
+                      };
+                    })
+                : [];
+              return {
+                kind: clean(coordinate.kind, 30),
+                expression: clean(coordinate.expression, 200),
+                points,
+              };
+            })
+        : [];
+      const rawView = item.coordinateView && typeof item.coordinateView === "object"
+        ? item.coordinateView as Record<string, unknown>
+        : null;
       return {
         mode: clean(item.mode, 20),
         strokeCount:
@@ -74,6 +106,14 @@ function cleanAnswerEvidence(value: unknown) {
         toolsUsed: Array.isArray(item.toolsUsed)
           ? item.toolsUsed.map((tool) => clean(tool, 30)).filter(Boolean).slice(0, 8)
           : [],
+        coordinateObjects,
+        coordinateView: rawView
+          ? {
+              centerX: typeof rawView.centerX === "number" ? rawView.centerX : 0,
+              centerY: typeof rawView.centerY === "number" ? rawView.centerY : 0,
+              unitsAcross: typeof rawView.unitsAcross === "number" ? rawView.unitsAcross : 0,
+            }
+          : null,
       };
     });
   const unitConversions = Array.isArray(evidence.unitConversions)
@@ -233,12 +273,25 @@ Explanation quality:
 - If the supplied answer and a verified calculation conflict, do not declare either one correct. Say that the step needs rechecking and ask one targeted verification question.
 
 Response contract:
-- Ordinary turns must be concise: roughly 80–120 Chinese characters or 60–90 English words.
+${requestedHintLevel < 5
+  ? `- Ordinary turns must be concise: roughly 80–120 Chinese characters or 60–90 English words.
 - Use exactly these three plain-text labels in the requested language, with no Markdown markers:
   1) 你已经抓住了 / What you got right
   2) 现在只差这一点 / One gap
   3) 下一步问题 / One next question
-- Put exactly one question only in the final section.
+- Put exactly one question only in the final section.`
+  : `- This is an H5 teaching solution. Be detailed enough for a learner who did not understand the static explanation; do not merely paraphrase it.
+- Use these seven plain-text sections in the requested language:
+  1) 定义与适用条件 / Definitions and conditions
+  2) 读取题目与图表 / Read the question and visual
+  3) 已知、未知与目标 / Given, unknown and target
+  4) 分步推导 / Step-by-step derivation
+  5) 检查与物理或几何意义 / Checks and physical or geometric meaning
+  6) 正确答案与错误选项 / Correct answer and distractors
+  7) 迁移题 / Transfer problem
+- Define every technical term at first use, explain why each formula applies, show intermediate arithmetic, and explicitly state the correct option or result.
+- If visual or table data is supplied, cite the exact values, axes, units, vectors, forces or code lines used.
+- Put exactly one new transfer question in the final section and do not solve it.`}
 - Do not output JSON and do not use raw Markdown syntax such as ** or ###.
 - Requested hint level is H${requestedHintLevel}: H0 restate the target; H1 name the target relation; H2 point to a definition/condition; H3 give a formula skeleton; H4 demonstrate only the first step; H5 give a complete teaching solution followed by a fresh transfer question.
 ${attempted ? "The student has attempted the question, so you may discuss the correct answer and diagnose the attempt." : "The student has not committed an answer. Do not reveal the final option or answer; guide with definitions and one next step."}
@@ -249,6 +302,7 @@ ${requestedHintLevel < 5 ? "Do not reveal the final answer or option letter in t
 TOPIC: ${clean(body.topic, 300)}
 QUESTION: ${question}
 OPTIONS: ${options.map((option, index) => `${String.fromCharCode(65 + index)}. ${option}`).join("\n")}
+VISUAL OR TABLE CONTEXT: ${clean(body.visualContext, 3500) || "No separate visual data."}
 CORRECT ANSWER (teacher-only context): ${clean(body.correctAnswer, 500)}
 EXISTING EXPLANATION (may be incomplete): ${clean(body.explanation)}
 STUDENT'S ORIGINAL REASONING: ${clean(body.originalThought) || "Not provided yet."}

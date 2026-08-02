@@ -59,6 +59,12 @@ export function summarizeAnswerEvidence(
         strokeCount: drawing.strokeCount,
         pointCount: drawing.pointCount,
         toolsUsed: drawing.toolsUsed.slice(0, 8),
+        coordinateObjects: drawing.coordinateObjects?.slice(0, 12).map((object) => ({
+          kind: object.kind,
+          expression: object.expression?.slice(0, 200),
+          points: object.points.slice(0, 24),
+        })),
+        coordinateView: drawing.coordinateView,
       })),
     unitConversions: evidence.unitConversions?.slice(0, 8),
     code: evidence.code
