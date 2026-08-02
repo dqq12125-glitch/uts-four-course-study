@@ -178,7 +178,7 @@ function addHeader(widget, now) {
   title.font = Font.semiboldSystemFont(16);
   title.textColor = palette.primary;
   header.addSpacer();
-  const status = header.addText("离线 · " + formatTime(now));
+  const status = header.addText("已更新 · " + formatTime(now));
   status.font = Font.mediumSystemFont(9);
   status.textColor = palette.secondary;
 }

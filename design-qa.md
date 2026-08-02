@@ -64,6 +64,10 @@
 5. Native height pass
    - Finding: adding the deadline card while retaining four class rows exceeded the native large-widget height and clipped the footer on iPhone; the deadline card also collapsed to its content width.
    - Fix: when a deadline is visible, the large widget now shows three class rows and reports the remaining count in the footer; the card stretches across the available width, and without a deadline the widget still shows up to five rows.
+6. Personal workspace navigation pass
+   - Finding: five flat bottom destinations still exposed long mixed pages; the Plan view stacked the weekly workflow, full timetable, assessments and iOS installation in one reading path.
+   - Fix: introduced four stable main modules (Today, Planning, Course learning and Deep mastery), an explicit full menu, and context-specific child navigation. Planning now renders exactly one of Weekly, Timetable, Assessments or iOS Widget at a time; Course learning switches between the four courses; Deep mastery switches between Tutor and Practice.
+   - Verification: Chrome at a 390 × 844 CSS viewport confirmed the full menu, the child navigation, isolated module rendering, readable order, safe-area bottom navigation and a single scroll region while the menu is open.
 
 **Implementation checklist**
 

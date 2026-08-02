@@ -17,6 +17,14 @@ import { MathPhysicsTools } from "@/app/learning-tools";
 import type { LearningVisualIntent } from "@/app/learning-tools";
 import { mathDifficultyQuestionBank } from "@/app/math-difficulty-bank";
 import { IOSTimetableWidget } from "@/app/personal/ios-timetable-widget";
+import {
+  mainModuleForDestination,
+  ModuleContextBar,
+  PersonalModuleMenu,
+  type PersonalDestinationId,
+  type PersonalView,
+  type PlanModule,
+} from "@/app/personal/personal-module-menu";
 import { physicsDifficultyQuestionBank } from "@/app/physics-difficulty-bank";
 import {
   normalizeQuestionProgress,
@@ -42,7 +50,7 @@ import {
 import { countsTowardTutorMastery } from "@/app/tutor-mastery";
 
 type Lang = "zh" | "en";
-type View = "today" | "plan" | "courses" | "tutor" | "quiz";
+type View = PersonalView;
 type QuizQueueMode = "learning" | "mastered" | "all";
 type Bi = { zh: string; en: string };
 type QuestionKind = "truefalse" | "single" | "multiple" | "scenario" | "combination" | "calculation" | "data";
@@ -50,6 +58,7 @@ type AnswerValue = number | number[];
 type AiTutorMessage = { role: "user" | "assistant"; content: string; hintLevel?: number };
 type ResumeState = {
   view: Exclude<View, "today">;
+  planModule?: PlanModule;
   selectedId: string;
   selectedCourseTopic: number;
   browsedWeek: number;
@@ -700,6 +709,29 @@ const ui = {
   },
 };
 
+const planModuleHeadings: Record<PlanModule, { eyebrow: string; title: Bi; intro: Bi }> = {
+  weekly: {
+    eyebrow: "PREP → CLASS → REVIEW → RETRIEVAL",
+    title: bi("本周学习流程", "Weekly study flow"),
+    intro: bi("一次只处理一周：先预习、再复习，最后用闭卷回忆确认是否真正掌握。", "Work one week at a time: prepare, review, then verify mastery with closed-book retrieval."),
+  },
+  timetable: {
+    eyebrow: "TIME · PLACE · ACCESS",
+    title: bi("个人课程表", "Personal timetable"),
+    intro: bi("集中查看上课时间、课室、线上入口和数学辅导课的个人显示方案。", "See class times, rooms, online access and your selected Mathematics tutorial display."),
+  },
+  assessments: {
+    eyebrow: "DEADLINES & MILESTONES",
+    title: bi("作业与考试", "Assignments and exams"),
+    intro: bi("按截止日期和课程筛选 Assessment，并明确现在应该推进的下一步。", "Filter assessments by deadline and course, with one clear next action for each item."),
+  },
+  widget: {
+    eyebrow: "IOS HOME SCREEN",
+    title: bi("iOS 课表组件", "iOS timetable widget"),
+    intro: bi("单独管理桌面组件的预览、安装、课表参数和更新步骤。", "Manage the Home Screen widget preview, installation, timetable parameter and updates."),
+  },
+};
+
 const tutorPrompts: Record<string, Bi[]> = {
   math: [
     bi("先不要代数值：题目给了哪些量，真正要求的量是什么？", "Before substituting: which quantities are given, and what exactly must be found?"),
@@ -785,6 +817,8 @@ function AiMessageBody({ content }: { content: string }) {
 export default function Home() {
   const [lang, setLang] = useState<Lang>("zh");
   const [view, setView] = useState<View>("today");
+  const [planModule, setPlanModule] = useState<PlanModule>("weekly");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedId, setSelectedId] = useState("math");
   const [selectedCourseTopic, setSelectedCourseTopic] = useState(0);
   const [sessionCompletions, setSessionCompletions] = useState<string[]>([]);
@@ -884,6 +918,7 @@ export default function Home() {
           if (parsed && parsed.view && parsed.selectedId) {
             setResumeState(parsed);
             setSelectedId(parsed.selectedId);
+            setPlanModule(parsed.planModule ?? "weekly");
             setSelectedCourseTopic(parsed.selectedCourseTopic ?? 0);
             setBrowsedWeek(parsed.browsedWeek ?? 1);
             setQuizFilter(parsed.quizFilter ?? "all");
@@ -1006,6 +1041,7 @@ export default function Home() {
     if (!hydrated || view === "today") return;
     const nextResume: ResumeState = {
       view,
+      planModule,
       selectedId,
       selectedCourseTopic,
       browsedWeek,
@@ -1029,6 +1065,7 @@ export default function Home() {
     browsedWeek,
     draftSelections,
     hydrated,
+    planModule,
     quizFilter,
     quizIndex,
     quizQueueMode,
@@ -1055,6 +1092,14 @@ export default function Home() {
   }, [hydrated]);
 
   const selected = courses.find((course) => course.id === selectedId) ?? courses[0];
+  const activeDestinationId: PersonalDestinationId =
+    view === "plan"
+      ? (`plan-${planModule}` as PersonalDestinationId)
+      : view === "courses"
+        ? (`course-${selected.id}` as PersonalDestinationId)
+        : view;
+  const activeMainModule = mainModuleForDestination(activeDestinationId);
+  const activePlanHeading = planModuleHeadings[planModule];
   const selectedTopicId = `${selected.id}-${selectedCourseTopic}`;
   const selectedDeepLesson = deepLessons[selectedTopicId] ?? deepLessons["math-0"];
   const currentQuestion = practiceBank.find((q) => q.id === sessionIds[quizIndex]);
@@ -1428,6 +1473,7 @@ export default function Home() {
 
   function restoreResume(saved: ResumeState) {
     setSelectedId(saved.selectedId);
+    setPlanModule(saved.planModule ?? "weekly");
     setSelectedCourseTopic(saved.selectedCourseTopic ?? 0);
     setBrowsedWeek(saved.browsedWeek ?? currentWeek);
     setQuizFilter(saved.quizFilter ?? "all");
@@ -1462,6 +1508,34 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function navigateToDestination(id: PersonalDestinationId) {
+    setMenuOpen(false);
+    if (id === "today") {
+      goToday();
+      return;
+    }
+    if (id.startsWith("plan-")) {
+      setPlanModule(id.slice("plan-".length) as PlanModule);
+      setView("plan");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (id.startsWith("course-")) {
+      const courseId = id.slice("course-".length);
+      if (courseId !== selectedId) setSelectedCourseTopic(0);
+      setSelectedId(courseId);
+      setView("courses");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (id === "tutor") {
+      showTutorView();
+    } else {
+      setView("quiz");
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function executeDailyTask(task: DailyTask) {
     if (task.kind === "resume" && resumeState) {
       restoreResume(resumeState);
@@ -1470,6 +1544,7 @@ export default function Home() {
     if (task.kind === "assessment") {
       setAssessmentFilter(task.courseId ?? "all");
       setBrowsedWeek(task.week ?? currentWeek);
+      setPlanModule("assessments");
       setView("plan");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -1861,6 +1936,22 @@ export default function Home() {
         </div>
       </header>
 
+      <PersonalModuleMenu
+        lang={lang}
+        open={menuOpen}
+        activeId={activeDestinationId}
+        onClose={() => setMenuOpen(false)}
+        onNavigate={navigateToDestination}
+      />
+
+      <ModuleContextBar
+        lang={lang}
+        activeId={activeDestinationId}
+        menuOpen={menuOpen}
+        onOpenMenu={() => setMenuOpen(true)}
+        onNavigate={navigateToDestination}
+      />
+
       {view === "today" && (
         <section className="view-stack today-view">
           <article className="hero-card daily-hero">
@@ -1976,7 +2067,7 @@ export default function Home() {
                 const course = courses.find((entry) => entry.id === item.courseId) ?? courses[0];
                 const days = daysUntil(item.date);
                 return (
-                  <button key={item.id} onClick={() => { setAssessmentFilter(item.courseId); setBrowsedWeek(currentWeek); setView("plan"); }}>
+                  <button key={item.id} onClick={() => { setAssessmentFilter(item.courseId); setBrowsedWeek(currentWeek); setPlanModule("assessments"); setView("plan"); }}>
                     <span style={{ background: course.soft }}>{course.code}</span>
                     <strong>{item.title[lang]}</strong>
                     <small>{days === null ? copy.datePending : days === 0 ? copy.todayDue : `${days} ${copy.days}`}</small>
@@ -1990,12 +2081,13 @@ export default function Home() {
 
       {view === "plan" && (
         <section className="view-stack plan-view">
-          <div className="page-intro">
-            <p className="eyebrow">SEMESTER OS · SPRING 2026</p>
-            <h2>{copy.planTitle}</h2>
-            <p>{copy.planIntro}</p>
-          </div>
+          {planModule !== "widget" && <div className="page-intro">
+            <p className="eyebrow">{activePlanHeading.eyebrow}</p>
+            <h2>{pick(activePlanHeading.title)}</h2>
+            <p>{pick(activePlanHeading.intro)}</p>
+          </div>}
 
+          {(planModule === "weekly" || planModule === "timetable") && (
           <div className="week-picker" aria-label={copy.thisWeek}>
             {semesterWeeks.map((week) => (
               <button
@@ -2010,7 +2102,9 @@ export default function Home() {
               </button>
             ))}
           </div>
+          )}
 
+          {planModule === "widget" && (
           <IOSTimetableWidget
             lang={lang}
             now={now}
@@ -2018,16 +2112,10 @@ export default function Home() {
             assessments={assessments}
             selectedMathChoiceId={selectedChoiceForGroup("math-tutorial")?.id}
           />
+          )}
 
-          <details className="schedule-disclosure">
-            <summary>
-              <span>
-                <small>PERSONAL TIMETABLE</small>
-                <strong>{copy.timetable}</strong>
-              </span>
-              <span className="week-badge">W{browsedWeek}</span>
-            </summary>
-            <section className="schedule-card">
+          {planModule === "timetable" && (
+          <section className="schedule-card schedule-module" aria-label={copy.timetable}>
             <div className="timetable-choice-panel">
               {timetableChoiceGroups.map((group) => {
                 const selectedChoice = selectedChoiceForGroup(group.id);
@@ -2155,9 +2243,10 @@ export default function Home() {
             <p className="room-guide">{copy.roomGuide}</p>
             <p className="arrival-tip">ⓘ {copy.arriveTip}</p>
             {browsedWeek === 8 && <p className="break-note">{semesterBreak[lang]}</p>}
-            </section>
-          </details>
+          </section>
+          )}
 
+          {planModule === "weekly" && (
           <section className="weekly-plan">
             <div className="section-heading">
               <div>
@@ -2275,7 +2364,9 @@ export default function Home() {
               })}
             </div>
           </section>
+          )}
 
+          {planModule === "assessments" && (
           <section className="assessment-section">
             <div className="section-heading">
               <div>
@@ -2318,6 +2409,7 @@ export default function Home() {
                 })}
             </div>
           </section>
+          )}
         </section>
       )}
 
@@ -2327,20 +2419,6 @@ export default function Home() {
             <p className="eyebrow">COURSE MAP</p>
             <h2>{copy.mapTitle}</h2>
             <p>{copy.mapIntro}</p>
-          </div>
-          <div className="course-tabs" role="tablist" aria-label={copy.fourCourses}>
-            {courses.map((course) => (
-              <button
-                key={course.id}
-                role="tab"
-                aria-selected={selected.id === course.id}
-                className={selected.id === course.id ? "active" : ""}
-                style={{ "--accent": course.accent } as React.CSSProperties}
-                onClick={() => { setSelectedId(course.id); setSelectedCourseTopic(0); }}
-              >
-                {course.code}
-              </button>
-            ))}
           </div>
           <article className="course-detail" style={{ "--accent": selected.accent, "--soft": selected.soft } as React.CSSProperties}>
             <div className="detail-title">
@@ -3398,20 +3476,20 @@ export default function Home() {
       </footer>
 
       <nav className="bottom-nav" aria-label={lang === "zh" ? "主要导航" : "Main navigation"}>
-        <button type="button" aria-current={view === "today" ? "page" : undefined} className={view === "today" ? "active" : ""} onClick={goToday}>
+        <button type="button" aria-current={activeMainModule === "overview" ? "page" : undefined} className={activeMainModule === "overview" ? "active" : ""} onClick={() => navigateToDestination("today")}>
           <span aria-hidden="true">⌂</span>{lang === "zh" ? "今天" : "Today"}
         </button>
-        <button type="button" aria-current={view === "plan" ? "page" : undefined} className={view === "plan" ? "active" : ""} onClick={() => setView("plan")}>
-          <span aria-hidden="true">☷</span>{lang === "zh" ? "学习计划" : "Plan"}
+        <button type="button" aria-current={activeMainModule === "planning" ? "page" : undefined} className={activeMainModule === "planning" ? "active" : ""} onClick={() => navigateToDestination(`plan-${planModule}` as PersonalDestinationId)}>
+          <span aria-hidden="true">☷</span>{lang === "zh" ? "计划" : "Plan"}
         </button>
-        <button type="button" aria-current={view === "courses" ? "page" : undefined} className={view === "courses" ? "active" : ""} onClick={() => setView("courses")}>
-          <span aria-hidden="true">▤</span>{lang === "zh" ? "课程内容" : "Courses"}
+        <button type="button" aria-current={activeMainModule === "courses" ? "page" : undefined} className={activeMainModule === "courses" ? "active" : ""} onClick={() => navigateToDestination(`course-${selected.id}` as PersonalDestinationId)}>
+          <span aria-hidden="true">▤</span>{lang === "zh" ? "课程" : "Courses"}
         </button>
-        <button type="button" aria-current={view === "tutor" ? "page" : undefined} className={view === "tutor" ? "active" : ""} onClick={showTutorView}>
-          <span aria-hidden="true">?</span>{lang === "zh" ? "AI 导师" : "AI Tutor"}
+        <button type="button" aria-current={activeMainModule === "mastery" ? "page" : undefined} className={activeMainModule === "mastery" ? "active" : ""} onClick={() => navigateToDestination(activeMainModule === "mastery" ? activeDestinationId : "tutor")}>
+          <span aria-hidden="true">◇</span>{lang === "zh" ? "深度" : "Deep"}
         </button>
-        <button type="button" aria-current={view === "quiz" ? "page" : undefined} className={view === "quiz" ? "active" : ""} onClick={() => setView("quiz")}>
-          <span aria-hidden="true">✓</span>{lang === "zh" ? "练习" : "Practice"}
+        <button type="button" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
+          <span aria-hidden="true">☰</span>{lang === "zh" ? "菜单" : "Menu"}
         </button>
       </nav>
     </main>
