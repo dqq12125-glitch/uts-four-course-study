@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { TimetableItem } from "@/app/semester-data";
+import type { Assessment, TimetableItem } from "@/app/semester-data";
 
 type Lang = "zh" | "en";
 
@@ -15,10 +15,12 @@ type Props = {
   lang: Lang;
   now: Date;
   timetable: TimetableItem[];
+  assessments: Assessment[];
   selectedMathChoiceId?: string;
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DUE_SOON_DAYS = 14;
 const SCRIPT_URL = "/widgets/deepstudy-timetable.js";
 
 const courseMeta: Record<
@@ -35,7 +37,7 @@ const copy = {
   zh: {
     eyebrow: "IOS HOME SCREEN",
     title: "把课表放到 iPhone 主屏幕",
-    intro: "抬手就看下一节课、时间和课室。小组件离线可用，点击会打开你的个人学习版。",
+    intro: "抬手就看下一节课、课室和马上截止的 assessment。小组件离线可用，点击会打开你的个人学习版。",
     widgetTitle: "课表",
     offline: "离线可用",
     today: "今天",
@@ -43,6 +45,12 @@ const copy = {
     noNextClass: "暂无固定课程",
     weekClasses: "本周课程",
     completed: (done: number, total: number) => `已完成 ${done}/${total}`,
+    dueSoon: "即将截止",
+    dueWindow: (count: number) => `14 天内 · ${count} 项`,
+    assessment: "Assessment",
+    dueToday: "今天截止",
+    dueTomorrow: "明天截止",
+    dueInDays: (days: number) => `${days} 天后`,
     upcoming: "接下来",
     recent: "未来 7 天",
     noClass: "未来 7 天没有固定课程",
@@ -69,7 +77,7 @@ const copy = {
   en: {
     eyebrow: "IOS HOME SCREEN",
     title: "Put your timetable on the iPhone Home Screen",
-    intro: "See the next class, time and room at a glance. The widget works offline and opens your personal study app when tapped.",
+    intro: "See the next class, room and imminent assessment deadline at a glance. The widget works offline and opens your personal study app when tapped.",
     widgetTitle: "Timetable",
     offline: "Works offline",
     today: "Today",
@@ -77,6 +85,12 @@ const copy = {
     noNextClass: "No scheduled class",
     weekClasses: "This week's classes",
     completed: (done: number, total: number) => `${done}/${total} completed`,
+    dueSoon: "Due soon",
+    dueWindow: (count: number) => `${count} within 14 days`,
+    assessment: "Assessment",
+    dueToday: "Due today",
+    dueTomorrow: "Due tomorrow",
+    dueInDays: (days: number) => `Due in ${days} days`,
     upcoming: "Up next",
     recent: "Next 7 days",
     noClass: "No scheduled classes in the next 7 days",
@@ -200,14 +214,42 @@ function eventsForCurrentWeek(timetable: TimetableItem[], now: Date) {
   return events;
 }
 
-export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId }: Props) {
+function calendarDayDistance(date: Date, now: Date) {
+  return Math.round(
+    (startOfLocalDay(date).getTime() - startOfLocalDay(now).getTime()) / DAY_MS,
+  );
+}
+
+function assessmentsDueSoon(assessments: Assessment[], now: Date) {
+  return assessments
+    .filter((item): item is Assessment & { date: string } => Boolean(item.date && item.submissionDue))
+    .map((item) => ({ item, due: new Date(item.date) }))
+    .filter(({ due }) => {
+      const days = calendarDayDistance(due, now);
+      return due.getTime() >= now.getTime() && days >= 0 && days <= DUE_SOON_DAYS;
+    })
+    .sort((a, b) => a.due.getTime() - b.due.getTime());
+}
+
+function dueLabel(due: Date, now: Date, lang: Lang) {
+  const days = calendarDayDistance(due, now);
+  if (days === 0) return copy[lang].dueToday;
+  if (days === 1) return copy[lang].dueTomorrow;
+  return copy[lang].dueInDays(days);
+}
+
+export function IOSTimetableWidget({ lang, now, timetable, assessments, selectedMathChoiceId }: Props) {
   const t = copy[lang];
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const upcoming = useMemo(
     () => eventsForNextSevenDays(timetable, now),
     [now, timetable],
   );
-  const shown = upcoming.slice(0, 4);
+  const dueSoon = useMemo(
+    () => assessmentsDueSoon(assessments, now),
+    [assessments, now],
+  );
+  const shown = upcoming.slice(0, dueSoon.length > 0 ? 3 : 4);
   const currentWeek = useMemo(
     () => eventsForCurrentWeek(timetable, now),
     [now, timetable],
@@ -274,6 +316,34 @@ export function IOSTimetableWidget({ lang, now, timetable, selectedMathChoiceId 
             </strong>
           </span>
         </div>
+
+        {dueSoon.length > 0 && (
+          <div className="ios-widget-due-block">
+            <div className="ios-widget-due-head">
+              <strong>{t.dueSoon}</strong>
+              <small>{t.dueWindow(dueSoon.length)}</small>
+            </div>
+            <a
+              className="ios-widget-due-row"
+              href={dueSoon[0].item.canvas}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="ios-widget-due-dot" aria-hidden="true" />
+              <span className="ios-widget-event-copy">
+                <strong>
+                  {courseMeta[dueSoon[0].item.courseId].code} · {dueSoon[0].item.title[lang]}
+                </strong>
+                <small>{t.assessment} · {dueSoon[0].item.weight}</small>
+              </span>
+              <span className="ios-widget-event-time due">
+                <small>{dueLabel(dueSoon[0].due, now, lang)}</small>
+                <b>{timeLabel(dueSoon[0].due)}</b>
+                <span className="ios-widget-canvas-button">Canvas ↗</span>
+              </span>
+            </a>
+          </div>
+        )}
 
         <div className="ios-widget-section-head">
           <strong>{t.upcoming}</strong>

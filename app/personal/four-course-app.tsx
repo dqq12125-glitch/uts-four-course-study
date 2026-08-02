@@ -2012,6 +2012,7 @@ export default function Home() {
             lang={lang}
             now={now}
             timetable={activeTimetable}
+            assessments={assessments}
             selectedMathChoiceId={selectedChoiceForGroup("math-tutorial")?.id}
           />
 

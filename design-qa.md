@@ -58,6 +58,9 @@
 3. Clarity pass
    - Finding: the orange “7 days / 91%” row mixed calendar-week elapsed time with a rolling future-seven-day class list.
    - Fix: replaced it with explicit “Today” and “Next class” values; labelled the green bar as completed classes `X/Y`; documented how to add two instances of the same Scriptable widget.
+4. Deadline pass
+   - Finding: the Home Screen widget showed class times but required opening the full app to discover an imminent Canvas submission.
+   - Fix: added a single high-priority “Due soon” row for the nearest submission within 14 calendar days, with course, title, deadline, countdown, and an explicit `Canvas ↗` affordance. Large widgets keep the timetable; small widgets prioritize the deadline when one exists.
 
 **Implementation checklist**
 
@@ -66,6 +69,7 @@
 - [x] Future seven-day classes, room/online labels, labelled weekly class completion, offline data, and app deep link.
 - [x] Semester teaching weeks and 21–27 September break.
 - [x] Mathematics parameters `18`, `11`, and `13`.
+- [x] Canvas-verified submission deadlines, 14-day urgency window, and direct Canvas action.
 - [x] Touch-sized copy/open/download installation controls.
 - [x] Browser-rendered Chrome evidence and focused comparison board.
 

@@ -4,6 +4,7 @@
 
 const APP_URL = "https://uts-deep-study.dqq12125-study.workers.dev";
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DUE_SOON_DAYS = 14;
 const parameter = String(args.widgetParameter || "18").trim();
 const mathSlot = parameter.indexOf("11") >= 0 ? "11" : parameter.indexOf("13") >= 0 ? "13" : "18";
 
@@ -23,6 +24,22 @@ const courses = {
   c: { code: "48430", name: "C 编程", color: new Color("#39C98B") },
   physics: { code: "68037", name: "物理", color: new Color("#59B7F1") },
 };
+
+// Verified against the Canvas agenda on 2 August 2026. Only dated submission
+// deadlines are included here; in-class tests remain in the study plan.
+const assessments = [
+  { id: "math-s1", course: "math", title: "Skills Test 1 · 在线", due: "2026-08-02T23:59:00+10:00", weight: "10%", url: "https://canvas.uts.edu.au/courses/40822/assignments" },
+  { id: "c-q1", course: "c", title: "Quiz 01 · 两部分", due: "2026-08-16T23:59:00+10:00", weight: "Quiz 组内", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-q2", course: "c", title: "Quiz 02 · 两部分", due: "2026-08-23T23:59:00+10:00", weight: "Quiz 组内", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-q3", course: "c", title: "Quiz 03 · 两部分", due: "2026-08-30T23:59:00+10:00", weight: "Quiz 组内", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-q4", course: "c", title: "Quiz 04 · 两部分", due: "2026-09-06T23:59:00+10:00", weight: "Quiz 组内", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-q5", course: "c", title: "Quiz 05 · 两部分", due: "2026-09-13T23:59:00+10:00", weight: "Quiz 组内", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-a2", course: "c", title: "Assessment 2 · 编程作业", due: "2026-09-20T23:59:00+10:00", weight: "20%", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-check", course: "c", title: "小组项目 · Checkpoint 1", due: "2026-10-04T23:59:00+11:00", weight: "里程碑", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "math-s6", course: "math", title: "Skills Test 6 · 在线", due: "2026-10-30T23:59:00+11:00", weight: "10%", url: "https://canvas.uts.edu.au/courses/40822/assignments" },
+  { id: "c-group", course: "c", title: "Assessment 3 · 小组项目", due: "2026-11-01T23:59:00+11:00", weight: "30%", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+  { id: "c-sparkplus", course: "c", title: "Assessment 3 · SparkPlus", due: "2026-11-08T23:59:00+11:00", weight: "小组互评", url: "https://canvas.uts.edu.au/courses/41072/assignments" },
+];
 
 const timetable = [
   { id: "physics-prc", course: "physics", activity: "实践课 Prc1", day: 1, start: "17:00", end: "20:00", room: "CB04.03.551", startsWeek: 1 },
@@ -86,6 +103,20 @@ function collectEvents(now, daysAhead) {
     }
   }
   return events.sort(function (a, b) { return a.start.getTime() - b.start.getTime(); });
+}
+
+function calendarDayDistance(date, now) {
+  return Math.round((startOfDay(date).getTime() - startOfDay(now).getTime()) / DAY_MS);
+}
+
+function collectDueAssessments(now, daysAhead) {
+  return assessments
+    .map(function (item) { return { item: item, due: new Date(item.due) }; })
+    .filter(function (entry) {
+      const days = calendarDayDistance(entry.due, now);
+      return entry.due.getTime() >= now.getTime() && days >= 0 && days <= daysAhead;
+    })
+    .sort(function (a, b) { return a.due.getTime() - b.due.getTime(); });
 }
 
 function currentWeekEvents(now) {
@@ -203,6 +234,72 @@ function addSectionHeading(widget) {
   meta.textColor = palette.secondary;
 }
 
+function dueRelation(due, now) {
+  const days = calendarDayDistance(due, now);
+  if (days === 0) return "今天截止";
+  if (days === 1) return "明天截止";
+  return days + " 天后";
+}
+
+function addDueHeading(widget, count) {
+  const row = widget.addStack();
+  row.layoutHorizontally();
+  row.centerAlignContent();
+  const title = row.addText("即将截止");
+  title.font = Font.semiboldSystemFont(11);
+  title.textColor = palette.primary;
+  row.addSpacer();
+  const meta = row.addText("14 天内 · " + count + " 项");
+  meta.font = Font.mediumSystemFont(8);
+  meta.textColor = palette.secondary;
+}
+
+function addDueRow(widget, entry, now, compact) {
+  const meta = courses[entry.item.course];
+  const row = widget.addStack();
+  row.layoutHorizontally();
+  row.centerAlignContent();
+  row.backgroundColor = new Color("#352A22");
+  row.cornerRadius = 10;
+  row.setPadding(compact ? 8 : 9, compact ? 9 : 11, compact ? 8 : 9, compact ? 9 : 11);
+  row.url = entry.item.url;
+
+  addDot(row, palette.orange, 7);
+  row.addSpacer(8);
+  const copy = row.addStack();
+  copy.layoutVertically();
+  const title = copy.addText(meta.code + " · " + entry.item.title);
+  title.font = Font.semiboldSystemFont(compact ? 9 : 10);
+  title.textColor = palette.primary;
+  title.lineLimit = 1;
+  title.minimumScaleFactor = 0.75;
+  copy.addSpacer(2);
+  const detail = copy.addText("Assessment · " + entry.item.weight);
+  detail.font = Font.systemFont(compact ? 7 : 8);
+  detail.textColor = palette.secondary;
+
+  row.addSpacer(8);
+  const when = row.addStack();
+  when.layoutVertically();
+  const relationText = when.addText(dueRelation(entry.due, now));
+  relationText.font = Font.mediumSystemFont(compact ? 7 : 8);
+  relationText.textColor = palette.orange;
+  relationText.rightAlignText();
+  when.addSpacer(2);
+  const time = when.addText(formatTime(entry.due));
+  time.font = Font.semiboldMonospacedSystemFont(compact ? 9 : 10);
+  time.textColor = palette.primary;
+  time.rightAlignText();
+  when.addSpacer(4);
+  const openButton = when.addStack();
+  openButton.backgroundColor = palette.orange;
+  openButton.cornerRadius = 5;
+  openButton.setPadding(3, 5, 3, 5);
+  const openLabel = openButton.addText("Canvas ↗");
+  openLabel.font = Font.semiboldSystemFont(compact ? 6 : 7);
+  openLabel.textColor = new Color("#1C1408");
+}
+
 function addEventRow(widget, event, now, compact) {
   const meta = courses[event.item.course];
   const row = widget.addStack();
@@ -290,7 +387,9 @@ function buildWidget() {
   const isMedium = family === "medium";
   const isLarge = !isSmall && !isMedium;
   const events = collectEvents(now, 7);
-  const maxRows = isSmall ? 2 : isMedium ? 3 : 5;
+  const dueSoon = collectDueAssessments(now, DUE_SOON_DAYS);
+  const hasDueSoon = dueSoon.length > 0;
+  const maxRows = isSmall ? (hasDueSoon ? 0 : 1) : isMedium ? (hasDueSoon ? 1 : 2) : (hasDueSoon ? 4 : 5);
   const shown = events.slice(0, maxRows);
   const footerWidth = isSmall ? 120 : isMedium ? 285 : 300;
 
@@ -304,13 +403,29 @@ function buildWidget() {
   widget.refreshAfterDate = new Date(now.getTime() + 30 * 60 * 1000);
 
   addHeader(widget, now);
-  widget.addSpacer(isSmall ? 10 : 14);
-  addTodaySummary(widget, now, events[0], isSmall || isMedium);
-  widget.addSpacer(isSmall ? 10 : 15);
-  addSectionHeading(widget);
-  widget.addSpacer(isSmall ? 8 : 10);
+  if (isLarge || isSmall) {
+    widget.addSpacer(isSmall ? 8 : 12);
+    addTodaySummary(widget, now, events[0], isSmall);
+  }
 
-  if (shown.length === 0) {
+  if (hasDueSoon) {
+    widget.addSpacer(isSmall ? 8 : 10);
+    if (!isSmall) {
+      addDueHeading(widget, dueSoon.length);
+      widget.addSpacer(6);
+    }
+    addDueRow(widget, dueSoon[0], now, isSmall || isMedium);
+  }
+
+  if (shown.length > 0) {
+    widget.addSpacer(isSmall ? 8 : 10);
+    if (!isSmall) {
+      addSectionHeading(widget);
+      widget.addSpacer(isMedium ? 6 : 8);
+    }
+  }
+
+  if (shown.length === 0 && !hasDueSoon) {
     addEmptyState(widget);
   } else {
     shown.forEach(function (event, index) {
@@ -319,8 +434,10 @@ function buildWidget() {
     });
   }
 
-  widget.addSpacer(isLarge ? 12 : 8);
-  addFooter(widget, now, events.length, shown.length, footerWidth);
+  if (isLarge) {
+    widget.addSpacer(10);
+    addFooter(widget, now, events.length, shown.length, footerWidth);
+  }
   return widget;
 }
 

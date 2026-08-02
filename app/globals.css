@@ -2049,12 +2049,73 @@ blockquote span {
   white-space: nowrap;
 }
 
+.ios-widget-due-block {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.ios-widget-due-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ios-widget-due-head strong {
+  font-size: 11px;
+  font-weight: 680;
+}
+
+.ios-widget-due-head small {
+  color: #8f8f96;
+  font-size: 8px;
+}
+
+.ios-widget-due-row {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 45px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: #352a22;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ios-widget-due-dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff9f0a;
+}
+
+.ios-widget-event-time.due small {
+  color: #ffb340;
+  font-weight: 650;
+}
+
+.ios-widget-canvas-button {
+  margin-top: 3px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #ff9f0a;
+  color: #1c1408;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 750;
+  line-height: 1;
+}
+
 .ios-widget-section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .ios-widget-section-head strong {
