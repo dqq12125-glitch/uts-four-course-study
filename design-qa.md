@@ -61,6 +61,9 @@
 4. Deadline pass
    - Finding: the Home Screen widget showed class times but required opening the full app to discover an imminent Canvas submission.
    - Fix: added a single high-priority “Due soon” row for the nearest submission within 14 calendar days, with course, title, deadline, countdown, and an explicit `Canvas ↗` affordance. Large widgets keep the timetable; small widgets prioritize the deadline when one exists.
+5. Native height pass
+   - Finding: adding the deadline card while retaining four class rows exceeded the native large-widget height and clipped the footer on iPhone; the deadline card also collapsed to its content width.
+   - Fix: when a deadline is visible, the large widget now shows three class rows and reports the remaining count in the footer; the card stretches across the available width, and without a deadline the widget still shows up to five rows.
 
 **Implementation checklist**
 

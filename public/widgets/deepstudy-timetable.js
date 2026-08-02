@@ -278,7 +278,9 @@ function addDueRow(widget, entry, now, compact) {
   detail.font = Font.systemFont(compact ? 7 : 8);
   detail.textColor = palette.secondary;
 
-  row.addSpacer(8);
+  // A flexible spacer makes the highlighted deadline card use the full native
+  // widget width while keeping its deadline and Canvas action right-aligned.
+  row.addSpacer();
   const when = row.addStack();
   when.layoutVertically();
   const relationText = when.addText(dueRelation(entry.due, now));
@@ -389,7 +391,10 @@ function buildWidget() {
   const events = collectEvents(now, 7);
   const dueSoon = collectDueAssessments(now, DUE_SOON_DAYS);
   const hasDueSoon = dueSoon.length > 0;
-  const maxRows = isSmall ? (hasDueSoon ? 0 : 1) : isMedium ? (hasDueSoon ? 1 : 2) : (hasDueSoon ? 4 : 5);
+  // A deadline card occupies roughly the height of two timetable rows. Keep the
+  // large family to three rows in that state so the completion/footer area
+  // remains visible on every iPhone large-widget size.
+  const maxRows = isSmall ? (hasDueSoon ? 0 : 1) : isMedium ? (hasDueSoon ? 1 : 2) : (hasDueSoon ? 3 : 5);
   const shown = events.slice(0, maxRows);
   const footerWidth = isSmall ? 120 : isMedium ? 285 : 300;
 

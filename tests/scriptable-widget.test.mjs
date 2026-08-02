@@ -29,6 +29,7 @@ test("the iOS timetable widget is a real Scriptable widget with the current time
   assert.match(source, /DUE_SOON_DAYS = 14/);
   assert.match(source, /Canvas ↗/);
   assert.match(source, /row\.url = entry\.item\.url/);
+  assert.match(source, /hasDueSoon \? 3 : 5/);
   assert.doesNotMatch(source, /addWeekProgress|weekElapsed|"7 天"/);
   assert.doesNotMatch(source, /sk-[A-Za-z0-9_-]{12,}/);
 });
