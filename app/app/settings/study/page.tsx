@@ -17,11 +17,11 @@ export default async function StudySettingsPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Study preferences</p>
+        <p className="saas-eyebrow">{t("学习偏好", "Study preferences")}</p>
         <h1>{t("学习设置", "Study settings")}</h1>
         <p className="saas-lead">
           {t(
-            "每日容量用于规则引擎排程；Critical 任务超出容量时仍会明确提醒。",
+            "每日容量用于规则引擎排程；紧急任务超出容量时仍会明确提醒。",
             "Daily capacity guides rule-based scheduling; critical overloads are still shown explicitly.",
           )}
         </p>

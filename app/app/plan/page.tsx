@@ -39,7 +39,7 @@ export default async function PlanPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Plan with capacity</p>
+        <p className="saas-eyebrow">{t("按可用时间规划", "Plan with capacity")}</p>
         <h1>
           {t(
             "这一周，只安排真正做得完的任务",
@@ -48,7 +48,7 @@ export default async function PlanPage() {
         </h1>
         <p>
           {t(
-            "拖到另一日期可重新安排；Critical 任务会明确显示超负荷，不会被静默顺延。",
+            "拖到另一日期可重新安排；紧急任务会明确显示超负荷，不会被静默顺延。",
             "Drag a task to reschedule it. Critical overloads are shown explicitly and never moved silently.",
           )}
         </p>

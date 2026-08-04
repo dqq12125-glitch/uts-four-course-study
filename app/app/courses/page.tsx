@@ -30,7 +30,7 @@ export default async function CoursesPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Your semester</p>
+        <p className="saas-eyebrow">{t("你的学期", "Your semester")}</p>
         <h1>{t("课程", "Courses")}</h1>
         <p className="saas-lead">
           {t(
@@ -52,7 +52,7 @@ export default async function CoursesPage() {
             <h2>{course.courseName}</h2>
             <p>
               {t(
-                `${course.assessmentCount ?? 0} 项 Assessment`,
+                `${course.assessmentCount ?? 0} 项考核`,
                 `${course.assessmentCount ?? 0} assessment${
                   Number(course.assessmentCount ?? 0) === 1 ? "" : "s"
                 }`,

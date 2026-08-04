@@ -153,7 +153,7 @@ export function PracticeSetup({
     <div className="saas-practice-layout">
       <section className="saas-practice-launch">
         <div>
-          <p className="saas-eyebrow">Next question</p>
+          <p className="saas-eyebrow">{t("下一道练习", "Next question")}</p>
           <h2>{t("选择要检查的课程", "Choose a course to check")}</h2>
         </div>
         {activeSession ? (

@@ -15,6 +15,8 @@ import { extractLocalCourseData } from "../services/resources/local-text-extract
 import { ApiError } from "../lib/api-errors.ts";
 import { createId } from "../lib/ids.ts";
 import { zonedDateTimeToUtc } from "../lib/timezone.ts";
+import type { ResourceIngestionService } from "./resource-ingestion-service.ts";
+import type { ConnectorId, ResourceFile } from "@deepstudy/shared-types";
 
 export const RESOURCE_TYPES = [
   "lecture_notes",
@@ -103,6 +105,7 @@ export class ResourceService {
   private readonly provider: AiProvider;
   private readonly entitlements: EntitlementService;
   private readonly flags: FeatureFlagService;
+  private readonly ingestion: ResourceIngestionService | null;
 
   constructor(
     repository: ResourceRepository,
@@ -111,6 +114,7 @@ export class ResourceService {
     provider: AiProvider,
     entitlements: EntitlementService,
     flags: FeatureFlagService,
+    ingestion: ResourceIngestionService | null = null,
   ) {
     this.repository = repository;
     this.aiRepository = aiRepository;
@@ -118,10 +122,18 @@ export class ResourceService {
     this.provider = provider;
     this.entitlements = entitlements;
     this.flags = flags;
+    this.ingestion = ingestion;
   }
 
   async list(userId: string): Promise<ResourceRecord[]> {
-    return this.repository.list(userId);
+    const resources = await this.repository.list(userId);
+    if (!this.ingestion) return resources;
+    return Promise.all(
+      resources.map(async (resource) => ({
+        ...resource,
+        ingestion: await this.ingestion!.status(userId, resource.id),
+      })),
+    );
   }
 
   async detail(
@@ -136,7 +148,12 @@ export class ResourceService {
         "The learning resource was not found.",
       );
     }
-    return resource;
+    return {
+      ...resource,
+      ...(this.ingestion
+        ? { ingestion: await this.ingestion.status(userId, resourceId) }
+        : {}),
+    };
   }
 
   async upload(input: {
@@ -159,6 +176,17 @@ export class ResourceService {
     );
     this.entitlements.assertCanUploadResource(entitlement);
     const validated = validatePrivateUpload(input);
+    const fileHash = this.ingestion
+      ? await this.ingestion.fingerprint(input.bytes)
+      : null;
+    if (this.ingestion && fileHash) {
+      const duplicateId = await this.ingestion.findManualDuplicate(
+        input.userId,
+        input.courseId,
+        fileHash,
+      );
+      if (duplicateId) return this.detail(input.userId, duplicateId);
+    }
     const now = input.now ?? new Date();
     const resourceId = createId("resource");
     const storageKey = `users/${input.userId}/${resourceId}/${validated.fileName}`;
@@ -167,22 +195,71 @@ export class ResourceService {
       input.bytes,
       validated.mimeType,
     );
-    const created = await this.repository.create({
-      id: resourceId,
-      extractionId: createId("extraction"),
-      userId: input.userId,
-      courseId: input.courseId,
-      fileName: validated.fileName,
-      storageKey,
-      mimeType: validated.mimeType,
-      fileSize: input.bytes.byteLength,
-      resourceType: input.resourceType,
-      retentionUntil: new Date(
-        now.getTime() + 365 * 86_400_000,
-      ).toISOString(),
-      now: now.toISOString(),
-    });
+    let versionId: string | null = null;
+    if (this.ingestion && fileHash) {
+      try {
+        const registration = await this.ingestion.reserve({
+          resourceId,
+          userId: input.userId,
+          courseId: input.courseId,
+          sourceType: "manual-upload",
+          sourceId: `sha256:${fileHash}`,
+          fileName: validated.fileName,
+          mimeType: validated.mimeType,
+          storageKey,
+          fileHash,
+          fileSize: input.bytes.byteLength,
+          resourceType: input.resourceType,
+          now: now.toISOString(),
+        });
+        if (!registration) {
+          await this.storage.delete(storageKey);
+          throw new ApiError(
+            "COURSE_NOT_FOUND",
+            404,
+            "The selected course was not found.",
+          );
+        }
+        versionId = registration.versionId;
+      } catch (error) {
+        const duplicateId = await this.ingestion.findManualDuplicate(
+          input.userId,
+          input.courseId,
+          fileHash,
+        );
+        await this.storage.delete(storageKey);
+        if (duplicateId) return this.detail(input.userId, duplicateId);
+        throw error;
+      }
+    }
+    let created = false;
+    try {
+      created = await this.repository.create({
+        id: resourceId,
+        extractionId: createId("extraction"),
+        userId: input.userId,
+        courseId: input.courseId,
+        fileName: validated.fileName,
+        storageKey,
+        mimeType: validated.mimeType,
+        fileSize: input.bytes.byteLength,
+        resourceType: input.resourceType,
+        retentionUntil: new Date(
+          now.getTime() + 365 * 86_400_000,
+        ).toISOString(),
+        now: now.toISOString(),
+      });
+    } catch (error) {
+      if (this.ingestion) {
+        await this.ingestion.rollbackReservation(resourceId, input.userId);
+      }
+      await this.storage.delete(storageKey);
+      throw error;
+    }
     if (!created) {
+      if (this.ingestion) {
+        await this.ingestion.rollbackReservation(resourceId, input.userId);
+      }
       await this.storage.delete(storageKey);
       throw new ApiError(
         "COURSE_NOT_FOUND",
@@ -197,6 +274,7 @@ export class ResourceService {
       timezone: input.timezone,
       bytes: input.bytes,
       now,
+      versionId,
     });
     return this.detail(input.userId, resourceId);
   }
@@ -217,8 +295,244 @@ export class ResourceService {
         "The stored file is no longer available.",
       );
     }
-    await this.process({ ...input, bytes, now: input.now ?? new Date() });
+    if (
+      this.ingestion &&
+      resource.ingestion?.pipelineStatus === "failed" &&
+      resource.ingestion.versionId &&
+      (resource.processingStatus === "awaiting_confirmation" ||
+        resource.processingStatus === "ready")
+    ) {
+      await this.ingestion.process({
+        userId: input.userId,
+        courseId: resource.courseId ?? "",
+        resourceId: resource.id,
+        versionId: resource.ingestion.versionId,
+        fileName: resource.fileName,
+        mimeType: resource.mimeType,
+        bytes,
+        sourceUrl: resource.ingestion.sourceUrl,
+        now: input.now ?? new Date(),
+      });
+      return this.detail(input.userId, input.resourceId);
+    }
+    await this.process({
+      ...input,
+      bytes,
+      now: input.now ?? new Date(),
+      versionId: resource.ingestion?.versionId ?? null,
+    });
     return this.detail(input.userId, input.resourceId);
+  }
+
+  async sourceNeedsDownload(input: {
+    userId: string;
+    courseId: string;
+    sourceType: ConnectorId;
+    sourceId: string;
+    sourceUrl?: string | null;
+    sourceUpdatedAt?: string | null;
+    now?: Date;
+  }): Promise<boolean> {
+    if (!this.ingestion) return true;
+    const state = await this.ingestion.sourceState(input);
+    if (
+      state &&
+      input.sourceUpdatedAt &&
+      state.sourceUpdatedAt === input.sourceUpdatedAt
+    ) {
+      await this.ingestion.markSeen({
+        resourceId: state.resourceId,
+        userId: input.userId,
+        sourceUrl: input.sourceUrl,
+        sourceUpdatedAt: input.sourceUpdatedAt,
+        now: (input.now ?? new Date()).toISOString(),
+      });
+      return false;
+    }
+    return true;
+  }
+
+  async syncResource(input: {
+    userId: string;
+    role: "student" | "admin";
+    courseId: string;
+    connectionId: string;
+    sourceType: Exclude<ConnectorId, "manual-upload">;
+    sourceId: string;
+    sourceUrl?: string | null;
+    sourceUpdatedAt?: string | null;
+    file: ResourceFile;
+    resourceType?: (typeof RESOURCE_TYPES)[number];
+    language: "zh-CN" | "en";
+    timezone: string;
+    now?: Date;
+  }): Promise<{ action: "created" | "updated" | "skipped"; resourceId: string }> {
+    if (!this.ingestion) {
+      throw new ApiError(
+        "INGESTION_PIPELINE_UNAVAILABLE",
+        503,
+        "The versioned ingestion pipeline is unavailable.",
+      );
+    }
+    const now = input.now ?? new Date();
+    const validated = validatePrivateUpload({
+      fileName: input.file.fileName,
+      mimeType: input.file.mimeType,
+      bytes: input.file.bytes,
+    });
+    const fileHash = await this.ingestion.fingerprint(input.file.bytes);
+    const existing = await this.ingestion.sourceState({
+      userId: input.userId,
+      courseId: input.courseId,
+      sourceType: input.sourceType,
+      sourceId: input.sourceId,
+    });
+    if (existing?.fileHash === fileHash) {
+      await this.ingestion.markSeen({
+        resourceId: existing.resourceId,
+        userId: input.userId,
+        sourceUrl: input.sourceUrl,
+        sourceUpdatedAt: input.sourceUpdatedAt,
+        now: now.toISOString(),
+      });
+      return { action: "skipped", resourceId: existing.legacyResourceId };
+    }
+
+    const resourceType = input.resourceType ?? "lecture_notes";
+    if (!existing) {
+      await this.flags.require("file_upload_enabled");
+      const entitlement = await this.entitlements.snapshot(
+        input.userId,
+        input.role,
+        now,
+      );
+      this.entitlements.assertCanUploadResource(entitlement);
+    }
+    const resourceId = existing?.resourceId ?? createId("resource");
+    const objectId = createId("object");
+    const storageKey = `users/${input.userId}/${resourceId}/versions/${objectId}/${validated.fileName}`;
+    await this.storage.put(storageKey, input.file.bytes, validated.mimeType);
+
+    let versionId: string;
+    if (existing) {
+      try {
+        const registration = await this.ingestion.appendVersion({
+          resourceId,
+          userId: input.userId,
+          fileName: validated.fileName,
+          mimeType: validated.mimeType,
+          storageKey,
+          fileHash,
+          fileSize: input.file.bytes.byteLength,
+          sourceUrl: input.sourceUrl,
+          sourceUpdatedAt: input.sourceUpdatedAt,
+          now: now.toISOString(),
+        });
+        versionId = registration.versionId;
+        const replaced = await this.repository.replaceForProcessing({
+          userId: input.userId,
+          resourceId: existing.legacyResourceId,
+          fileName: validated.fileName,
+          storageKey,
+          mimeType: validated.mimeType,
+          fileSize: input.file.bytes.byteLength,
+          resourceType,
+          now: now.toISOString(),
+        });
+        if (!replaced) {
+          throw new ApiError(
+            "RESOURCE_NOT_FOUND",
+            404,
+            "The synchronized resource compatibility record was not found.",
+          );
+        }
+      } catch (error) {
+        await this.storage.delete(storageKey);
+        throw error;
+      }
+    } else {
+      const registration = await this.ingestion.reserve({
+        resourceId,
+        userId: input.userId,
+        courseId: input.courseId,
+        connectionId: input.connectionId,
+        sourceType: input.sourceType,
+        sourceId: input.sourceId,
+        sourceUrl: input.sourceUrl,
+        sourceUpdatedAt: input.sourceUpdatedAt,
+        fileName: validated.fileName,
+        mimeType: validated.mimeType,
+        storageKey,
+        fileHash,
+        fileSize: input.file.bytes.byteLength,
+        resourceType,
+        now: now.toISOString(),
+      });
+      if (!registration) {
+        await this.storage.delete(storageKey);
+        throw new ApiError(
+          "COURSE_NOT_FOUND",
+          404,
+          "The selected course was not found.",
+        );
+      }
+      versionId = registration.versionId;
+      try {
+        const created = await this.repository.create({
+          id: resourceId,
+          extractionId: createId("extraction"),
+          userId: input.userId,
+          courseId: input.courseId,
+          fileName: validated.fileName,
+          storageKey,
+          mimeType: validated.mimeType,
+          fileSize: input.file.bytes.byteLength,
+          resourceType,
+          retentionUntil: new Date(
+            now.getTime() + 365 * 86_400_000,
+          ).toISOString(),
+          now: now.toISOString(),
+        });
+        if (!created) {
+          throw new ApiError(
+            "COURSE_NOT_FOUND",
+            404,
+            "The selected course was not found.",
+          );
+        }
+      } catch (error) {
+        await this.ingestion.rollbackReservation(resourceId, input.userId);
+        await this.storage.delete(storageKey);
+        throw error;
+      }
+    }
+
+    await this.process({
+      userId: input.userId,
+      resourceId,
+      language: input.language,
+      timezone: input.timezone,
+      bytes: input.file.bytes,
+      now,
+      versionId,
+    });
+    return {
+      action: existing ? "updated" : "created",
+      resourceId,
+    };
+  }
+
+  tombstoneMissingSources(input: {
+    userId: string;
+    courseId: string;
+    connectionId: string;
+    sourceType: Exclude<ConnectorId, "manual-upload">;
+    seenSourceIds: ReadonlySet<string>;
+    now: string;
+  }): Promise<number> {
+    return this.ingestion
+      ? this.ingestion.tombstoneMissingSources(input)
+      : Promise.resolve(0);
   }
 
   private async process(input: {
@@ -228,6 +542,7 @@ export class ResourceService {
     timezone: string;
     bytes: Uint8Array;
     now: Date;
+    versionId: string | null;
   }): Promise<void> {
     const resource = await this.detail(input.userId, input.resourceId);
     const claimed = await this.repository.markProcessing(
@@ -248,6 +563,20 @@ export class ResourceService {
         "This resource is already being processed.",
       );
     }
+    const ingestionResult =
+      this.ingestion && input.versionId
+        ? await this.ingestion.process({
+            userId: input.userId,
+            courseId: resource.courseId ?? "",
+            resourceId: input.resourceId,
+            versionId: input.versionId,
+            fileName: resource.fileName,
+            mimeType: resource.mimeType,
+            bytes: input.bytes,
+            sourceUrl: resource.ingestion?.sourceUrl,
+            now: input.now,
+          })
+        : null;
     try {
       const extracted = await this.extract({
         resource,
@@ -256,6 +585,10 @@ export class ResourceService {
         timezone: input.timezone,
         userId: input.userId,
         now: input.now,
+        extractedTextOverride:
+          ingestionResult?.success === true
+            ? ingestionResult.extractedText
+            : undefined,
       });
       await this.repository.completeExtraction({
         userId: input.userId,
@@ -281,14 +614,19 @@ export class ResourceService {
     timezone: string;
     userId: string;
     now: Date;
+    extractedTextOverride?: string | null;
   }): Promise<{ text: string | null; result: ExtractionResult }> {
-    let text: string | null = null;
+    let text: string | null = input.extractedTextOverride ?? null;
     if (
-      input.resource.mimeType === "text/plain" ||
-      input.resource.mimeType === "text/calendar"
+      input.extractedTextOverride === undefined &&
+      (input.resource.mimeType === "text/plain" ||
+        input.resource.mimeType === "text/calendar")
     ) {
       text = new TextDecoder("utf-8", { fatal: true }).decode(input.bytes);
-    } else if (input.resource.mimeType === "application/pdf") {
+    } else if (
+      input.extractedTextOverride === undefined &&
+      input.resource.mimeType === "application/pdf"
+    ) {
       const { extractText, getDocumentProxy } = await import("unpdf");
       const pdf = await getDocumentProxy(input.bytes);
       try {
@@ -502,6 +840,12 @@ export class ResourceService {
     now?: Date;
   }): Promise<{ physicallyDeleted: boolean }> {
     const now = input.now ?? new Date();
+    const versionObjects = this.ingestion
+      ? await this.ingestion.storageKeysForLegacy({
+          userId: input.userId,
+          legacyResourceId: input.resourceId,
+        })
+      : [];
     const storageKey = await this.repository.markDeleted({
       userId: input.userId,
       resourceId: input.resourceId,
@@ -516,16 +860,39 @@ export class ResourceService {
         "The learning resource was not found.",
       );
     }
+    if (this.ingestion) {
+      await this.ingestion.tombstoneLegacy({
+        userId: input.userId,
+        legacyResourceId: input.resourceId,
+        now: now.toISOString(),
+      });
+    }
+    let physicallyDeleted = true;
+    const deletedKeys = new Set<string>();
+    for (const object of versionObjects) {
+      try {
+        if (!deletedKeys.has(object.storageKey)) {
+          await this.storage.delete(object.storageKey);
+          deletedKeys.add(object.storageKey);
+        }
+        await this.ingestion?.markVersionPhysicallyDeleted(
+          object.versionId,
+          now.toISOString(),
+        );
+      } catch {
+        physicallyDeleted = false;
+      }
+    }
     try {
-      await this.storage.delete(storageKey);
+      if (!deletedKeys.has(storageKey)) await this.storage.delete(storageKey);
       await this.repository.markPhysicallyDeleted(
         input.resourceId,
         now.toISOString(),
       );
-      return { physicallyDeleted: true };
     } catch {
-      return { physicallyDeleted: false };
+      physicallyDeleted = false;
     }
+    return { physicallyDeleted };
   }
 
   async cleanupDeleted(now = new Date()): Promise<number> {
@@ -541,6 +908,21 @@ export class ResourceService {
         removed += 1;
       } catch {
         // A later scheduled run retries this object.
+      }
+    }
+    if (this.ingestion) {
+      const versionObjects = await this.ingestion.pendingStorageDeletion();
+      for (const object of versionObjects) {
+        try {
+          await this.storage.delete(object.storageKey);
+          await this.ingestion.markVersionPhysicallyDeleted(
+            object.versionId,
+            now.toISOString(),
+          );
+          removed += 1;
+        } catch {
+          // A later scheduled run retries this object.
+        }
       }
     }
     return removed;

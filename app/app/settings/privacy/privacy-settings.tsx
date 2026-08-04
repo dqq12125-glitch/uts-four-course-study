@@ -89,7 +89,7 @@ export function PrivacySettings({
     <div className="saas-settings-stack">
       <form className="saas-card saas-form" onSubmit={saveNotifications}>
         <div>
-          <p className="saas-eyebrow">Notification choices</p>
+          <p className="saas-eyebrow">{t("通知选择", "Notification choices")}</p>
           <h2>{t("通知类型", "Reminder types")}</h2>
           <p className="saas-muted">
             {t(
@@ -119,7 +119,7 @@ export function PrivacySettings({
 
       <section className="saas-card saas-form">
         <div>
-          <p className="saas-eyebrow">Your data</p>
+          <p className="saas-eyebrow">{t("你的数据", "Your data")}</p>
           <h2>{t("导出与文件管理", "Export and file management")}</h2>
           <p className="saas-muted">
             {t(
@@ -146,7 +146,7 @@ export function PrivacySettings({
 
       <section className="saas-card saas-danger-zone">
         <div>
-          <p className="saas-eyebrow">Danger zone</p>
+          <p className="saas-eyebrow">{t("危险操作", "Danger zone")}</p>
           <h2>{t("永久删除账户", "Permanently delete account")}</h2>
           <p>
             {t(

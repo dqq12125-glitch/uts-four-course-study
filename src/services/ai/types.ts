@@ -1,3 +1,12 @@
+export type {
+  AIProvider as AdaptiveAIProvider,
+  AudioInput,
+  ModelCapability,
+  StructuredRequest,
+  TextRequest,
+  Transcript,
+} from "@deepstudy/shared-types";
+
 export type AiLanguage = "zh-CN" | "en";
 
 export interface AiUsage {

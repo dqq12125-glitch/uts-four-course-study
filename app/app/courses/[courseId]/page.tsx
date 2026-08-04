@@ -128,8 +128,8 @@ export default async function CourseDetailPage({
       <section className="saas-card">
         <div className="saas-section-heading">
           <div>
-            <p className="saas-eyebrow">Deadlines</p>
-            <h2>Assessments</h2>
+            <p className="saas-eyebrow">{t("截止日期", "Deadlines")}</p>
+            <h2>{t("作业与考试", "Assessments")}</h2>
           </div>
           <AssessmentForm
             courseId={course.id}
@@ -201,7 +201,7 @@ export default async function CourseDetailPage({
         <section className="saas-card">
           <div className="saas-section-heading">
             <div>
-              <p className="saas-eyebrow">Study tasks</p>
+              <p className="saas-eyebrow">{t("学习任务", "Study tasks")}</p>
               <h2>{t("近期学习任务", "Recent study tasks")}</h2>
             </div>
             <Link href="/app/plan">{t("打开计划", "Open plan")}</Link>
@@ -234,7 +234,7 @@ export default async function CourseDetailPage({
         <section className="saas-card">
           <div className="saas-section-heading">
             <div>
-              <p className="saas-eyebrow">Recent practice</p>
+              <p className="saas-eyebrow">{t("近期练习", "Recent practice")}</p>
               <h2>{t("最近练习证据", "Recent practice evidence")}</h2>
             </div>
             <Link href="/app/practice">{t("开始练习", "Start practice")}</Link>
@@ -275,7 +275,7 @@ export default async function CourseDetailPage({
       <section className="saas-card">
         <div className="saas-section-heading">
           <div>
-            <p className="saas-eyebrow">Private resources</p>
+            <p className="saas-eyebrow">{t("私人学习资料", "Private resources")}</p>
             <h2>{t("学习资料", "Study resources")}</h2>
           </div>
           <Link

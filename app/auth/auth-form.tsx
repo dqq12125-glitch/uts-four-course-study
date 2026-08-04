@@ -150,8 +150,9 @@ export function AuthForm({
     if (!response.ok) {
       setState("error");
       setMessage(
-        result.error?.message ??
-          "Unable to send a sign-in link. Please try again.",
+        language === "zh-CN"
+          ? "暂时无法发送登录链接，请稍后重试。"
+          : "Unable to send a sign-in link. Please try again.",
       );
       if (widgetId.current) turnstileApi()?.reset(widgetId.current);
       setTurnstileToken(null);

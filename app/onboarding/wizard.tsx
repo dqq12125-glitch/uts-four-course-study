@@ -52,7 +52,9 @@ export function OnboardingWizard({
   const [institutionName, setInstitutionName] = useState(
     "University of Technology Sydney",
   );
-  const [semesterName, setSemesterName] = useState("Spring 2026");
+  const [semesterName, setSemesterName] = useState(
+    initialLanguage === "zh-CN" ? "2026 年春季" : "Spring 2026",
+  );
   const [startDate, setStartDate] = useState("2026-08-03");
   const [endDate, setEndDate] = useState("2026-11-29");
   const [courseMode, setCourseMode] = useState<"template" | "manual">(
@@ -65,7 +67,9 @@ export function OnboardingWizard({
   const [colourKey, setColourKey] = useState("ocean");
   const [hasClass, setHasClass] = useState(false);
   const [sessionType, setSessionType] = useState("lecture");
-  const [classTitle, setClassTitle] = useState("Lecture");
+  const [classTitle, setClassTitle] = useState(
+    initialLanguage === "zh-CN" ? "讲座" : "Lecture",
+  );
   const [dayOfWeek, setDayOfWeek] = useState(1);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("11:00");
@@ -184,17 +188,13 @@ export function OnboardingWizard({
           : [],
       }),
     });
-    const result = (await response.json()) as {
-      error?: { message?: string };
-    };
     if (!response.ok) {
       setState("error");
       setError(
-        result.error?.message ??
-          t(
-            "暂时无法生成计划，请重试。",
-            "The plan could not be generated. Please try again.",
-          ),
+        t(
+          "暂时无法生成计划，请重试。",
+          "The plan could not be generated. Please try again.",
+        ),
       );
       return;
     }
@@ -207,7 +207,7 @@ export function OnboardingWizard({
       className="saas-onboarding"
       lang={language === "zh-CN" ? "zh-CN" : "en"}
     >
-      <nav aria-label="Onboarding progress">
+      <nav aria-label={t("设置进度", "Onboarding progress")}>
         <ol className="saas-stepper">
           {steps.map(([zh, en], index) => (
             <li
@@ -231,7 +231,7 @@ export function OnboardingWizard({
       <div className="saas-card saas-wizard-card">
         {step === 0 ? (
           <>
-            <p className="saas-eyebrow">Step 1 of 6</p>
+            <p className="saas-eyebrow">{t("第 1 步，共 6 步", "Step 1 of 6")}</p>
             <h1>
               {t(
                 "先按你的方式显示学习计划",
@@ -301,11 +301,11 @@ export function OnboardingWizard({
 
         {step === 1 ? (
           <>
-            <p className="saas-eyebrow">Step 2 of 6</p>
+            <p className="saas-eyebrow">{t("第 2 步，共 6 步", "Step 2 of 6")}</p>
             <h1>{t("学校和学期", "Institution and semester")}</h1>
             <p className="saas-lead">
               {t(
-                "默认提供 UTS Spring 2026，但所有字段都可以改成你的学校和学期。",
+                "默认提供悉尼科技大学 2026 年春季学期，但所有字段都可以改成你的学校和学期。",
                 "UTS Spring 2026 is prefilled, but every field can be changed for your institution and semester.",
               )}
             </p>
@@ -370,7 +370,7 @@ export function OnboardingWizard({
 
         {step === 2 ? (
           <>
-            <p className="saas-eyebrow">Step 3 of 6</p>
+            <p className="saas-eyebrow">{t("第 3 步，共 6 步", "Step 3 of 6")}</p>
             <h1>{t("添加你的第一门课程", "Add your first course")}</h1>
             <p className="saas-lead">
               {t(
@@ -441,7 +441,7 @@ export function OnboardingWizard({
                       id="course-name"
                       value={courseName}
                       onChange={(event) => setCourseName(event.target.value)}
-                      placeholder="Academic English"
+                      placeholder={t("学术英语", "Academic English")}
                       required
                       maxLength={160}
                     />
@@ -482,7 +482,7 @@ export function OnboardingWizard({
 
         {step === 3 ? (
           <>
-            <p className="saas-eyebrow">Step 4 of 6</p>
+            <p className="saas-eyebrow">{t("第 4 步，共 6 步", "Step 4 of 6")}</p>
             <h1>{t("添加课表", "Add your timetable")}</h1>
             <label className="saas-check">
               <input
@@ -501,12 +501,12 @@ export function OnboardingWizard({
                     value={sessionType}
                     onChange={(event) => setSessionType(event.target.value)}
                   >
-                    <option value="lecture">Lecture</option>
-                    <option value="tutorial">Tutorial</option>
-                    <option value="workshop">Workshop</option>
-                    <option value="lab">Lab</option>
-                    <option value="practical">Practical</option>
-                    <option value="other">Other</option>
+                    <option value="lecture">{t("讲座", "Lecture")}</option>
+                    <option value="tutorial">{t("辅导课", "Tutorial")}</option>
+                    <option value="workshop">{t("工作坊", "Workshop")}</option>
+                    <option value="lab">{t("实验课", "Lab")}</option>
+                    <option value="practical">{t("实践课", "Practical")}</option>
+                    <option value="other">{t("其他", "Other")}</option>
                   </select>
                 </div>
                 <div className="saas-field">
@@ -577,7 +577,7 @@ export function OnboardingWizard({
 
         {step === 4 ? (
           <>
-            <p className="saas-eyebrow">Step 5 of 6</p>
+            <p className="saas-eyebrow">{t("第 5 步，共 6 步", "Step 5 of 6")}</p>
             <h1>
               {t("添加最近的截止日期", "Add the nearest deadline")}
             </h1>
@@ -587,7 +587,7 @@ export function OnboardingWizard({
                 checked={hasAssessment}
                 onChange={(event) => setHasAssessment(event.target.checked)}
               />
-              {t("现在添加一项 Assessment", "Add an assessment now")}
+              {t("现在添加一项考核", "Add an assessment now")}
             </label>
             {hasAssessment ? (
               <div className="saas-form-grid">
@@ -601,7 +601,7 @@ export function OnboardingWizard({
                     onChange={(event) =>
                       setAssessmentTitle(event.target.value)
                     }
-                    placeholder="Lab report 1"
+                    placeholder={t("实验报告 1", "Lab report 1")}
                     required
                   />
                 </div>
@@ -616,13 +616,13 @@ export function OnboardingWizard({
                       setAssessmentType(event.target.value)
                     }
                   >
-                    <option value="assignment">Assignment</option>
-                    <option value="quiz">Quiz</option>
-                    <option value="exam">Exam</option>
-                    <option value="lab">Lab</option>
-                    <option value="project">Project</option>
-                    <option value="presentation">Presentation</option>
-                    <option value="other">Other</option>
+                    <option value="assignment">{t("作业", "Assignment")}</option>
+                    <option value="quiz">{t("测验", "Quiz")}</option>
+                    <option value="exam">{t("考试", "Exam")}</option>
+                    <option value="lab">{t("实验", "Lab")}</option>
+                    <option value="project">{t("项目", "Project")}</option>
+                    <option value="presentation">{t("演示", "Presentation")}</option>
+                    <option value="other">{t("其他", "Other")}</option>
                   </select>
                 </div>
                 <div className="saas-field">
@@ -679,7 +679,7 @@ export function OnboardingWizard({
 
         {step === 5 ? (
           <>
-            <p className="saas-eyebrow">Step 6 of 6</p>
+            <p className="saas-eyebrow">{t("第 6 步，共 6 步", "Step 6 of 6")}</p>
             <h1>
               {t(
                 "准备生成第一份今日计划",

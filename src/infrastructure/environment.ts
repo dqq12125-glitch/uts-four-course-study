@@ -1,4 +1,5 @@
 import type { R2BucketLike } from "../services/storage/private-object-storage.ts";
+import { validateProductionConfiguration } from "./production-config.ts";
 
 export interface RuntimeEnvironment {
   DB?: D1Database;
@@ -12,6 +13,8 @@ export interface RuntimeEnvironment {
   EMAIL_FROM?: string;
   UNSUBSCRIBE_TOKEN_SECRET?: string;
   IP_HASH_SECRET?: string;
+  CONNECTOR_TOKEN_ACTIVE_KEY_ID?: string;
+  CONNECTOR_TOKEN_KEYS?: string;
   PERSONAL_OWNER_EMAIL?: string;
   PERSONAL_DEPLOYMENT?: string;
   DEEPSEEK_API_KEY?: string;
@@ -20,6 +23,11 @@ export interface RuntimeEnvironment {
   AI_BASE_URL?: string;
   AI_TUTOR_MODEL?: string;
   AI_EXTRACTION_MODEL?: string;
+  AI_LOW_COST_MODEL?: string;
+  AI_MEDIUM_MODEL?: string;
+  AI_HIGH_CAPABILITY_MODEL?: string;
+  AI_EMBEDDING_MODEL?: string;
+  AI_EMBEDDING_VERSION?: string;
   AI_MOCK_ENABLED?: string;
   AI_INPUT_COST_PER_MILLION_MINOR_USD?: string;
   AI_OUTPUT_COST_PER_MILLION_MINOR_USD?: string;
@@ -46,6 +54,7 @@ const environmentSlot = globalThis as typeof globalThis & {
 };
 
 export function setRuntimeEnvironment(environment: RuntimeEnvironment): void {
+  validateProductionConfiguration(environment);
   environmentSlot.__DEEPSTUDY_RUNTIME_ENV__ = environment;
 }
 

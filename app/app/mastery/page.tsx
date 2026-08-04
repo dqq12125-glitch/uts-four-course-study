@@ -52,7 +52,9 @@ export default async function MasteryPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Evidence, not confidence alone</p>
+        <p className="saas-eyebrow">
+          {t("依据证据，而不只依据感觉", "Evidence, not confidence alone")}
+        </p>
         <h1>
           {t(
             "掌握度来自独立作答和延迟复测",
@@ -163,7 +165,7 @@ export default async function MasteryPage() {
         </section>
       ) : (
         <section className="saas-empty">
-          <p className="saas-eyebrow">No evidence yet</p>
+          <p className="saas-eyebrow">{t("还没有证据", "No evidence yet")}</p>
           <h2>
             {t(
               "完成第一道练习后，这里才开始记录",

@@ -740,7 +740,7 @@ Canvas course ID、external tool 和 module item 链接会进入所有用户的�
 * `notification_deliveries`
 * `scheduled_job_runs`
 
-最终命名和拆分应在 `docs/MIGRATION_PLAN.md` 与数据库设计评审中冻结。
+最终命名和拆分应在 `docs/migration-plan.md` 与数据库设计评审中冻结。
 
 ## 20. 预计新增 bindings 与环境变量
 
@@ -875,4 +875,4 @@ Phase 0 没有运行时改动，不需要生产回滚。
 5. 是否向现有个人用户提供一次性本地进度导入；若提供，明确低可信 mastery 处理规则。
 6. 先升级并验证 Next/Vinext 安全补丁。
 
-完成这些决策后，再编写 `docs/MIGRATION_PLAN.md` 和 Milestone 1 文件级实施计划。当前审计不应被解释为 Milestone 1 已经开始。
+完成这些决策后，再编写 `docs/migration-plan.md` 和 Milestone 1 文件级实施计划。当前审计不应被解释为 Milestone 1 已经开始。

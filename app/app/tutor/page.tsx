@@ -24,7 +24,7 @@ export default async function TutorPage() {
   return (
     <div className="saas-page saas-tutor-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Hint-first tutor</p>
+        <p className="saas-eyebrow">{t("提示优先的导师", "Hint-first tutor")}</p>
         <h1>{t("AI 学习导师", "AI study tutor")}</h1>
         <p className="saas-lead">
           {t(

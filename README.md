@@ -5,7 +5,9 @@ DeepStudy is a mobile-first semester execution system for university students:
 any institution; the four original UTS subjects remain optional starter
 templates rather than product assumptions.
 
-This repository contains:
+The repository is being migrated in-place toward the Adaptive Learning OS
+architecture. Phases 1–2 establish shared/provider boundaries and versioned
+course ingestion while the existing product remains operational. It contains:
 
 - a Cloudflare Worker/Vinext web application;
 - a D1 relational data model with repeatable Drizzle migrations;
@@ -15,6 +17,13 @@ This repository contains:
 - scheduled in-app/email reminders and weekly reports;
 - an admin operations surface;
 - an Expo/React Native iOS and Android app under `apps/mobile`;
+- npm workspaces for shared contracts, API transport, AI, storage, jobs,
+  security, ingestion, UI tokens, and the target PostgreSQL schema;
+- Mock/Manual/Canvas read-only Connectors, incremental sync logs, immutable
+  resource versions, source-located chunks, optional embeddings and quality
+  status;
+- a versioned PostgreSQL/pgvector migration target that is not yet the runtime
+  source of truth;
 - the original four-course personal workspace at `/personal`, protected by a
   server-side owner allowlist.
 
@@ -42,7 +51,8 @@ remain external release gates.
 
 ## Prerequisites
 
-- Node.js `>=22.13.0`
+- Node.js `>=22.18.0` (workspace contract tests use Node's default TypeScript
+  type stripping)
 - npm
 - a Cloudflare account for remote D1/R2/Worker deployment
 - a verified email sender for preview/production authentication and reminders
@@ -69,10 +79,13 @@ directory.
 ## Mobile development
 
 ```powershell
-npm install --prefix apps/mobile
+npm install
 Copy-Item apps/mobile/.env.example apps/mobile/.env
-npm run start --prefix apps/mobile
+npm run start --workspace @deepstudy/mobile
 ```
+
+The root `package-lock.json` is authoritative for every workspace. Do not run
+a separate install inside `apps/mobile`.
 
 Set `EXPO_PUBLIC_API_BASE_URL` to a backend URL reachable from the device.
 Android emulators commonly use `http://10.0.2.2:3000`; physical devices need a
@@ -97,10 +110,13 @@ variable.
 | `EMAIL_PROVIDER`, `EMAIL_API_KEY`, `EMAIL_FROM` | Magic Links and reminder delivery |
 | `UNSUBSCRIBE_TOKEN_SECRET` | HMAC secret for expiring email-unsubscribe links |
 | `IP_HASH_SECRET` | Non-reversible IP hashing for abuse controls |
+| `CONNECTOR_TOKEN_ACTIVE_KEY_ID`, `CONNECTOR_TOKEN_KEYS` | Versioned envelope-encryption keyring reserved for LMS/tool credentials |
 | `PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `TURNSTILE_REQUIRED` | Optional anti-abuse challenge |
 | `PERSONAL_OWNER_EMAIL` | Exact account allowed to access `/personal`; blank disables it |
 | `AI_PROVIDER`, `AI_API_KEY`, `AI_BASE_URL` | AI provider selection and credentials |
-| `AI_TUTOR_MODEL`, `AI_EXTRACTION_MODEL` | Server-selected model keys |
+| `AI_TUTOR_MODEL`, `AI_EXTRACTION_MODEL` | Existing tutor/extraction model keys |
+| `AI_LOW_COST_MODEL`, `AI_MEDIUM_MODEL`, `AI_HIGH_CAPABILITY_MODEL` | Capability-based model policy |
+| `AI_EMBEDDING_MODEL`, `AI_EMBEDDING_VERSION` | Optional resource embeddings and cache/version key |
 | `AI_*_COST_PER_MILLION_MINOR_USD` | Cost estimation inputs |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe server credentials |
 | `STRIPE_*_PRICE_ID` | Server-owned Stripe Price IDs |
@@ -127,6 +143,29 @@ D1 backup/bookmark before remote application.
 
 See [Database](./docs/DATABASE.md).
 
+The existing Web runtime continues to use D1 during the migration. The target
+PostgreSQL/pgvector schema is additive and can be generated and checked without
+cutting over any reads or writes:
+
+```powershell
+npm run db:generate:postgres
+npm run db:check:postgres
+
+$env:POSTGRES_URL = "postgresql://..."
+npm run db:migrate:postgres
+npm run db:verify:postgres
+```
+
+An explicit D1 snapshot can be exported and staged without overwriting an
+existing file. Staging preserves every source row and records counts,
+ownership hints, and checksums before later normalized backfills:
+
+```powershell
+npm run db:export:d1 -- --database=DB --output=./private/d1-snapshot.json --remote --config=wrangler.jsonc
+$env:POSTGRES_URL = "postgresql://..."
+npm run db:import:postgres -- --input=./private/d1-snapshot.json
+```
+
 ## Validation
 
 Web/backend:
@@ -134,6 +173,7 @@ Web/backend:
 ```powershell
 npm run typecheck
 npm run lint
+npm run test:contracts
 npm run test:unit
 npm run test:integration
 npm run test:e2e
@@ -144,10 +184,10 @@ npm run build
 Native:
 
 ```powershell
-npm run typecheck --prefix apps/mobile
-npm run lint --prefix apps/mobile
-npm test --prefix apps/mobile
-npm run doctor --prefix apps/mobile
+npm run typecheck:mobile
+npm run lint:mobile
+npm run test:mobile
+npm run doctor --workspace @deepstudy/mobile
 npx expo export --platform android --output-dir dist-android
 npx expo export --platform ios --output-dir dist-ios
 ```
@@ -212,8 +252,11 @@ itself.
 ## Documentation
 
 - [Commercialization specification](./COMMERCIALIZATION_SPEC.md)
-- [Codebase audit](./docs/CODEBASE_AUDIT.md)
-- [Migration plan](./docs/MIGRATION_PLAN.md)
+- [Phase 0 current state](./docs/current-state.md)
+- [Adaptive Learning OS target architecture](./docs/target-architecture.md)
+- [Adaptive Learning OS migration plan](./docs/migration-plan.md)
+- [Phase 1 foundation handoff](./docs/phase-1-foundation.md)
+- [Historical commercialisation audit](./docs/CODEBASE_AUDIT.md)
 - [Timetable import](./docs/TIMETABLE_IMPORT.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Authentication](./docs/AUTH.md)

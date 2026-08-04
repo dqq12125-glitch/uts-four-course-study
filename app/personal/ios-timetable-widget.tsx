@@ -184,8 +184,7 @@ function displayLocation(item: TimetableItem, lang: Lang) {
 
 function widgetParameter(choiceId?: string) {
   if (choiceId === "math-tut1-14") return "11";
-  if (choiceId === "math-tut1-09") return "13";
-  return "18";
+  return "13";
 }
 
 function weekdayLabel(date: Date, lang: Lang) {
@@ -259,7 +258,7 @@ export function IOSTimetableWidget({ lang, now, timetable, assessments, selected
     ? Math.round((completedCount / currentWeek.length) * 100)
     : 0;
   const parameter = widgetParameter(selectedMathChoiceId);
-  const mathIsWaitlisted = parameter !== "18";
+  const mathIsWaitlisted = parameter === "11";
 
   async function copyWidgetScript() {
     try {

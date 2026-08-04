@@ -3,6 +3,7 @@ import type {
   ExtractedClassSession,
 } from "../services/ai/types.ts";
 import type { D1DatabaseLike } from "./types.ts";
+import type { ResourceIngestionStatus } from "@deepstudy/shared-types";
 
 export interface ResourceRecord {
   id: string;
@@ -22,6 +23,7 @@ export interface ResourceRecord {
   proposedDataJson: string | null;
   extractionStatus: string | null;
   failureCode: string | null;
+  ingestion?: ResourceIngestionStatus | null;
 }
 
 export class ResourceRepository {
@@ -183,6 +185,48 @@ export class ResourceRepository {
          WHERE resource_id = ? AND user_id = ?`,
       )
       .bind(now, resourceId, userId)
+      .run();
+    return true;
+  }
+
+  async replaceForProcessing(input: {
+    userId: string;
+    resourceId: string;
+    fileName: string;
+    storageKey: string;
+    mimeType: string;
+    fileSize: number;
+    resourceType: string;
+    now: string;
+  }): Promise<boolean> {
+    const updated = await this.db
+      .prepare(
+        `UPDATE learning_resources
+         SET file_name = ?, storage_key = ?, mime_type = ?, file_size = ?,
+             resource_type = ?, processing_status = 'pending', updated_at = ?
+         WHERE id = ? AND user_id = ? AND deleted_at IS NULL`,
+      )
+      .bind(
+        input.fileName,
+        input.storageKey,
+        input.mimeType,
+        input.fileSize,
+        input.resourceType,
+        input.now,
+        input.resourceId,
+        input.userId,
+      )
+      .run();
+    if (Number(updated.meta.changes ?? 0) < 1) return false;
+    await this.db
+      .prepare(
+        `UPDATE resource_extractions
+         SET extracted_text = NULL, proposed_data_json = NULL,
+             status = 'pending', failure_code = NULL, confirmed_at = NULL,
+             updated_at = ?
+         WHERE resource_id = ? AND user_id = ?`,
+      )
+      .bind(input.now, input.resourceId, input.userId)
       .run();
     return true;
   }

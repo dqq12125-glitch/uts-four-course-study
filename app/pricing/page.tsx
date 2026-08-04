@@ -1,100 +1,161 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { AnalyticsEvent } from "@/app/analytics-event";
+import { PublicFooter, PublicHeader } from "@/app/public-site-chrome";
+import { CheckoutButton } from "@/app/pricing/checkout-button";
+import { getPublicLocale } from "@/src/application/public-locale";
 import { currentUserFromCookies } from "@/src/application/session";
 import { PRODUCT_CATALOG } from "@/src/domain/commerce/products";
-import { CheckoutButton } from "@/app/pricing/checkout-button";
-import { AnalyticsEvent } from "@/app/analytics-event";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
-  title: "Pricing",
-  description:
-    "Start free or unlock the Spring 2026 Founding Pass for DeepStudy.",
-};
 
-function aud(amountMinor: number): string {
-  return new Intl.NumberFormat("en-AU", {
-    style: "currency",
-    currency: "AUD",
-  }).format(amountMinor / 100);
+const pricingCopy = {
+  "zh-CN": {
+    title: "价格",
+    description: "免费开始，或解锁完整的创始学期通行证。",
+    label: "简单、透明的学期方案",
+    heading: "先免费建立学习闭环，需要时再扩展。",
+    lead: "一次选择覆盖一个学期。价格由服务端确认，不会接受浏览器传入的任意金额。",
+    planLabel: "学习方案",
+    free: "免费版",
+    freeDescription: "用一门课程体验从计划到复测的完整闭环。",
+    freeItems: [
+      "一个活跃学期与一门课程",
+      "基础今日计划与掌握状态",
+      "每周有限原创练习",
+      "每日有限 AI 导师消息",
+    ],
+    freeAction: "免费开始",
+    pass: "创始学期通行证",
+    passDescription: "一次性支付，使用到 2026 年春季学期结束。",
+    passItems: [
+      "最多四门任意课程",
+      "每日计划、课表与专注计时",
+      "原创练习、错因记录与 48 小时复测",
+      "资料处理、周报与合理使用的 AI 额度",
+    ],
+    buy: "购买通行证",
+    registerBuy: "注册并购买",
+    integrity: "学术诚信",
+    integrityBody:
+      "DeepStudy 用于学习规划、概念理解和原创练习，不替代学生完成需要独立提交的考核任务。",
+  },
+  en: {
+    title: "Pricing",
+    description: "Start free or unlock the complete Founding Semester Pass.",
+    label: "Simple semester access",
+    heading: "Build the learning loop for free. Expand only when it helps.",
+    lead: "One decision covers a semester. Prices are confirmed by the server and never accepted from a browser-supplied amount.",
+    planLabel: "Study plans",
+    free: "Free",
+    freeDescription: "Experience the complete plan-to-retest loop with one course.",
+    freeItems: [
+      "One active semester and one course",
+      "Basic daily planning and mastery states",
+      "Limited original practice each week",
+      "Limited AI tutor messages each day",
+    ],
+    freeAction: "Start free",
+    pass: "Founding Semester Pass",
+    passDescription: "One payment for access through the end of Spring 2026.",
+    passItems: [
+      "Up to four courses from any subject",
+      "Daily plans, timetable and focus timer",
+      "Original practice, error tracking and 48-hour retests",
+      "Resource processing, weekly reports and fair-use AI capacity",
+    ],
+    buy: "Buy the pass",
+    registerBuy: "Create account and buy",
+    integrity: "Academic integrity",
+    integrityBody:
+      "DeepStudy supports planning, concept learning and original practice. It does not replace work that a student must submit independently.",
+  },
+} as const;
+
+function aud(amountMinor: number, language: "zh-CN" | "en"): string {
+  const amount = amountMinor / 100;
+  return `A$${new Intl.NumberFormat(
+    language === "zh-CN" ? "zh-CN" : "en-AU",
+    {
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      maximumFractionDigits: 2,
+    },
+  ).format(amount)}`;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const language = await getPublicLocale();
+  const content = pricingCopy[language];
+  return { title: content.title, description: content.description };
 }
 
 export default async function PricingPage() {
-  const user = await currentUserFromCookies();
+  const [user, language] = await Promise.all([
+    currentUserFromCookies(),
+    getPublicLocale(),
+  ]);
+  const content = pricingCopy[language];
   const founding = PRODUCT_CATALOG.founding_pass;
 
   return (
-    <main className="saas-public-page">
+    <div className="public-site public-pricing-page">
       {user ? <AnalyticsEvent eventName="paywall_viewed" /> : null}
-      <header className="saas-public-header">
-        <Link className="saas-wordmark" href="/">
-          DeepStudy
-        </Link>
-        <nav aria-label="Account">
-          <Link href={user ? "/app/today" : "/auth/sign-in"}>
-            {user ? "返回应用" : "登录"}
-          </Link>
-        </nav>
-      </header>
+      <PublicHeader language={language} signedIn={Boolean(user)} />
+      <main>
+        <section className="pricing-hero">
+          <p className="public-section-label">{content.label}</p>
+          <h1>{content.heading}</h1>
+          <p>{content.lead}</p>
+        </section>
 
-      <section className="saas-pricing-hero">
-        <p className="saas-eyebrow">Simple semester access</p>
-        <h1>先免费开始，需要时再解锁完整学期。</h1>
-        <p>
-          所有价格由服务端确认。DeepStudy 不会接受浏览器传入的任意金额。
-        </p>
-      </section>
-
-      <section className="saas-pricing-grid" aria-label="Plans">
-        <article className="saas-price-card">
-          <p className="saas-eyebrow">Free</p>
-          <h2>A$0</h2>
-          <p>适合用一门开放式课程体验每日执行闭环。</p>
-          <ul>
-            <li>1 个活跃学期、1 门课程</li>
-            <li>基础今日计划与掌握度</li>
-            <li>每周有限练习</li>
-            <li>每日有限 AI 导师消息</li>
-          </ul>
-          <Link
-            className="saas-button saas-button-secondary"
-            href={user ? "/app/today" : "/auth/sign-up"}
-          >
-            免费开始
-          </Link>
-        </article>
-
-        <article className="saas-price-card is-featured">
-          <p className="saas-eyebrow">Spring 2026 Founding Pass</p>
-          <h2>{aud(founding.amountMinor)}</h2>
-          <p>一次性支付，使用到 Spring 2026 学期结束。</p>
-          <ul>
-            <li>最多 4 门任意课程</li>
-            <li>每日计划、课表、专注计时器</li>
-            <li>原创练习、错题记录和 48 小时复测</li>
-            <li>资料上传、合理使用 AI 额度与周报</li>
-          </ul>
-          {user ? (
-            <CheckoutButton productKey="founding_pass">
-              购买 Founding Pass
-            </CheckoutButton>
-          ) : (
+        <section className="pricing-plans" aria-label={content.planLabel}>
+          <article className="pricing-plan">
+            <header>
+              <p>{content.free}</p>
+              <h2>A$0</h2>
+              <span>{content.freeDescription}</span>
+            </header>
+            <ul>
+              {content.freeItems.map((item) => <li key={item}>{item}</li>)}
+            </ul>
             <Link
-              className="saas-button saas-button-primary"
-              href="/auth/sign-up?next=/pricing"
+              className="public-button public-button-secondary"
+              href={user ? "/app/today" : "/auth/sign-up"}
             >
-              注册并购买
+              {content.freeAction}
             </Link>
-          )}
-        </article>
-      </section>
+          </article>
 
-      <section className="saas-integrity-note">
-        <h2>Academic Integrity</h2>
-        <p>
-          DeepStudy 用于学习规划、概念理解和原创练习，不替代学生完成需要独立提交的评估任务。
-        </p>
-      </section>
-    </main>
+          <article className="pricing-plan pricing-plan-featured">
+            <header>
+              <p>{content.pass}</p>
+              <h2>{aud(founding.amountMinor, language)}</h2>
+              <span>{content.passDescription}</span>
+            </header>
+            <ul>
+              {content.passItems.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+            {user ? (
+              <CheckoutButton productKey="founding_pass" language={language}>
+                {content.buy}
+              </CheckoutButton>
+            ) : (
+              <Link
+                className="public-button public-button-primary"
+                href="/auth/sign-up?next=/pricing"
+              >
+                {content.registerBuy}
+              </Link>
+            )}
+          </article>
+        </section>
+
+        <aside className="pricing-integrity">
+          <h2>{content.integrity}</h2>
+          <p>{content.integrityBody}</p>
+        </aside>
+      </main>
+      <PublicFooter language={language} />
+    </div>
   );
 }

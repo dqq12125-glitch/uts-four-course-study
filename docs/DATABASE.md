@@ -4,6 +4,27 @@ DeepStudy uses Cloudflare D1 (SQLite) through explicit repositories. All
 timestamp instants are UTC ISO-8601 text. Semester/task calendar dates use
 `YYYY-MM-DD` and are interpreted with the user's IANA time zone.
 
+## Phase 1–2 PostgreSQL target
+
+D1 remains the running source of truth. Phase 1 adds a shadow PostgreSQL 16 +
+pgvector target under `packages/database/`; no application repository reads or
+writes it yet. Phase 2 extends the target to 42 domain/staging tables. It has versioned resource
+and chunk data, `vector(1536)` embeddings, an HNSW cosine index, and explicit
+tenant/user/source/lifecycle fields.
+
+```powershell
+npm run db:generate:postgres
+npm run db:check:postgres
+$env:POSTGRES_URL = "postgresql://..."
+npm run db:migrate:postgres
+npm run db:verify:postgres
+```
+
+The D1 export/import tools stage the current 42-table Phase 2 D1 snapshot in
+`legacy_import_rows` with per-row checksums and a `data_migration_runs` report.
+This is deliberately separate from normalized backfill and cutover. See
+[Phase 1 foundation](./phase-1-foundation.md).
+
 ## Migrations
 
 | Migration | Purpose |
@@ -16,6 +37,7 @@ timestamp instants are UTC ISO-8601 text. Semester/task calendar dates use
 | `0005_nebulous_lady_bullseye.sql` | Payments, flags, AI, private resources, notifications, jobs, and support grants |
 | `0006_last_butterfly.sql` | Stable user-owned task ordering |
 | `0007_mean_nemesis.sql` | Stable source IDs for idempotent timetable and deadline re-imports |
+| `0008_watery_dreadnoughts.sql` | Phase 2 LMS links, versioned resources, chunks, jobs, and sync logs |
 
 Seeds use deterministic IDs and `INSERT OR IGNORE`. They never seed personal
 rooms, timetables, assessments, progress, language settings, uploads, or AI
@@ -71,6 +93,13 @@ npm run db:generate
 - `ai_usage_logs`
 - `learning_resources`
 - `resource_extractions`
+- `lms_connections`
+- `lms_course_links`
+- `resources`
+- `resource_versions`
+- `resource_chunks`
+- `resource_processing_jobs`
+- `resource_sync_runs`
 
 ### Commerce
 
@@ -146,6 +175,12 @@ before purchase activation.
 It has a unique unpredictable user/resource path. Extraction rows carry the
 same user ID and are deleted with the resource/account. R2 remains the source
 of file bytes; D1 stores metadata and proposals.
+
+Phase 2 dual-writes each new upload to the legacy pair and the versioned resource
+tables. File/content hashes, parser/embedding versions, quality reports and
+source locators live in the new tables. D1 stores migration-period embeddings as
+JSON; PostgreSQL uses pgvector. Resource/account deletion enumerates every
+version key so old objects are not orphaned.
 
 ## Backup and rollback
 

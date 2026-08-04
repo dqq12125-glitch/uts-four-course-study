@@ -30,12 +30,19 @@ export default async function BillingPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Account</p>
+        <p className="saas-eyebrow">{t("账户", "Account")}</p>
         <h1>{t("套餐与购买", "Plans and purchases")}</h1>
         <p className="saas-lead">
           {t("当前方案：", "Current plan:")}
-          <strong> {overview.entitlement.planKey}</strong>
-          {overview.entitlement.isFoundingUser ? " · Founding user" : ""}
+          <strong>
+            {" "}
+            {overview.entitlement.planKey === "free"
+              ? t("免费版", "Free")
+              : overview.entitlement.planKey}
+          </strong>
+          {overview.entitlement.isFoundingUser
+            ? ` · ${t("创始用户", "Founding user")}`
+            : ""}
         </p>
       </section>
 
@@ -62,8 +69,10 @@ export default async function BillingPage() {
       !overview.entitlement.activeProducts.includes("founding_pass") ? (
         <section className="saas-card saas-upgrade-card">
           <div>
-            <p className="saas-eyebrow">Spring 2026</p>
-            <h2>{aud(founding.amountMinor, founding.currency)} Founding Pass</h2>
+            <p className="saas-eyebrow">{t("2026 年春季", "Spring 2026")}</p>
+            <h2>
+              {aud(founding.amountMinor, founding.currency)} {t("创始学期通行证", "Founding Pass")}
+            </h2>
             <p>
               {t(
                 "一次性购买，最多添加四门开放式课程。",
@@ -75,7 +84,7 @@ export default async function BillingPage() {
             productKey="founding_pass"
             language={user.preferredLanguage}
           >
-            {t("前往 Stripe Checkout", "Continue to Stripe Checkout")}
+            {t("前往安全支付", "Continue to secure checkout")}
           </CheckoutButton>
         </section>
       ) : null}
@@ -83,7 +92,7 @@ export default async function BillingPage() {
       <section className="saas-card">
         <header className="saas-section-heading">
           <div>
-            <p className="saas-eyebrow">History</p>
+            <p className="saas-eyebrow">{t("记录", "History")}</p>
             <h2>{t("购买记录", "Purchase history")}</h2>
           </div>
         </header>

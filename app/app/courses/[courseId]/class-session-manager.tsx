@@ -248,7 +248,7 @@ export function ClassSessionManager({
     <section className="saas-card">
       <div className="saas-section-heading">
         <div>
-          <p className="saas-eyebrow">Timetable</p>
+          <p className="saas-eyebrow">{t("课程表", "Timetable")}</p>
           <h2>{t("上课安排", "Class timetable")}</h2>
         </div>
       </div>

@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { getPublicLocale } from "@/src/application/public-locale";
+import "@fontsource-variable/space-grotesk";
+import "@fontsource-variable/noto-sans-sc";
 import "./globals.css";
 import "./saas.css";
+import "./redesign.css";
+import "./personal/personal-redesign.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://uts-deep-study.dqq12125-study.workers.dev"),
@@ -9,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s · DeepStudy",
   },
   description:
-    "Turn your semester into today’s next step. Open-course planning, original practice and spaced retesting for university students.",
+    "An adaptive learning operating system that turns university courses into focused sessions and verifiable mastery.",
   applicationName: "DeepStudy",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -43,19 +48,20 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#17211b",
+  themeColor: "#f7f9fc",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const language = await getPublicLocale();
   return (
-    <html lang="zh-CN">
+    <html lang={language === "zh-CN" ? "zh-CN" : "en-AU"}>
       <body>{children}</body>
     </html>
   );

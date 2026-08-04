@@ -24,7 +24,7 @@ export default async function WeeklyReportPage() {
     return (
       <div className="saas-page">
         <section className="saas-page-heading">
-          <p className="saas-eyebrow">Weekly report</p>
+          <p className="saas-eyebrow">{t("每周学习报告", "Weekly report")}</p>
           <h1>
             {t(
               "把一周的执行证据整理成下一步",
@@ -39,7 +39,7 @@ export default async function WeeklyReportPage() {
           </p>
         </section>
         <section className="saas-card saas-paywall-card">
-          <h2>{t("Founding Pass 功能", "Founding Pass feature")}</h2>
+          <h2>{t("创始学期通行证功能", "Founding Pass feature")}</h2>
           <p>
             {t(
               "免费版保留基础掌握度；学期通行证会解锁每周执行报告和按课程拆分。",
@@ -67,7 +67,7 @@ export default async function WeeklyReportPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Weekly report</p>
+        <p className="saas-eyebrow">{t("每周学习报告", "Weekly report")}</p>
         <h1>
           {t(
             "这周完成了什么，下一周该巩固什么",
@@ -130,7 +130,7 @@ export default async function WeeklyReportPage() {
       <section className="saas-card">
         <div className="saas-section-heading">
           <div>
-            <p className="saas-eyebrow">By course</p>
+            <p className="saas-eyebrow">{t("按课程", "By course")}</p>
             <h2>{t("按课程查看执行证据", "Evidence by course")}</h2>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default async function WeeklyReportPage() {
       <section className="saas-card">
         <div className="saas-section-heading">
           <div>
-            <p className="saas-eyebrow">Next evidence</p>
+            <p className="saas-eyebrow">{t("下一项证据", "Next evidence")}</p>
             <h2>{t("下一周优先巩固", "Strengthen next week")}</h2>
           </div>
           <Link href="/app/mastery">

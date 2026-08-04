@@ -1,5 +1,10 @@
 # DeepStudy Architecture
 
+> Migration note: this file describes the running D1 application plus the
+> completed Phase 1 foundation and Phase 2 ingestion slice. The six-layer destination is specified in
+> [target-architecture.md](./target-architecture.md); D1 remains authoritative
+> until a separately verified cutover.
+
 ```mermaid
 flowchart LR
   Web["Mobile-first web"] --> Worker["Vinext on Cloudflare Worker"]
@@ -10,6 +15,7 @@ flowchart LR
   Worker --> Commerce["Products / entitlements / Stripe"]
   Worker --> AI["Hint-first AI services"]
   Worker --> Resources["Private resource service"]
+  Worker --> Ingestion["Connector + versioned ingestion"]
   Worker --> Notify["Reports / notifications / Cron"]
   Worker --> Admin["Role-gated admin"]
   Auth --> D1["Cloudflare D1"]
@@ -18,13 +24,16 @@ flowchart LR
   Commerce --> D1
   AI --> D1
   Resources --> D1
+  Ingestion --> D1
   Notify --> D1
   Admin --> D1
   Resources --> R2["Private R2"]
+  Ingestion --> R2
   Auth --> Email["Email provider"]
   Notify --> Email
   Commerce --> Stripe["Stripe"]
   AI --> Provider["AI provider"]
+  Ingestion --> Provider
   Owner["PERSONAL_OWNER_EMAIL"] --> Personal["/personal legacy workspace"]
 ```
 
@@ -32,6 +41,20 @@ flowchart LR
 
 - `app/`: web pages and thin HTTP route handlers.
 - `apps/mobile/`: Expo Router presentation and typed API client.
+- `packages/shared-types/`: cross-platform DTOs, enums, source references, and
+  their Zod schemas.
+- `packages/api-client/`: shared URL, bearer-session, response, and error
+  transport used by the native compatibility client.
+- `packages/ai/`, `packages/storage/`, `packages/jobs/`: replaceable capability
+  boundaries. Existing feature services remain compatibility facades.
+- `packages/ingestion/`: read-only LMS connectors, format parsers, semantic
+  chunking, hashing, source locators, quality checks, and optional embeddings.
+- `packages/security/`: context-bound connector-secret envelope encryption and
+  key-rotation contract.
+- `packages/ui/`: platform-neutral semantic tokens and five-item navigation
+  contract; current page shells have not switched yet.
+- `packages/database/`: target PostgreSQL/pgvector schema, ordered migrations,
+  D1 snapshot/staging tools, and checksum manifest.
 - `src/application/`: authenticated use-case orchestration.
 - `src/domain/planning/`: explainable priority, capacity, generation, and
   rebalancing rules.
@@ -93,6 +116,31 @@ ownership-checked, size-limited, and passed as explicitly untrusted context.
 Extraction returns proposals; no mass course data is inserted before explicit
 confirmation.
 
+Phase 1 adds the vendor-neutral `generateStructured`, `generateText`, `embed`,
+and optional `transcribe` contract plus low/medium/high model policy. Legacy
+structured extraction, practice generation, and error classification now pass
+through Zod after compatibility normalization. The R2 and in-memory storage
+implementations are shared without changing object keys or privacy metadata.
+
+Phase 2 keeps the existing `learning_resources` experience as a compatibility
+read model while dual-writing immutable `resources`, `resource_versions`,
+`resource_chunks`, and retryable `resource_processing_jobs`. Manual uploads and
+read-only Canvas sync use file/content hashes to deduplicate work, preserve
+page/slide/section source locators, reuse unchanged embeddings, tombstone
+removed source material, and record each `resource_sync_runs` result. Processing
+currently runs inline behind a persistent job record; a durable external queue
+remains a later infrastructure cutover.
+
+## Migration database boundary
+
+`db/` and `drizzle/` remain the live D1 schema, including the Phase 2 resource
+versioning and connector-sync tables. PostgreSQL tables and pgvector indexes
+under `packages/database/` are a shadow target only. The import process
+first writes an immutable, checksummed `legacy_import_rows` staging set and a
+`data_migration_runs` report; it does not silently redirect application reads
+or writes. Normalized backfill and repository shadow reads require a preview
+PostgreSQL environment and are gates before cutover.
+
 ## Notifications and operations
 
 The hourly Worker Cron generates time-zone-aware reminders, creates deduplicated
@@ -126,4 +174,3 @@ Provider adapters return explicit unavailable errors when credentials/bindings
 are missing. API errors contain a safe code/message/request ID rather than
 provider secrets or SQL stacks. Schema rollback is forward-compensating, and
 the Worker must remain compatible with at least the previous native binary.
-

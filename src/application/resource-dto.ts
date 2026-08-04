@@ -15,6 +15,7 @@ export function resourceDto(
   retentionUntil: string | null;
   createdAt: string;
   failureCode: string | null;
+  ingestion: ResourceRecord["ingestion"];
   proposal?: unknown;
 } {
   let proposal: unknown;
@@ -37,6 +38,7 @@ export function resourceDto(
     retentionUntil: resource.retentionUntil,
     createdAt: resource.createdAt,
     failureCode: resource.failureCode,
+    ingestion: resource.ingestion ?? null,
     ...(includeProposal ? { proposal } : {}),
   };
 }

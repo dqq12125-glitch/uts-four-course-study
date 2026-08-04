@@ -21,7 +21,7 @@ export default async function PrivacySettingsPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Privacy & data</p>
+        <p className="saas-eyebrow">{t("隐私与数据", "Privacy and data")}</p>
         <h1>{t("隐私与通知", "Privacy and reminders")}</h1>
         <p className="saas-lead">
           {t(

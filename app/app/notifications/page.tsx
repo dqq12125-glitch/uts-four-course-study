@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">In-app reminders</p>
+        <p className="saas-eyebrow">{t("站内提醒", "In-app reminders")}</p>
         <h1>{t("提醒", "Reminders")}</h1>
         <p className="saas-lead">
           {t(

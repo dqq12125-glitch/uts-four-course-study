@@ -105,11 +105,11 @@ export const timetable: TimetableItem[] = [
     venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE058 · 从 Canvas 进入", "ONLINE058 · Join from Canvas"), zoomUrl: "https://canvas.uts.edu.au/courses/40822/modules/items/2812965" },
   },
   {
-    courseId: "c", activity: bi("机房课 Cmp1", "Computer lab Cmp1"), day: 5, dayLabel: bi("周五", "Friday"), start: "08:00", end: "10:00", location: "CB11.B1.100", startsWeek: 2,
+    courseId: "c", activity: bi("机房课 Cmp1 03", "Computer lab Cmp1 03"), day: 5, dayLabel: bi("周五", "Friday"), start: "10:00", end: "12:00", location: "CB11.B1.100", startsWeek: 2,
     venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("地下1层", "Basement 1"), room: bi("100室", "Room 100"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
   },
   {
-    courseId: "math", activity: bi("辅导课 Tut1 18", "Tutorial Tut1 18"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "18:00", end: "20:00", location: "CB10.03.460", startsWeek: 2,
+    courseId: "math", activity: bi("辅导课 Tut1 09", "Tutorial Tut1 09"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "13:00", end: "15:00", location: "CB10.03.460", startsWeek: 2,
     venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("3层", "Level 3"), room: bi("460室", "Room 460"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
   },
 ];
@@ -121,18 +121,18 @@ export const timetableChoiceGroups: TimetableChoiceGroup[] = [
     activityGroup: "Tut1",
     title: bi("33130 数学辅导课", "33130 Mathematics tutorial"),
     checkedAt: bi(
-      "UTS Allocate+ · 2026年7月31日核对",
-      "UTS Allocate+ · checked 31 July 2026",
+      "UTS Allocate+ · 2026年8月4日核对",
+      "UTS Allocate+ · checked 4 August 2026",
     ),
     choices: [
       {
-        id: "math-tut1-18",
+        id: "math-tut1-09",
         status: "allocated",
-        activity: bi("辅导课 Tut1 18", "Tutorial Tut1 18"),
+        activity: bi("辅导课 Tut1 09", "Tutorial Tut1 09"),
         day: 2,
         dayLabel: bi("周二", "Tuesday"),
-        start: "18:00",
-        end: "20:00",
+        start: "13:00",
+        end: "15:00",
         location: "CB10.03.460",
         startsWeek: 2,
         note: bi(
@@ -151,23 +151,8 @@ export const timetableChoiceGroups: TimetableChoiceGroup[] = [
         location: "CB10.03.460",
         startsWeek: 2,
         note: bi(
-          "UTS 显示候补中。这里只预览计划，正式换班成功前仍应参加 Tut1 18。",
-          "UTS shows this as waitlisted. Preview only; attend Tut1 18 until the swap succeeds.",
-        ),
-      },
-      {
-        id: "math-tut1-09",
-        status: "waitlist",
-        activity: bi("辅导课 Tut1 09", "Tutorial Tut1 09"),
-        day: 2,
-        dayLabel: bi("周二", "Tuesday"),
-        start: "13:00",
-        end: "15:00",
-        location: "CB10.03.460",
-        startsWeek: 2,
-        note: bi(
-          "UTS 显示候补中。这里只预览计划，正式换班成功前仍应参加 Tut1 18。",
-          "UTS shows this as waitlisted. Preview only; attend Tut1 18 until the swap succeeds.",
+          "UTS 显示候补中。这里只预览计划，正式换班成功前仍应参加 Tut1 09（周二 13:00）。",
+          "UTS shows this as waitlisted. Preview only; attend Tut1 09 (Tuesday 13:00) until the swap succeeds.",
         ),
       },
     ],

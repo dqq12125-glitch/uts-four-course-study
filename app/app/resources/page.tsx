@@ -33,7 +33,7 @@ export default async function ResourcesPage({
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Private resources</p>
+        <p className="saas-eyebrow">{t("私人学习资料", "Private resources")}</p>
         <h1>{t("学习资料", "Study resources")}</h1>
         <p className="saas-lead">
           {t(
@@ -61,6 +61,7 @@ export default async function ResourcesPage({
           processingStatus: resource.processingStatus,
           failureCode: resource.failureCode,
           createdAt: resource.createdAt,
+          ingestion: resource.ingestion ?? null,
         }))}
         initialCourseId={query.courseId}
         initialResourceType={

@@ -169,7 +169,7 @@ export default async function TodayPage() {
       {dueReviewCount > 0 ? (
         <aside className="saas-review-alert">
           <div>
-            <span>REVIEW DUE</span>
+            <span>{t("复测到期", "Review due")}</span>
             <strong>
               {t(
                 `你有 ${dueReviewCount} 个知识点需要复测`,
@@ -195,7 +195,13 @@ export default async function TodayPage() {
         <section className="saas-current-task">
           <div className="saas-task-topline">
             <span className={`saas-priority is-${currentTask.priority}`}>
-              {currentTask.priority}
+              {currentTask.priority === "critical"
+                ? t("紧急", "Critical")
+                : currentTask.priority === "high"
+                  ? t("高", "High")
+                  : currentTask.priority === "medium"
+                    ? t("中", "Medium")
+                    : t("低", "Low")}
             </span>
             <span>
               {[currentTask.courseCode, currentTask.courseName]
@@ -260,7 +266,7 @@ export default async function TodayPage() {
         </section>
       ) : (
         <section className="saas-empty">
-          <p className="saas-eyebrow">Today is clear</p>
+          <p className="saas-eyebrow">{t("今日已清空", "Today is clear")}</p>
           <h2>{t("今天没有待执行任务", "No open tasks today")}</h2>
           <p>
             {t(
@@ -275,7 +281,7 @@ export default async function TodayPage() {
         <section className="saas-card">
           <div className="saas-section-heading">
             <div>
-              <p className="saas-eyebrow">Next up</p>
+              <p className="saas-eyebrow">{t("接下来", "Next up")}</p>
               <h2>{t("下一步队列", "Next-up queue")}</h2>
             </div>
             <span>
@@ -302,7 +308,7 @@ export default async function TodayPage() {
         <section className="saas-card">
           <div className="saas-section-heading">
             <div>
-              <p className="saas-eyebrow">Schedule</p>
+              <p className="saas-eyebrow">{t("课程表", "Schedule")}</p>
               <h2>{t("今天的课", "Today's classes")}</h2>
             </div>
           </div>
@@ -333,7 +339,7 @@ export default async function TodayPage() {
       <section className="saas-card">
         <div className="saas-section-heading">
           <div>
-            <p className="saas-eyebrow">Deadlines</p>
+            <p className="saas-eyebrow">{t("截止日期", "Deadlines")}</p>
             <h2>{t("最近截止日期", "Upcoming deadlines")}</h2>
           </div>
         </div>

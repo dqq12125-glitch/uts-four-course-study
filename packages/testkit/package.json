@@ -1,0 +1,12 @@
+{
+  "name": "@deepstudy/testkit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/contract-fixtures.ts"
+  },
+  "dependencies": {
+    "@deepstudy/shared-types": "0.1.0"
+  }
+}

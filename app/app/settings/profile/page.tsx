@@ -17,7 +17,7 @@ export default async function ProfileSettingsPage() {
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Account</p>
+        <p className="saas-eyebrow">{t("账户", "Account")}</p>
         <h1>{t("个人资料", "Profile")}</h1>
         <p className="saas-lead">
           {t(

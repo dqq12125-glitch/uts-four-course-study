@@ -251,7 +251,7 @@ export function TutorWorkspace({
 
       <section className="saas-card saas-chat-panel">
         <div className="saas-integrity-banner">
-          <strong>Academic Integrity Mode</strong>
+          <strong>{t("学术诚信模式", "Academic integrity mode")}</strong>
           <span>
             {t(
               "资料被视为不可信上下文，不会改变系统规则或权限。",

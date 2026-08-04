@@ -7,6 +7,7 @@ Web/backend:
 ```powershell
 npm run typecheck
 npm run lint
+npm run test:contracts
 npm run test:unit
 npm run test:integration
 npm run test:e2e
@@ -17,10 +18,10 @@ npm run build
 Native:
 
 ```powershell
-npm run typecheck --prefix apps/mobile
-npm run lint --prefix apps/mobile
-npm test --prefix apps/mobile
-npm run doctor --prefix apps/mobile
+npm run typecheck:mobile
+npm run lint:mobile
+npm run test:mobile
+npm run doctor --workspace @deepstudy/mobile
 
 Set-Location apps/mobile
 npx expo export --platform android --output-dir dist-android
@@ -38,6 +39,33 @@ npx expo export --platform ios --output-dir dist-ios
 - Hint-first integrity detection and prompt safety;
 - private upload MIME/extension/signature/size and ICS parsing;
 - study streak, Turnstile fail-closed behaviour, and signed unsubscribe tokens.
+- shared Web/Native response contracts and common API error parsing;
+- Zod-validated AI output, capability-based model selection, object-storage
+  compatibility, job retries/idempotency, and connector-key rotation;
+- PostgreSQL migration shape, pgvector/HNSW declarations, and D1 export
+  ownership/count/checksum manifests.
+- Mock/Manual/Canvas Connector contracts, Canvas opaque pagination and GET-only
+  behavior;
+- PDF page/PPTX slide/text section locators, document hashes, embedding shape,
+  and legacy `.ppt` failure semantics.
+
+## PostgreSQL contract
+
+Static checks do not claim that a live PostgreSQL server exists. Run the
+following against a disposable PostgreSQL instance with pgvector installed:
+
+```powershell
+npm run db:check:postgres
+$env:POSTGRES_URL = "postgresql://..."
+npm run db:migrate:postgres
+npm run db:verify:postgres
+```
+
+`.github/workflows/postgres-contract.yml` applies all migrations to two
+independent empty PostgreSQL 16 databases and verifies the vector extension,
+`vector(1536)` column, HNSW index, and expected table count. A D1 snapshot is
+staged before normalization so row-count and ownership failures stop the
+transaction instead of producing a partial cutover.
 
 ## Integration coverage
 
@@ -51,6 +79,8 @@ npx expo export --platform ios --output-dir dist-ios
 - reports, notifications, retries/deduplication, export, file/account deletion;
 - user A/user B isolation across academic, learning, AI, resource, commerce,
   notification, and privacy operations.
+- versioned resource dual-write, same-file deduplication, changed-chunk embedding
+  reuse, persistent retry, sync logs, and source tombstones.
 
 ## HTTP/E2E coverage
 
@@ -63,6 +93,8 @@ npx expo export --platform ios --output-dir dist-ios
 - well-known iOS/Android app-link responses;
 - email unsubscribe confirmation/POST;
 - native Magic Link exchange, bearer API, sign-out, and isolation.
+- version status API, HTTP upload deduplication, and missing-connection sync
+  failure contract.
 
 ## Test adapters
 
@@ -95,7 +127,6 @@ Automated tests cannot replace:
 
 ```powershell
 npm audit --omit=dev
-npm audit --prefix apps/mobile --omit=dev
 git diff --check
 ```
 
@@ -107,4 +138,3 @@ Record unresolved build-tool advisories in `RELEASE_READINESS.md`.
 The final exact pass/fail counts and platform export result for this working
 tree are recorded in the implementation handoff and should be refreshed after
 any code, dependency, migration, or environment change.
-

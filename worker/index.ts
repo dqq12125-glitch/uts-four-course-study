@@ -6,6 +6,7 @@ import {
   type RuntimeEnvironment,
 } from "../src/infrastructure/environment";
 import { getScheduledJobService } from "../src/application/runtime";
+import { withSecurityHeaders } from "../src/infrastructure/security-headers";
 
 interface Env extends RuntimeEnvironment {
   ASSETS: Fetcher;
@@ -20,6 +21,8 @@ interface Env extends RuntimeEnvironment {
   EMAIL_FROM?: string;
   UNSUBSCRIBE_TOKEN_SECRET?: string;
   IP_HASH_SECRET?: string;
+  CONNECTOR_TOKEN_ACTIVE_KEY_ID?: string;
+  CONNECTOR_TOKEN_KEYS?: string;
   PERSONAL_OWNER_EMAIL?: string;
   PERSONAL_DEPLOYMENT?: string;
   DEEPSEEK_API_KEY?: string;
@@ -125,20 +128,22 @@ const worker = {
     setRuntimeEnvironment(env);
     const url = new URL(request.url);
     const association = wellKnownResponse(url.pathname, env);
-    if (association) return association;
+    if (association) return withSecurityHeaders(association, request.url, env);
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
-      return handleImageOptimization(request, {
+      const imageResponse = await handleImageOptimization(request, {
         fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
         transformImage: async (body, { width, format, quality }) => {
           const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });
           return result.response();
         },
       }, allowedWidths);
+      return withSecurityHeaders(imageResponse, request.url, env);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+    return withSecurityHeaders(response, request.url, env);
   },
   async scheduled(
     event: { scheduledTime: number; cron: string },

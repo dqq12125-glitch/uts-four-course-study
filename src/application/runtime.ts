@@ -50,6 +50,17 @@ import { AdminService } from "@/src/application/admin-service";
 import { AcademicRepository } from "@/src/repositories/academic-repository";
 import { AcademicService } from "@/src/application/academic-service";
 import { TurnstileVerifier } from "@/src/services/security/turnstile-verifier";
+import {
+  OpenAICompatibleAIProvider,
+  StaticModelPolicy,
+} from "@deepstudy/ai";
+import { DocumentIngestionPipeline } from "@deepstudy/ingestion";
+import type { AIProvider as AdaptiveAIProvider } from "@deepstudy/shared-types";
+import { ResourceIngestionRepository } from "@/src/repositories/resource-ingestion-repository";
+import { ResourceIngestionService } from "@/src/application/resource-ingestion-service";
+import { ConnectorSyncRepository } from "@/src/repositories/connector-sync-repository";
+import { CourseSyncService } from "@/src/application/course-sync-service";
+import { createCourseConnector } from "@/src/infrastructure/connector-factory";
 
 export type AppEnvironment =
   | "development"
@@ -243,6 +254,43 @@ export function getResourceRepository(): ResourceRepository {
   return new ResourceRepository(getD1());
 }
 
+function adaptiveEmbeddingProvider(): {
+  provider: Pick<AdaptiveAIProvider, "embed">;
+  version: string;
+} | null {
+  const env = getRuntimeEnvironment();
+  const apiKey = env.AI_API_KEY ?? env.DEEPSEEK_API_KEY;
+  const embeddingModel = env.AI_EMBEDDING_MODEL?.trim();
+  if (!apiKey || !embeddingModel) return null;
+  const fallbackModel =
+    env.AI_TUTOR_MODEL ?? env.AI_EXTRACTION_MODEL ?? "unused-text-model";
+  return {
+    provider: new OpenAICompatibleAIProvider({
+      apiKey,
+      baseUrl: env.AI_BASE_URL ?? "https://api.deepseek.com",
+      embeddingModel,
+      modelPolicy: new StaticModelPolicy({
+        low: env.AI_LOW_COST_MODEL ?? fallbackModel,
+        medium: env.AI_MEDIUM_MODEL ?? fallbackModel,
+        high: env.AI_HIGH_CAPABILITY_MODEL ?? fallbackModel,
+      }),
+    }),
+    version: env.AI_EMBEDDING_VERSION?.trim() || embeddingModel,
+  };
+}
+
+export function getResourceIngestionService(): ResourceIngestionService {
+  const embedding = adaptiveEmbeddingProvider();
+  return new ResourceIngestionService(
+    new ResourceIngestionRepository(getD1()),
+    new DocumentIngestionPipeline({
+      embeddingProvider: embedding?.provider,
+      embeddingVersion: embedding?.version,
+    }),
+    embedding?.version ?? null,
+  );
+}
+
 export function getResourceService(): ResourceService {
   return new ResourceService(
     getResourceRepository(),
@@ -251,6 +299,15 @@ export function getResourceService(): ResourceService {
     getAiProvider(),
     getEntitlementService(),
     getFeatureFlagService(),
+    getResourceIngestionService(),
+  );
+}
+
+export function getCourseSyncService(): CourseSyncService {
+  return new CourseSyncService(
+    new ConnectorSyncRepository(getD1()),
+    createCourseConnector,
+    getResourceService(),
   );
 }
 

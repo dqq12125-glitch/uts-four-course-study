@@ -29,11 +29,10 @@ export function CheckoutButton({
       | null;
     if (!response.ok || !payload?.checkoutUrl) {
       setError(
-        payload?.error?.message ??
-          t(
-            "暂时无法启动安全支付，请稍后再试。",
-            "Secure checkout could not be started. Please try again.",
-          ),
+        t(
+          "暂时无法启动安全支付，请稍后再试。",
+          "Secure checkout could not be started. Please try again.",
+        ),
       );
       setLoading(false);
       return;

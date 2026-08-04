@@ -127,7 +127,7 @@ export function FocusTimer({
     >
       <div className="saas-focus-heading">
         <div>
-          <span>FOCUS BLOCK</span>
+          <span>{t("专注时段", "Focus block")}</span>
           <strong>
             {session
               ? t("保持当前这一步", "Stay with this step")

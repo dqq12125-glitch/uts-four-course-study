@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { languageSchema } from "@deepstudy/shared-types";
 
 const dateOnly = z
   .string()
@@ -61,7 +62,7 @@ export const courseInputSchema = z.object({
 
 export const onboardingInputSchema = z.object({
   displayName: optionalText(80),
-  language: z.enum(["zh-CN", "en"]),
+  language: languageSchema,
   timezone: z.string().trim().min(1).max(100),
   dailyStudyMinutes: z.number().int().min(15).max(720),
   semester: z.object({
@@ -156,7 +157,7 @@ export const privatePracticeQuestionSchema = z
     hint2: optionalText(1_000),
     hint3: optionalText(1_000),
     explanation: z.string().trim().min(1).max(3_000),
-    language: z.enum(["zh-CN", "en"]),
+    language: languageSchema,
   })
   .superRefine((input, context) => {
     if (input.correctChoiceIndex >= input.options.length) {
@@ -319,7 +320,7 @@ export const aiTutorInputSchema = z
       .array(z.string().trim().min(1).max(120))
       .max(5)
       .default([]),
-    language: z.enum(["zh-CN", "en"]),
+    language: languageSchema,
     suspectedAssessedWork: z.boolean().default(false),
   })
   .strict();
@@ -365,14 +366,14 @@ export const aiPracticeGenerationSchema = z
       .array(z.string().trim().min(1).max(120))
       .max(5)
       .default([]),
-    language: z.enum(["zh-CN", "en"]),
+    language: languageSchema,
   })
   .strict();
 
 export const profileSettingsSchema = z
   .object({
     displayName: optionalText(80),
-    preferredLanguage: z.enum(["zh-CN", "en"]),
+    preferredLanguage: languageSchema,
     timezone: z.string().trim().min(1).max(100),
   })
   .strict();
@@ -387,7 +388,7 @@ export const studySettingsSchema = z
     weekStartsOn: z.number().int().min(0).max(6),
     reminderEnabled: z.boolean(),
     academicIntegrityMode: z.boolean(),
-    aiExplanationLanguage: z.enum(["zh-CN", "en"]),
+    aiExplanationLanguage: languageSchema,
   })
   .strict();
 
@@ -438,7 +439,7 @@ export const adminCourseTemplateSchema = z
     courseCode: optionalText(32),
     courseName: z.string().trim().min(1).max(160),
     description: optionalText(2_000),
-    defaultLanguage: z.enum(["zh-CN", "en"]),
+    defaultLanguage: languageSchema,
     isActive: z.boolean(),
   })
   .strict();
@@ -473,7 +474,7 @@ export const adminPublicQuestionSchema = z
     hint2: optionalText(1_000),
     hint3: optionalText(1_000),
     explanation: z.string().trim().min(1).max(3_000),
-    language: z.enum(["zh-CN", "en"]),
+    language: languageSchema,
   })
   .strict()
   .superRefine((input, context) => {

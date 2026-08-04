@@ -1,9 +1,13 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "@deepstudy/web",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/mobile",
+    "packages/*"
+  ],
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "dev": "vinext dev",
@@ -12,17 +16,38 @@
     "deploy:personal": "npm run build && node scripts/prepare-personal-deploy.mjs && wrangler deploy",
     "start": "vinext start",
     "test": "npm run build && node --test \"tests/*.test.mjs\"",
-    "test:unit": "node --test tests/milestone1-unit.test.mjs tests/milestone2-unit.test.mjs tests/milestone3-unit.test.mjs tests/milestone4-unit.test.mjs tests/milestone5-unit.test.mjs",
-    "test:integration": "node --test tests/milestone1-integration.test.mjs tests/milestone1-isolation.test.mjs tests/milestone2-integration.test.mjs tests/milestone3-integration.test.mjs tests/milestone4-integration.test.mjs tests/milestone5-integration.test.mjs",
-    "test:e2e": "npm run build && node --test tests/milestone1-e2e.test.mjs tests/milestone1-http-e2e.test.mjs tests/milestone2-http-e2e.test.mjs tests/milestone3-http-e2e.test.mjs tests/milestone4-http-e2e.test.mjs tests/milestone5-http-e2e.test.mjs tests/mobile-http-e2e.test.mjs",
+    "test:unit": "node --test tests/milestone1-unit.test.mjs tests/milestone2-unit.test.mjs tests/milestone3-unit.test.mjs tests/milestone4-unit.test.mjs tests/milestone5-unit.test.mjs tests/shared-contracts.test.mjs tests/phase1-foundation.test.mjs tests/phase2-ingestion.test.mjs",
+    "test:contracts": "node --test tests/shared-contracts.test.mjs tests/phase1-foundation.test.mjs tests/phase2-ingestion.test.mjs",
+    "test:integration": "node --test tests/milestone1-integration.test.mjs tests/milestone1-isolation.test.mjs tests/milestone2-integration.test.mjs tests/milestone3-integration.test.mjs tests/milestone4-integration.test.mjs tests/milestone5-integration.test.mjs tests/phase2-integration.test.mjs",
+    "test:e2e": "npm run build && node --test tests/milestone1-e2e.test.mjs tests/milestone1-http-e2e.test.mjs tests/milestone2-http-e2e.test.mjs tests/milestone3-http-e2e.test.mjs tests/milestone4-http-e2e.test.mjs tests/milestone5-http-e2e.test.mjs tests/mobile-http-e2e.test.mjs tests/phase2-http-e2e.test.mjs",
     "typecheck": "tsc --noEmit",
+    "typecheck:mobile": "npm run typecheck --workspace @deepstudy/mobile",
     "lint": "eslint . --ignore-pattern apps/mobile --ignore-pattern dist --ignore-pattern site-dist --ignore-pattern .next --ignore-pattern .playwright-cli --ignore-pattern output --ignore-pattern audit-output --ignore-pattern tmp",
+    "lint:mobile": "npm run lint --workspace @deepstudy/mobile",
+    "test:mobile": "npm run test --workspace @deepstudy/mobile",
     "db:generate": "drizzle-kit generate",
+    "db:generate:postgres": "drizzle-kit generate --config packages/database/drizzle.config.ts",
+    "db:check:postgres": "drizzle-kit check --config packages/database/drizzle.config.ts",
+    "db:migrate:postgres": "node packages/database/scripts/migrate-postgres.mjs",
+    "db:export:d1": "node packages/database/scripts/export-d1.mjs",
+    "db:import:postgres": "node packages/database/scripts/import-postgres.mjs",
+    "db:verify:postgres": "node packages/database/scripts/verify-postgres.mjs",
     "db:migrate:local": "wrangler d1 migrations apply DB --local --config wrangler.local.jsonc --persist-to .wrangler/state",
     "iphone:web": "powershell -ExecutionPolicy Bypass -File scripts/start-iphone.ps1 -Mode web",
     "iphone:native": "powershell -ExecutionPolicy Bypass -File scripts/start-iphone.ps1 -Mode native"
   },
   "dependencies": {
+    "@deepstudy/ai": "0.1.0",
+    "@deepstudy/api-client": "0.1.0",
+    "@deepstudy/database": "0.1.0",
+    "@deepstudy/ingestion": "0.1.0",
+    "@deepstudy/jobs": "0.1.0",
+    "@deepstudy/security": "0.1.0",
+    "@deepstudy/shared-types": "0.1.0",
+    "@deepstudy/storage": "0.1.0",
+    "@deepstudy/ui": "0.1.0",
+    "@fontsource-variable/noto-sans-sc": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
     "drizzle-orm": "0.45.2",
     "next": "^16.2.12",
     "react": "19.2.8",
@@ -32,6 +57,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.48.0",
+    "@deepstudy/testkit": "0.1.0",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.17",

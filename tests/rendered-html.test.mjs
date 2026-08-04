@@ -107,7 +107,8 @@ test("preserves the private bilingual personal workspace with a server-only AI k
   assert.match(page, /timetableChoiceGroups/);
   assert.match(page, /does not change UTS Allocate\+/);
   assert.match(css, /\.timetable-choice-option\.selected/);
-  assert.match(semesterData, /math-tut1-18[\s\S]*status: "allocated"/);
+  assert.doesNotMatch(semesterData, /math-tut1-18/);
   assert.match(semesterData, /math-tut1-14[\s\S]*status: "waitlist"/);
-  assert.match(semesterData, /math-tut1-09[\s\S]*status: "waitlist"/);
+  assert.match(semesterData, /math-tut1-09[\s\S]*status: "allocated"/);
+  assert.match(semesterData, /机房课 Cmp1 03[\s\S]*start: "10:00"[\s\S]*end: "12:00"/);
 });

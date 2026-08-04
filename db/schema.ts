@@ -1063,6 +1063,289 @@ export const resourceExtractions = sqliteTable(
   ],
 );
 
+// Phase 2 ingestion tables are additive. `learning_resources` and
+// `resource_extractions` remain the compatibility read model until the
+// PostgreSQL cutover is complete.
+export const lmsConnections = sqliteTable(
+  "lms_connections",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    connectorId: text("connector_id").notNull(),
+    displayName: text("display_name").notNull(),
+    baseUrl: text("base_url"),
+    encryptedCredentialsJson: text("encrypted_credentials_json"),
+    credentialKeyId: text("credential_key_id"),
+    scopesJson: text("scopes_json").notNull().default("[]"),
+    sourceId: text("source_id"),
+    status: text("status").notNull().default("pending"),
+    lastSyncedAt: text("last_synced_at"),
+    ...timestamps,
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    index("lms_connections_user_idx").on(table.userId, table.status),
+    uniqueIndex("lms_connections_user_source_unique")
+      .on(table.userId, table.connectorId, table.sourceId)
+      .where(sql`${table.sourceId} is not null and ${table.deletedAt} is null`),
+    check(
+      "lms_connections_connector_check",
+      sql`${table.connectorId} in ('mock', 'manual-upload', 'canvas')`,
+    ),
+    check(
+      "lms_connections_status_check",
+      sql`${table.status} in ('pending', 'active', 'expired', 'revoked', 'error')`,
+    ),
+  ],
+);
+
+export const lmsCourseLinks = sqliteTable(
+  "lms_course_links",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseId: text("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    connectionId: text("connection_id")
+      .notNull()
+      .references(() => lmsConnections.id, { onDelete: "cascade" }),
+    sourceCourseId: text("source_course_id").notNull(),
+    sourceUrl: text("source_url"),
+    ...timestamps,
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    uniqueIndex("lms_course_links_course_unique")
+      .on(table.userId, table.courseId)
+      .where(sql`${table.deletedAt} is null`),
+    uniqueIndex("lms_course_links_source_unique")
+      .on(table.connectionId, table.sourceCourseId)
+      .where(sql`${table.deletedAt} is null`),
+  ],
+);
+
+export const resources = sqliteTable(
+  "resources",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseId: text("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    legacyResourceId: text("legacy_resource_id"),
+    connectionId: text("connection_id").references(() => lmsConnections.id, {
+      onDelete: "set null",
+    }),
+    sourceType: text("source_type").notNull(),
+    sourceId: text("source_id").notNull(),
+    sourceUrl: text("source_url"),
+    sourceUpdatedAt: text("source_updated_at"),
+    title: text("title").notNull(),
+    resourceType: text("resource_type").notNull(),
+    mimeType: text("mime_type").notNull(),
+    status: text("status").notNull().default("pending"),
+    currentVersionId: text("current_version_id"),
+    lastSyncedAt: text("last_synced_at"),
+    ...timestamps,
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    index("resources_user_course_idx").on(table.userId, table.courseId),
+    uniqueIndex("resources_legacy_unique")
+      .on(table.legacyResourceId)
+      .where(sql`${table.legacyResourceId} is not null`),
+    uniqueIndex("resources_course_source_unique")
+      .on(table.courseId, table.sourceType, table.sourceId)
+      .where(sql`${table.deletedAt} is null`),
+    check(
+      "resources_status_check",
+      sql`${table.status} in ('pending', 'processing', 'completed', 'failed', 'tombstoned')`,
+    ),
+  ],
+);
+
+export const resourceVersions = sqliteTable(
+  "resource_versions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    resourceId: text("resource_id")
+      .notNull()
+      .references(() => resources.id, { onDelete: "cascade" }),
+    versionNumber: integer("version_number").notNull(),
+    fileName: text("file_name").notNull(),
+    mimeType: text("mime_type").notNull(),
+    storageKey: text("storage_key").notNull(),
+    fileHash: text("file_hash").notNull(),
+    contentHash: text("content_hash"),
+    sizeBytes: integer("size_bytes").notNull(),
+    sourceUpdatedAt: text("source_updated_at"),
+    lastSyncedAt: text("last_synced_at"),
+    parserVersion: text("parser_version"),
+    embeddingVersion: text("embedding_version"),
+    processingStatus: text("processing_status").notNull().default("pending"),
+    qualityStatus: text("quality_status").notNull().default("pending"),
+    qualityReportJson: text("quality_report_json"),
+    isActive: integer("is_active", { mode: "boolean" }).notNull().default(false),
+    ...timestamps,
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    uniqueIndex("resource_versions_resource_number_unique").on(
+      table.resourceId,
+      table.versionNumber,
+    ),
+    uniqueIndex("resource_versions_resource_hash_unique").on(
+      table.resourceId,
+      table.fileHash,
+    ),
+    uniqueIndex("resource_versions_storage_key_unique").on(table.storageKey),
+    index("resource_versions_user_idx").on(table.userId, table.createdAt),
+    check(
+      "resource_versions_status_check",
+      sql`${table.processingStatus} in ('pending', 'processing', 'completed', 'failed', 'tombstoned')`,
+    ),
+    check(
+      "resource_versions_quality_check",
+      sql`${table.qualityStatus} in ('pending', 'passed', 'warning', 'failed')`,
+    ),
+  ],
+);
+
+export const resourceProcessingJobs = sqliteTable(
+  "resource_processing_jobs",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    resourceVersionId: text("resource_version_id")
+      .notNull()
+      .references(() => resourceVersions.id, { onDelete: "cascade" }),
+    jobType: text("job_type").notNull(),
+    idempotencyKey: text("idempotency_key").notNull(),
+    status: text("status").notNull().default("pending"),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    maxAttempts: integer("max_attempts").notNull().default(3),
+    errorCode: text("error_code"),
+    errorSummary: text("error_summary"),
+    startedAt: text("started_at"),
+    completedAt: text("completed_at"),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("resource_processing_jobs_idempotency_unique").on(
+      table.idempotencyKey,
+    ),
+    index("resource_processing_jobs_status_idx").on(table.status, table.createdAt),
+    check(
+      "resource_processing_jobs_status_check",
+      sql`${table.status} in ('pending', 'processing', 'completed', 'failed', 'tombstoned')`,
+    ),
+    check(
+      "resource_processing_jobs_attempt_check",
+      sql`${table.attemptCount} >= 0 and ${table.maxAttempts} between 1 and 10`,
+    ),
+  ],
+);
+
+export const resourceChunks = sqliteTable(
+  "resource_chunks",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseId: text("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    resourceId: text("resource_id")
+      .notNull()
+      .references(() => resources.id, { onDelete: "cascade" }),
+    resourceVersionId: text("resource_version_id")
+      .notNull()
+      .references(() => resourceVersions.id, { onDelete: "cascade" }),
+    sequenceNumber: integer("sequence_number").notNull(),
+    content: text("content").notNull(),
+    contentHash: text("content_hash").notNull(),
+    page: integer("page"),
+    slide: integer("slide"),
+    section: text("section"),
+    timestampStart: integer("timestamp_start"),
+    timestampEnd: integer("timestamp_end"),
+    sourceUrl: text("source_url"),
+    embeddingJson: text("embedding_json"),
+    embeddingVersion: text("embedding_version"),
+    reusedFromChunkId: text("reused_from_chunk_id"),
+    ...timestamps,
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    uniqueIndex("resource_chunks_version_sequence_unique").on(
+      table.resourceVersionId,
+      table.sequenceNumber,
+    ),
+    index("resource_chunks_user_course_idx").on(
+      table.userId,
+      table.courseId,
+      table.resourceId,
+    ),
+    index("resource_chunks_content_hash_idx").on(
+      table.resourceId,
+      table.contentHash,
+    ),
+    check(
+      "resource_chunks_locator_check",
+      sql`(${table.page} is not null) + (${table.slide} is not null) + (${table.section} is not null) = 1`,
+    ),
+  ],
+);
+
+export const resourceSyncRuns = sqliteTable(
+  "resource_sync_runs",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    courseId: text("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    connectionId: text("connection_id")
+      .notNull()
+      .references(() => lmsConnections.id, { onDelete: "cascade" }),
+    connectorId: text("connector_id").notNull(),
+    sourceCourseId: text("source_course_id").notNull(),
+    status: text("status").notNull().default("processing"),
+    discoveredCount: integer("discovered_count").notNull().default(0),
+    createdCount: integer("created_count").notNull().default(0),
+    updatedCount: integer("updated_count").notNull().default(0),
+    skippedCount: integer("skipped_count").notNull().default(0),
+    tombstonedCount: integer("tombstoned_count").notNull().default(0),
+    failedCount: integer("failed_count").notNull().default(0),
+    detailsJson: text("details_json").notNull().default("{}"),
+    startedAt: text("started_at").notNull(),
+    completedAt: text("completed_at"),
+    ...timestamps,
+  },
+  (table) => [
+    index("resource_sync_runs_course_idx").on(table.userId, table.courseId, table.createdAt),
+    check(
+      "resource_sync_runs_status_check",
+      sql`${table.status} in ('processing', 'completed', 'partial', 'failed')`,
+    ),
+  ],
+);
+
 export const notificationPreferences = sqliteTable(
   "notification_preferences",
   {

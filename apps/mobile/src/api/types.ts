@@ -1,35 +1,15 @@
-export type Language = "zh-CN" | "en";
+import type {
+  Language,
+} from "@deepstudy/shared-types";
 
-export interface SessionUser {
-  id: string;
-  email: string;
-  displayName: string | null;
-  preferredLanguage: Language;
-  timezone: string;
-  onboardingCompleted: boolean;
-}
-
-export interface SessionResponse {
-  user: SessionUser | null;
-}
-
-export interface MobileExchangeResponse {
-  sessionToken: string;
-  expiresAt: string;
-  user: SessionUser;
-}
-
-export interface Course {
-  id: string;
-  userSemesterId: string;
-  courseTemplateId: string | null;
-  courseCode: string | null;
-  courseName: string;
-  colourKey: string;
-  instructorName: string | null;
-  sourceType: "template" | "manual" | "imported";
-  assessmentCount?: number;
-}
+export type {
+  ApiErrorBody,
+  Course,
+  Language,
+  MobileExchangeResponse,
+  SessionResponse,
+  SessionUser,
+} from "@deepstudy/shared-types";
 
 export interface TodayTask {
   id: string;
@@ -400,12 +380,4 @@ export interface MasteryOverviewResponse {
     lastErrorType: string | null;
     reviewTaskId: string | null;
   }[];
-}
-
-export interface ApiErrorBody {
-  error: {
-    code: string;
-    message: string;
-    requestId?: string;
-  };
 }

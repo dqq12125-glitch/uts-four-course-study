@@ -118,7 +118,7 @@ export function TopicManager({
     <section className="saas-card">
       <div className="saas-section-heading">
         <div>
-          <p className="saas-eyebrow">Topics</p>
+          <p className="saas-eyebrow">{t("知识点", "Topics")}</p>
           <h2>{t("知识点与掌握状态", "Topics and mastery state")}</h2>
         </div>
       </div>

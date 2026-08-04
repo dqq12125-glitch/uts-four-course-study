@@ -24,7 +24,7 @@ export default function ProductError({
   return (
     <div className="saas-page">
       <section className="saas-card">
-        <p className="saas-eyebrow">Sync interrupted</p>
+        <p className="saas-eyebrow">DeepStudy</p>
         <h1>这部分暂时没有同步成功</h1>
         <p>请重试。内部堆栈、数据库内容和密钥不会显示在这里。</p>
         {error.digest ? <code>{error.digest}</code> : null}

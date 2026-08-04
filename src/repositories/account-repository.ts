@@ -220,11 +220,19 @@ export class AccountRepository {
   ): Promise<Array<{ id: string; storageKey: string }>> {
     const result = await this.db
       .prepare(
-        `SELECT id, storage_key AS storageKey
-         FROM learning_resources
-         WHERE user_id = ? AND storage_key != ''`,
+        `SELECT id, storageKey FROM (
+           SELECT id, storage_key AS storageKey
+           FROM learning_resources
+           WHERE user_id = ? AND storage_key != ''
+           UNION
+           SELECT id, storage_key AS storageKey
+           FROM resource_versions
+           WHERE user_id = ? AND storage_key != ''
+             AND storage_key NOT LIKE '__deleted__/%'
+         )
+         GROUP BY storageKey`,
       )
-      .bind(userId)
+      .bind(userId, userId)
       .all<{ id: string; storageKey: string }>();
     return result.results ?? [];
   }
@@ -272,6 +280,46 @@ export class AccountRepository {
         `SELECT resource_id, extracted_text, proposed_data_json, status,
            failure_code, created_at, updated_at, confirmed_at
          FROM resource_extractions WHERE user_id = ?`,
+      ],
+      [
+        "ingestedResources",
+        `SELECT id, course_id, legacy_resource_id, source_type, source_id,
+           source_url, source_updated_at, title, resource_type, mime_type,
+           status, current_version_id, last_synced_at, created_at, updated_at,
+           deleted_at
+         FROM resources WHERE user_id = ?`,
+      ],
+      [
+        "resourceVersions",
+        `SELECT id, resource_id, version_number, file_name, mime_type,
+           file_hash, content_hash, size_bytes, source_updated_at,
+           last_synced_at, parser_version, embedding_version,
+           processing_status, quality_status, quality_report_json,
+           is_active, created_at, updated_at, deleted_at
+         FROM resource_versions WHERE user_id = ?`,
+      ],
+      [
+        "resourceChunks",
+        `SELECT id, course_id, resource_id, resource_version_id,
+           sequence_number, content, content_hash, page, slide, section,
+           timestamp_start, timestamp_end, source_url, embedding_version,
+           reused_from_chunk_id, created_at, updated_at, deleted_at
+         FROM resource_chunks WHERE user_id = ?`,
+      ],
+      [
+        "resourceProcessingJobs",
+        `SELECT id, resource_version_id, job_type, status, attempt_count,
+           max_attempts, error_code, error_summary, started_at, completed_at,
+           created_at, updated_at
+         FROM resource_processing_jobs WHERE user_id = ?`,
+      ],
+      [
+        "resourceSyncRuns",
+        `SELECT id, course_id, connection_id, connector_id, source_course_id,
+           status, discovered_count, created_count, updated_count,
+           skipped_count, tombstoned_count, failed_count, details_json,
+           started_at, completed_at, created_at, updated_at
+         FROM resource_sync_runs WHERE user_id = ?`,
       ],
       [
         "privatePracticeQuestions",

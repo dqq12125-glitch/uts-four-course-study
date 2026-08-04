@@ -63,7 +63,7 @@ export function CourseCreateForm({
   return (
     <form className="saas-card saas-form" onSubmit={submit}>
       <div>
-        <p className="saas-eyebrow">Open course</p>
+        <p className="saas-eyebrow">{t("开放课程", "Open course")}</p>
         <h2>{t("添加一门课程", "Add a course")}</h2>
         <p className="saas-muted">
           {t(

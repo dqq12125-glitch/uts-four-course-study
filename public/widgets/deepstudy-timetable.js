@@ -1,12 +1,12 @@
 // DeepStudy 课表 · Scriptable iOS Home Screen widget
-// Widget Parameter: 18 (official), 11 (waitlist preview), or 13 (waitlist preview)
+// Widget Parameter: 13 (official) or 11 (waitlist preview)
 // No API key is required. The timetable is stored locally in this script.
 
 const APP_URL = "https://uts-deep-study.dqq12125-study.workers.dev";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DUE_SOON_DAYS = 14;
-const parameter = String(args.widgetParameter || "18").trim();
-const mathSlot = parameter.indexOf("11") >= 0 ? "11" : parameter.indexOf("13") >= 0 ? "13" : "18";
+const parameter = String(args.widgetParameter || "13").trim();
+const mathSlot = parameter.indexOf("11") >= 0 ? "11" : "13";
 
 const palette = {
   backgroundTop: new Color("#202024"),
@@ -48,16 +48,16 @@ const timetable = [
   {
     id: "math-tut",
     course: "math",
-    activity: mathSlot === "11" ? "辅导课 Tut1 14" : mathSlot === "13" ? "辅导课 Tut1 09" : "辅导课 Tut1 18",
+    activity: mathSlot === "11" ? "辅导课 Tut1 14" : "辅导课 Tut1 09",
     day: 2,
-    start: mathSlot === "11" ? "11:00" : mathSlot === "13" ? "13:00" : "18:00",
-    end: mathSlot === "11" ? "13:00" : mathSlot === "13" ? "15:00" : "20:00",
+    start: mathSlot === "11" ? "11:00" : "13:00",
+    end: mathSlot === "11" ? "13:00" : "15:00",
     room: "CB10.03.460",
     startsWeek: 2,
   },
   { id: "c-online", course: "c", activity: "在线课 Olr1", day: 3, start: "15:00", end: "17:00", room: "ONLINE060", startsWeek: 1 },
   { id: "math-workshop", course: "math", activity: "工作坊 Wrk1", day: 3, start: "17:00", end: "19:00", room: "ONLINE058", startsWeek: 1 },
-  { id: "c-lab", course: "c", activity: "机房课 Cmp1", day: 5, start: "08:00", end: "10:00", room: "CB11.B1.100", startsWeek: 2 },
+  { id: "c-lab", course: "c", activity: "机房课 Cmp1 03", day: 5, start: "10:00", end: "12:00", room: "CB11.B1.100", startsWeek: 2 },
   { id: "eee-lab", course: "eee", activity: "实验课 Lab1 01", day: 5, start: "15:00", end: "18:00", room: "CB11.11.402", startsWeek: 1 },
   { id: "eee-recorded", course: "eee", activity: "预录讲座 Rec1", day: 0, start: "06:00", end: "07:00", room: "Canvas 预录", startsWeek: 1 },
 ];

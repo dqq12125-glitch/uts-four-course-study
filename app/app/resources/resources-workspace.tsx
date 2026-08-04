@@ -25,6 +25,18 @@ interface ResourceSummary {
   processingStatus: string;
   failureCode: string | null;
   createdAt: string;
+  ingestion: {
+    sourceType: string;
+    versionNumber: number | null;
+    pipelineStatus: string | null;
+    jobStatus: string | null;
+    jobAttempts: number;
+    chunkCount: number;
+    embeddedChunkCount: number;
+    reusedChunkCount: number;
+    qualityStatus: string | null;
+    qualityIssues: string[];
+  } | null;
 }
 
 interface Proposal {
@@ -269,7 +281,7 @@ export function ResourcesWorkspace({
 
   async function retry(resourceId: string) {
     setBusy(true);
-    const response = await fetch(`/api/resources/${resourceId}/process`, {
+    const response = await fetch(`/api/resources/${resourceId}/reprocess`, {
       method: "POST",
     });
     const body = (await response.json().catch(() => null)) as
@@ -409,7 +421,7 @@ export function ResourcesWorkspace({
                 name="file"
                 type="file"
                 required
-                accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.md,.ics,application/pdf,image/jpeg,image/png,image/webp,text/plain,text/calendar"
+                accept=".pdf,.ppt,.pptx,.docx,.xlsx,.ipynb,.html,.htm,.csv,.jpg,.jpeg,.png,.webp,.txt,.md,.ics,.ts,.tsx,.js,.jsx,.py,.m,.sql,.c,.cpp,.h,.java,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/jpeg,image/png,image/webp,text/plain,text/calendar,text/csv,text/html,application/json"
               />
             </div>
             <button
@@ -492,13 +504,31 @@ export function ResourcesWorkspace({
                     {resource.courseName} ·{" "}
                     {(resource.fileSize / 1024).toFixed(1)} KB
                   </span>
-                  <span>{resource.processingStatus}</span>
+                  <span>
+                    {resource.processingStatus}
+                    {resource.ingestion?.pipelineStatus
+                      ? ` · pipeline ${resource.ingestion.pipelineStatus}`
+                      : ""}
+                  </span>
+                  {resource.ingestion ? (
+                    <span>
+                      {t("版本", "Version")} {resource.ingestion.versionNumber ?? "—"}
+                      {" · "}
+                      {resource.ingestion.chunkCount} chunks
+                      {" · "}
+                      {resource.ingestion.embeddedChunkCount} embedded
+                      {resource.ingestion.reusedChunkCount
+                        ? ` · ${resource.ingestion.reusedChunkCount} reused`
+                        : ""}
+                    </span>
+                  ) : null}
                 </button>
                 <div>
                   <a href={`/api/resources/${resource.id}/download`}>
                     {t("下载", "Download")}
                   </a>
-                  {resource.processingStatus === "failed" ? (
+                  {resource.processingStatus === "failed" ||
+                  resource.ingestion?.pipelineStatus === "failed" ? (
                     <button
                       type="button"
                       disabled={busy}
@@ -528,7 +558,9 @@ export function ResourcesWorkspace({
       {proposal ? (
         <section className="saas-card saas-resource-confirm">
           <div>
-            <p className="saas-eyebrow">Confirmation required</p>
+            <p className="saas-eyebrow">
+              {t("需要确认", "Confirmation required")}
+            </p>
             <h2>{t("选择要导入的项目", "Choose items to import")}</h2>
             <p className="saas-muted">
               {t(

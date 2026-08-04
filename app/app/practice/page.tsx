@@ -38,7 +38,7 @@ export default async function PracticePage({
   return (
     <div className="saas-page">
       <section className="saas-page-heading">
-        <p className="saas-eyebrow">Retrieval practice</p>
+        <p className="saas-eyebrow">{t("提取练习", "Retrieval practice")}</p>
         <h1>{t("先独立作答，再看解释", "Answer independently before seeing the explanation")}</h1>
         <p className="saas-lead">
           {t(

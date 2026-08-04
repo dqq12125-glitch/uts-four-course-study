@@ -21,6 +21,77 @@ export type PersonalDestinationId =
 type Lang = "zh" | "en";
 type MainModuleId = "overview" | "planning" | "courses" | "mastery";
 
+export type PersonalNavigationIconName =
+  | "today"
+  | "plan"
+  | "courses"
+  | "tutor"
+  | "menu"
+  | "close";
+
+export function PersonalNavigationIcon({
+  name,
+}: {
+  name: PersonalNavigationIconName;
+}) {
+  const common = {
+    width: 20,
+    height: 20,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.7,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+  };
+
+  if (name === "today") {
+    return (
+      <svg {...common}>
+        <path d="M5 3v3M19 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" />
+        <path d="m9 14 2 2 4-5" />
+      </svg>
+    );
+  }
+  if (name === "plan") {
+    return (
+      <svg {...common}>
+        <path d="M7 3v3M17 3v3M4 8h16v12H4z" />
+        <path d="m8 14 2 2 5-5" />
+      </svg>
+    );
+  }
+  if (name === "courses") {
+    return (
+      <svg {...common}>
+        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z" />
+        <path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20M8 7h7" />
+      </svg>
+    );
+  }
+  if (name === "tutor") {
+    return (
+      <svg {...common}>
+        <path d="M4 5h16v12H9l-5 4V5Z" />
+        <path d="M8 9h8M8 13h5" />
+      </svg>
+    );
+  }
+  if (name === "close") {
+    return (
+      <svg {...common}>
+        <path d="m6 6 12 12M18 6 6 18" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <path d="M5 7h14M5 12h14M5 17h14" />
+    </svg>
+  );
+}
+
 type Destination = {
   id: PersonalDestinationId;
   label: string;
@@ -79,7 +150,7 @@ export function personalModuleGroups(lang: Lang): ModuleGroup[] {
           id: "plan-assessments",
           label: zh ? "作业与考试" : "Assessments",
           shortLabel: zh ? "截止" : "Due",
-          description: zh ? "Assessment 截止日期与当前行动" : "Deadlines and the next action for each task",
+          description: zh ? "作业与考试的截止日期与当前行动" : "Deadlines and the next action for each task",
           view: "plan",
         },
         {
@@ -207,7 +278,7 @@ export function PersonalModuleMenu({
             <h2 id="module-menu-title">{lang === "zh" ? "学习菜单" : "Study menu"}</h2>
           </div>
           <button type="button" onClick={onClose} aria-label={lang === "zh" ? "关闭菜单" : "Close menu"}>
-            <span aria-hidden="true">×</span>
+            <PersonalNavigationIcon name="close" />
           </button>
         </header>
 
@@ -273,6 +344,10 @@ export function ModuleContextBar({
   return (
     <section className="module-context-bar" aria-label={lang === "zh" ? "当前学习板块" : "Current study module"}>
       <div className="module-context-current">
+        <div className="module-breadcrumb">
+          <small>{activeGroup.label}</small>
+          <strong>{activeDestination.label}</strong>
+        </div>
         <button
           type="button"
           className="module-menu-trigger"
@@ -280,13 +355,9 @@ export function ModuleContextBar({
           aria-expanded={menuOpen}
           onClick={onOpenMenu}
         >
-          <span aria-hidden="true">☰</span>
-          {lang === "zh" ? "全部菜单" : "Full menu"}
+          <PersonalNavigationIcon name="menu" />
+          {lang === "zh" ? "菜单" : "Menu"}
         </button>
-        <div className="module-breadcrumb">
-          <small>{activeGroup.index} · {activeGroup.label}</small>
-          <strong>{activeDestination.label}</strong>
-        </div>
       </div>
 
       {activeGroup.destinations.length > 1 && (
