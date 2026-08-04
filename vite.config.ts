@@ -13,6 +13,9 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
   main: "./worker/index.ts",
+  // Keep an explicit non-default flag so Sites replaces the legacy runtime
+  // flag set instead of retaining nodejs_compat after it became the default.
+  compatibility_flags: ["nodejs_als"],
   d1_databases: d1
     ? [
         {
