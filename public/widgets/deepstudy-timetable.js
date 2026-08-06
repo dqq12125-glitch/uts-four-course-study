@@ -1,12 +1,10 @@
 // DeepStudy 课表 · Scriptable iOS Home Screen widget
-// Widget Parameter: 13 (official) or 11 (waitlist preview)
+// Verified against UTS Allocate+ on 6 August 2026: 9 allocated, 0 pending.
 // No API key is required. The timetable is stored locally in this script.
 
 const APP_URL = "https://uts-deep-study.dqq12125-study.workers.dev";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DUE_SOON_DAYS = 14;
-const parameter = String(args.widgetParameter || "13").trim();
-const mathSlot = parameter.indexOf("11") >= 0 ? "11" : "13";
 
 const palette = {
   backgroundTop: new Color("#202024"),
@@ -48,10 +46,10 @@ const timetable = [
   {
     id: "math-tut",
     course: "math",
-    activity: mathSlot === "11" ? "辅导课 Tut1 14" : "辅导课 Tut1 09",
+    activity: "辅导课 Tut1 09",
     day: 2,
-    start: mathSlot === "11" ? "11:00" : "13:00",
-    end: mathSlot === "11" ? "13:00" : "15:00",
+    start: "13:00",
+    end: "15:00",
     room: "CB10.03.460",
     startsWeek: 2,
   },

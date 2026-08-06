@@ -82,7 +82,7 @@ test("preserves the private bilingual personal workspace with a server-only AI k
   assert.match(tutorRoute, /PERSONAL_WORKSPACE_NOT_FOUND/);
   assert.match(tutorRoute, /(?:getRuntimeEnvironment\(\)|environment)\.DEEPSEEK_API_KEY/);
   assert.match(wrangler, /"name": "uts-deep-study"/);
-  assert.doesNotMatch(wrangler, /compatibility_flags/);
+  assert.match(wrangler, /"compatibility_flags": \["nodejs_compat"\]/);
   assert.match(page, /PREP → CLASS → REVIEW → RETRIEVAL/);
   assert.match(page, /MathPhysicsTools/);
   assert.match(page, /AnswerWorkspace/);
@@ -105,10 +105,13 @@ test("preserves the private bilingual personal workspace with a server-only AI k
   assert.match(css, /Hallmark · macrostructure: Workbench/);
   assert.match(page, /four-course-timetable-selections-v1/);
   assert.match(page, /timetableChoiceGroups/);
-  assert.match(page, /does not change UTS Allocate\+/);
+  assert.match(page, /old local waitlist preview is disabled/);
+  assert.match(page, /nextPlanModule === "timetable"[\s\S]*setBrowsedWeek\(currentWeek\)/);
   assert.match(css, /\.timetable-choice-option\.selected/);
   assert.doesNotMatch(semesterData, /math-tut1-18/);
-  assert.match(semesterData, /math-tut1-14[\s\S]*status: "waitlist"/);
+  assert.doesNotMatch(semesterData, /math-tut1-14/);
   assert.match(semesterData, /math-tut1-09[\s\S]*status: "allocated"/);
+  assert.match(semesterData, /2026年8月6日核对/);
+  assert.match(semesterData, /7月27日–9月14日；9月28日–10月19日/);
   assert.match(semesterData, /机房课 Cmp1 03[\s\S]*start: "10:00"[\s\S]*end: "12:00"/);
 });

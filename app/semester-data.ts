@@ -11,6 +11,7 @@ export type TimetableItem = {
   end: string;
   location: string;
   startsWeek?: number;
+  teachingDates: SemesterBi;
   venue: {
     kind: "physical" | "online";
     building: SemesterBi;
@@ -78,38 +79,47 @@ export type Assessment = {
 export const timetable: TimetableItem[] = [
   {
     courseId: "physics", activity: bi("实践课 Prc1", "Practical Prc1"), day: 1, dayLabel: bi("周一", "Monday"), start: "17:00", end: "20:00", location: "CB04.03.551",
+    teachingDates: bi("7月27日–9月14日；9月28日–10月19日", "27 Jul–14 Sep; 28 Sep–19 Oct"),
     venue: { kind: "physical", building: bi("4号楼 · Science Building", "Building 4 · Science Building"), level: bi("3层", "Level 3"), room: bi("551室", "Room 551"), address: "745 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+4+745+Harris+Street+Ultimo+NSW+2007" },
   },
   {
     courseId: "physics", activity: bi("讲座 Lec1", "Lecture Lec1"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "17:00", end: "18:00", location: "CB06.03.028",
+    teachingDates: bi("7月28日–9月15日；9月29日–10月20日", "28 Jul–15 Sep; 29 Sep–20 Oct"),
     venue: { kind: "physical", building: bi("6号楼 · Peter Johnson Building", "Building 6 · Peter Johnson Building"), level: bi("3层", "Level 3"), room: bi("028室 · Guthrie Theatre", "Room 028 · Guthrie Theatre"), address: "702 Harris Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+6+702+Harris+Street+Ultimo+NSW+2007" },
   },
   {
     courseId: "eee", activity: bi("辅导课 Tut1 02", "Tutorial Tut1 02"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "08:30", end: "10:30", location: "CB10.02.470",
+    teachingDates: bi("8月4日–9月15日；9月29日–10月20日", "4 Aug–15 Sep; 29 Sep–20 Oct"),
     venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("2层", "Level 2"), room: bi("470室", "Room 470"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
   },
   {
     courseId: "eee", activity: bi("实验课 Lab1 01", "Laboratory Lab1 01"), day: 5, dayLabel: bi("周五", "Friday"), start: "15:00", end: "18:00", location: "CB11.11.402",
+    teachingDates: bi("7月31日–9月18日；10月2日–10月23日", "31 Jul–18 Sep; 2 Oct–23 Oct"),
     venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("11层", "Level 11"), room: bi("402室", "Room 402"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
   },
   {
     courseId: "eee", activity: bi("预录讲座 Rec1", "Prerecorded lecture Rec1"), day: 0, dayLabel: bi("周日", "Sunday"), start: "06:00", end: "07:00", location: "PRERECORDED.ACTIVITY026",
+    teachingDates: bi("8月2日–9月20日；10月4日–10月25日", "2 Aug–20 Sep; 4 Oct–25 Oct"),
     venue: { kind: "online", building: bi("Canvas 预录内容", "Canvas prerecorded content"), room: bi("按周观看，不需到校", "Watch weekly; no campus room"), zoomUrl: "https://canvas.uts.edu.au/courses/41070/modules" },
   },
   {
     courseId: "c", activity: bi("在线课 Olr1", "Online Olr1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "15:00", end: "17:00", location: "ONLINE060",
+    teachingDates: bi("7月29日–9月16日；9月30日–10月21日", "29 Jul–16 Sep; 30 Sep–21 Oct"),
     venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE060 · 从 Canvas 进入", "ONLINE060 · Join from Canvas"), zoomUrl: "https://canvas.uts.edu.au/courses/41072/external_tools/3695" },
   },
   {
     courseId: "math", activity: bi("工作坊 Wrk1", "Workshop Wrk1"), day: 3, dayLabel: bi("周三", "Wednesday"), start: "17:00", end: "19:00", location: "ONLINE058",
+    teachingDates: bi("7月29日–9月16日；9月30日–10月21日", "29 Jul–16 Sep; 30 Sep–21 Oct"),
     venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE058 · 从 Canvas 进入", "ONLINE058 · Join from Canvas"), zoomUrl: "https://canvas.uts.edu.au/courses/40822/modules/items/2812965" },
   },
   {
     courseId: "c", activity: bi("机房课 Cmp1 03", "Computer lab Cmp1 03"), day: 5, dayLabel: bi("周五", "Friday"), start: "10:00", end: "12:00", location: "CB11.B1.100", startsWeek: 2,
+    teachingDates: bi("8月7日–9月18日；10月2日–10月23日", "7 Aug–18 Sep; 2 Oct–23 Oct"),
     venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("地下1层", "Basement 1"), room: bi("100室", "Room 100"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
   },
   {
     courseId: "math", activity: bi("辅导课 Tut1 09", "Tutorial Tut1 09"), day: 2, dayLabel: bi("周二", "Tuesday"), start: "13:00", end: "15:00", location: "CB10.03.460", startsWeek: 2,
+    teachingDates: bi("8月4日–9月15日；9月29日–10月20日", "4 Aug–15 Sep; 29 Sep–20 Oct"),
     venue: { kind: "physical", building: bi("10号楼 · Building 10", "Building 10"), level: bi("3层", "Level 3"), room: bi("460室", "Room 460"), address: "235 Jones Street, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+10+235+Jones+Street+Ultimo+NSW+2007" },
   },
 ];
@@ -121,8 +131,8 @@ export const timetableChoiceGroups: TimetableChoiceGroup[] = [
     activityGroup: "Tut1",
     title: bi("33130 数学辅导课", "33130 Mathematics tutorial"),
     checkedAt: bi(
-      "UTS Allocate+ · 2026年8月4日核对",
-      "UTS Allocate+ · checked 4 August 2026",
+      "UTS Allocate+ · 2026年8月6日核对",
+      "UTS Allocate+ · checked 6 August 2026",
     ),
     choices: [
       {
@@ -136,23 +146,8 @@ export const timetableChoiceGroups: TimetableChoiceGroup[] = [
         location: "CB10.03.460",
         startsWeek: 2,
         note: bi(
-          "UTS 当前正式分配；个人版默认按这个时段安排学习。",
-          "Currently allocated by UTS; this is the default personal timetable.",
-        ),
-      },
-      {
-        id: "math-tut1-14",
-        status: "waitlist",
-        activity: bi("辅导课 Tut1 14", "Tutorial Tut1 14"),
-        day: 2,
-        dayLabel: bi("周二", "Tuesday"),
-        start: "11:00",
-        end: "13:00",
-        location: "CB10.03.460",
-        startsWeek: 2,
-        note: bi(
-          "UTS 显示候补中。这里只预览计划，正式换班成功前仍应参加 Tut1 09（周二 13:00）。",
-          "UTS shows this as waitlisted. Preview only; attend Tut1 09 (Tuesday 13:00) until the swap succeeds.",
+          "UTS 当前正式分配。Allocate+ 显示 9 个活动已分配、0 个活动候补；原周二 11:00 方案已不在候补队列。",
+          "Currently allocated by UTS. Allocate+ shows 9 allocated activities and 0 pending; the former Tuesday 11:00 option is no longer waitlisted.",
         ),
       },
     ],

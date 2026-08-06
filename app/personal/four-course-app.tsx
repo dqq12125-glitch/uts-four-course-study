@@ -546,14 +546,15 @@ const ui = {
     planTitle: "学期执行中心",
     planIntro: "教学计划、个人课表和作业考试已经对齐。每周按“课前—课堂—课后—交付”推进。",
     thisWeek: "本周行动",
-    timetable: "个人课表 · 可切换",
-    timetableChoiceTitle: "选择个人版显示的数学辅导课",
-    timetableChoiceIntro: "选择会立即更新“今天”和本周课表，并保存在这台设备；不会改动 UTS Allocate+。",
+    timetable: "个人课表 · Allocate+ 已核对",
+    timetableChoiceTitle: "UTS 当前正式分配",
+    timetableChoiceIntro: "这里显示 Allocate+ 的当前结果。旧的本地候补预览已停用，避免把未分配的时段当成正式课表。",
     allocatedStatus: "已正式分配",
     waitlistStatus: "候补预览",
     allocatedDisplay: "当前按 UTS 正式分配显示。",
     waitlistDisplay: "当前正在预览候补方案。Allocate+ 显示换班成功前，它不是正式课表。",
-    timetableVerification: "已于 2026年8月4日按 Allocate+ 更新：数学正式分配为周二 13:00，候补周二 11:00；C 语言机房课为周五 10:00。",
+    timetableVerification: "已于 2026年8月6日按 Allocate+ 更新：9 个活动已分配，0 个候补；数学 Tut1 09 为周二 13:00，原 11:00 方案已不在候补队列。3 个未分配项目均为可选 UPs 活动，不计入正式课表。",
+    teachingDates: "教学日期",
     assessments: "Assessment 时间线",
     preparation: "课前预习",
     afterClass: "课后练习",
@@ -695,14 +696,15 @@ const ui = {
     planTitle: "Semester execution centre",
     planIntro: "Your teaching plans, personal timetable and assessments are aligned into a weekly pre-class–class–post-class–delivery rhythm.",
     thisWeek: "This week",
-    timetable: "Personal timetable · selectable",
-    timetableChoiceTitle: "Choose the Mathematics tutorial shown here",
-    timetableChoiceIntro: "Your choice updates Today and the weekly timetable and is saved on this device. It does not change UTS Allocate+.",
+    timetable: "Personal timetable · Allocate+ verified",
+    timetableChoiceTitle: "Current UTS allocation",
+    timetableChoiceIntro: "This reflects the current Allocate+ result. The old local waitlist preview is disabled so an unallocated time cannot be mistaken for the official timetable.",
     allocatedStatus: "Officially allocated",
     waitlistStatus: "Waitlist preview",
     allocatedDisplay: "Showing the timetable currently allocated by UTS.",
     waitlistDisplay: "Previewing a waitlisted option. It is not official until Allocate+ confirms the swap.",
-    timetableVerification: "Updated from Allocate+ on 4 August 2026: Mathematics is allocated Tuesday 13:00 with Tuesday 11:00 waitlisted; the C computer lab is Friday 10:00.",
+    timetableVerification: "Updated from Allocate+ on 6 August 2026: 9 activities are allocated and 0 are pending. Mathematics Tut1 09 is Tuesday 13:00; the former 11:00 option is no longer waitlisted. The 3 unallocated items are optional UPs activities and are excluded from the official timetable.",
+    teachingDates: "Teaching dates",
     assessments: "Assessment timeline",
     preparation: "Pre-class",
     afterClass: "Post-class practice",
@@ -756,7 +758,7 @@ const planModuleHeadings: Record<PlanModule, { eyebrow: Bi; title: Bi; intro: Bi
   timetable: {
     eyebrow: bi("时间 · 地点 · 入口", "TIME · PLACE · ACCESS"),
     title: bi("个人课程表", "Personal timetable"),
-    intro: bi("集中查看上课时间、课室、线上入口和数学辅导课的个人显示方案。", "See class times, rooms, online access and your selected Mathematics tutorial display."),
+    intro: bi("按本周查看 Allocate+ 正式分配的上课时间、课室、教学日期和线上入口。", "See this week's officially allocated class times, rooms, teaching dates and online access from Allocate+."),
   },
   assessments: {
     eyebrow: bi("截止日期与里程碑", "DEADLINES & MILESTONES"),
@@ -1577,7 +1579,9 @@ export default function Home({
       return;
     }
     if (id.startsWith("plan-")) {
-      setPlanModule(id.slice("plan-".length) as PlanModule);
+      const nextPlanModule = id.slice("plan-".length) as PlanModule;
+      if (nextPlanModule === "timetable") setBrowsedWeek(currentWeek);
+      setPlanModule(nextPlanModule);
       setView("plan");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -2226,7 +2230,6 @@ export default function Home({
             now={now}
             timetable={activeTimetable}
             assessments={assessments}
-            selectedMathChoiceId={selectedChoiceForGroup("math-tutorial")?.id}
           />
           )}
 
@@ -2244,7 +2247,7 @@ export default function Home({
                         <strong>{group.title[lang]}</strong>
                         <small>{group.checkedAt[lang]}</small>
                       </div>
-                      <span>{lang === "zh" ? "本机保存" : "Saved locally"}</span>
+                      <span>{lang === "zh" ? "Allocate+ 已同步" : "Allocate+ synced"}</span>
                     </div>
                     <p>{copy.timetableChoiceIntro}</p>
                     <div className="timetable-choice-list">
@@ -2260,6 +2263,7 @@ export default function Home({
                               name={`timetable-choice-${group.id}`}
                               value={choice.id}
                               checked={selected}
+                              disabled={group.choices.length === 1}
                               onChange={() =>
                                 setTimetableSelections((current) => ({
                                   ...current,
@@ -2311,6 +2315,7 @@ export default function Home({
                       <div>
                         <strong>{course.code} · {pick(course.short)}</strong>
                         <p>{item.activity[lang]} · {item.start}–{item.end}</p>
+                        <p className="schedule-dates">{copy.teachingDates} · {item.teachingDates[lang]}</p>
                         {timetableChoice && (
                           <span className={`schedule-choice-badge ${timetableChoice.status}`}>
                             {timetableChoice.status === "allocated" ? copy.allocatedStatus : copy.waitlistStatus}

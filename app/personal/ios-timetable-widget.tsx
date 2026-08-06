@@ -16,7 +16,6 @@ type Props = {
   now: Date;
   timetable: TimetableItem[];
   assessments: Assessment[];
-  selectedMathChoiceId?: string;
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -69,10 +68,9 @@ const copy = {
     homeStep: "3. 长按主屏幕 → ＋ → Scriptable → 大号 → 选择“DeepStudy课表”",
     secondWidgetStep: "显示两个组件：重复第 3 步再添加一次。两个都选“DeepStudy课表”；可以一个大号、一个小号。",
     pasteStep: "在 Scriptable 点右上角 ＋，粘贴后命名为“DeepStudy课表”，先点运行预览一次。",
-    parameter: "Widget Parameter",
-    parameterHelp: (value: string) => `你当前的数学课表对应参数：${value}。添加小组件后，长按它 → 编辑小组件 → Parameter 填 ${value}。`,
+    parameter: "Widget Parameter（无需填写）",
+    parameterHelp: () => "课表已固定为 Allocate+ 正式分配；Parameter 请留空。若手机仍显示周二 11:00，请重新复制最新脚本覆盖旧脚本。",
     official: "正式课表",
-    waitlist: "候补预览",
   },
   en: {
     eyebrow: "IOS HOME SCREEN",
@@ -109,10 +107,9 @@ const copy = {
     homeStep: "3. Long-press Home Screen → ＋ → Scriptable → Large → choose “DeepStudy Timetable”",
     secondWidgetStep: "To show two widgets, repeat step 3. Choose the same “DeepStudy Timetable” script for both; one can be Large and the other Small.",
     pasteStep: "Tap ＋ in Scriptable, paste the code, name it “DeepStudy Timetable”, then run one preview.",
-    parameter: "Widget Parameter",
-    parameterHelp: (value: string) => `Your current Mathematics option uses parameter ${value}. After adding the widget, long-press it → Edit Widget → enter ${value} in Parameter.`,
+    parameter: "Widget Parameter (leave blank)",
+    parameterHelp: () => "The timetable now follows the official Allocate+ allocation. Leave Parameter blank. If Tuesday 11:00 still appears, copy the latest script over the old one.",
     official: "Official timetable",
-    waitlist: "Waitlist preview",
   },
 } as const;
 
@@ -182,11 +179,6 @@ function displayLocation(item: TimetableItem, lang: Lang) {
   return item.location;
 }
 
-function widgetParameter(choiceId?: string) {
-  if (choiceId === "math-tut1-14") return "11";
-  return "13";
-}
-
 function weekdayLabel(date: Date, lang: Lang) {
   return new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-AU", {
     weekday: "long",
@@ -237,7 +229,7 @@ function dueLabel(due: Date, now: Date, lang: Lang) {
   return copy[lang].dueInDays(days);
 }
 
-export function IOSTimetableWidget({ lang, now, timetable, assessments, selectedMathChoiceId }: Props) {
+export function IOSTimetableWidget({ lang, now, timetable, assessments }: Props) {
   const t = copy[lang];
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const upcoming = useMemo(
@@ -257,8 +249,6 @@ export function IOSTimetableWidget({ lang, now, timetable, assessments, selected
   const completionPercent = currentWeek.length
     ? Math.round((completedCount / currentWeek.length) * 100)
     : 0;
-  const parameter = widgetParameter(selectedMathChoiceId);
-  const mathIsWaitlisted = parameter === "11";
 
   async function copyWidgetScript() {
     try {
@@ -435,13 +425,13 @@ export function IOSTimetableWidget({ lang, now, timetable, assessments, selected
             <li>{t.secondWidgetStep}</li>
           </ol>
 
-          <div className={`ios-widget-parameter ${mathIsWaitlisted ? "waitlist" : "official"}`}>
+          <div className="ios-widget-parameter official">
             <span>
               <small>{t.parameter}</small>
-              <strong>{parameter}</strong>
+              <strong>—</strong>
             </span>
-            <p>{t.parameterHelp(parameter)}</p>
-            <b>{mathIsWaitlisted ? t.waitlist : t.official}</b>
+            <p>{t.parameterHelp()}</p>
+            <b>{t.official}</b>
           </div>
         </div>
       </details>

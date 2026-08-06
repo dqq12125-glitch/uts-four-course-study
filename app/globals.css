@@ -2551,6 +2551,10 @@ blockquote span {
   box-shadow: inset 3px 0 0 var(--ink);
 }
 
+.timetable-choice-option:has(input:disabled) {
+  cursor: default;
+}
+
 .timetable-choice-option input {
   width: 18px;
   height: 18px;
@@ -2671,6 +2675,10 @@ blockquote span {
   margin: 2px 0 0;
   color: var(--muted);
   font-size: 9px;
+}
+
+.schedule-list article .schedule-dates {
+  line-height: 1.45;
 }
 
 .schedule-choice-badge {
