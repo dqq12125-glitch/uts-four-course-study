@@ -18,7 +18,7 @@ test("the iOS timetable widget is a real Scriptable widget with the current time
   assert.match(source, /CB04\.03\.551/);
   assert.match(source, /CB10\.02\.470/);
   assert.match(source, /ONLINE060/);
-  assert.match(source, /c-lab[\s\S]*start: "10:00"[\s\S]*end: "12:00"/);
+  assert.match(source, /c-lab[\s\S]*Cmp1 04[\s\S]*start: "12:00"[\s\S]*end: "14:00"/);
   assert.match(source, /CB11\.11\.402/);
   assert.match(source, /2026, 8, 21/);
   assert.match(source, /uts-deep-study\.dqq12125-study\.workers\.dev/);

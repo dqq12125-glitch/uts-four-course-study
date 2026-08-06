@@ -55,7 +55,7 @@ const timetable = [
   },
   { id: "c-online", course: "c", activity: "在线课 Olr1", day: 3, start: "15:00", end: "17:00", room: "ONLINE060", startsWeek: 1 },
   { id: "math-workshop", course: "math", activity: "工作坊 Wrk1", day: 3, start: "17:00", end: "19:00", room: "ONLINE058", startsWeek: 1 },
-  { id: "c-lab", course: "c", activity: "机房课 Cmp1 03", day: 5, start: "10:00", end: "12:00", room: "CB11.B1.100", startsWeek: 2 },
+  { id: "c-lab", course: "c", activity: "机房课 Cmp1 04", day: 5, start: "12:00", end: "14:00", room: "CB11.B1.100", startsWeek: 2 },
   { id: "eee-lab", course: "eee", activity: "实验课 Lab1 01", day: 5, start: "15:00", end: "18:00", room: "CB11.11.402", startsWeek: 1 },
   { id: "eee-recorded", course: "eee", activity: "预录讲座 Rec1", day: 0, start: "06:00", end: "07:00", room: "Canvas 预录", startsWeek: 1 },
 ];

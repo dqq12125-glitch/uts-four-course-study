@@ -113,7 +113,7 @@ export const timetable: TimetableItem[] = [
     venue: { kind: "online", building: bi("线上教室", "Online classroom"), room: bi("ONLINE058 · 从 Canvas 进入", "ONLINE058 · Join from Canvas"), zoomUrl: "https://canvas.uts.edu.au/courses/40822/modules/items/2812965" },
   },
   {
-    courseId: "c", activity: bi("机房课 Cmp1 03", "Computer lab Cmp1 03"), day: 5, dayLabel: bi("周五", "Friday"), start: "10:00", end: "12:00", location: "CB11.B1.100", startsWeek: 2,
+    courseId: "c", activity: bi("机房课 Cmp1 04", "Computer lab Cmp1 04"), day: 5, dayLabel: bi("周五", "Friday"), start: "12:00", end: "14:00", location: "CB11.B1.100", startsWeek: 2,
     teachingDates: bi("8月7日–9月18日；10月2日–10月23日", "7 Aug–18 Sep; 2 Oct–23 Oct"),
     venue: { kind: "physical", building: bi("11号楼 · Engineering & IT", "Building 11 · Engineering & IT"), level: bi("地下1层", "Basement 1"), room: bi("100室", "Room 100"), address: "81 Broadway, Ultimo NSW 2007", mapUrl: "https://www.google.com/maps/search/?api=1&query=UTS+Building+11+81+Broadway+Ultimo+NSW+2007" },
   },

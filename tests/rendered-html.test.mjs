@@ -113,5 +113,5 @@ test("preserves the private bilingual personal workspace with a server-only AI k
   assert.match(semesterData, /math-tut1-09[\s\S]*status: "allocated"/);
   assert.match(semesterData, /2026年8月6日核对/);
   assert.match(semesterData, /7月27日–9月14日；9月28日–10月19日/);
-  assert.match(semesterData, /机房课 Cmp1 03[\s\S]*start: "10:00"[\s\S]*end: "12:00"/);
+  assert.match(semesterData, /机房课 Cmp1 04[\s\S]*start: "12:00"[\s\S]*end: "14:00"/);
 });
