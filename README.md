@@ -1,98 +1,272 @@
-# vinext-starter
+# DeepStudy
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+DeepStudy is a mobile-first semester execution system for university students:
+**Turn your semester into today’s next step.** Students can use any course from
+any institution; the four original UTS subjects remain optional starter
+templates rather than product assumptions.
+
+The repository is being migrated in-place toward the Adaptive Learning OS
+architecture. Phases 1–2 establish shared/provider boundaries and versioned
+course ingestion while the existing product remains operational. It contains:
+
+- a Cloudflare Worker/Vinext web application;
+- a D1 relational data model with repeatable Drizzle migrations;
+- private R2-backed resource ingestion;
+- Stripe web checkout and server-owned entitlements;
+- a Hint-first AI provider layer with academic-integrity controls;
+- scheduled in-app/email reminders and weekly reports;
+- an admin operations surface;
+- an Expo/React Native iOS and Android app under `apps/mobile`;
+- npm workspaces for shared contracts, API transport, AI, storage, jobs,
+  security, ingestion, UI tokens, and the target PostgreSQL schema;
+- Mock/Manual/Canvas read-only Connectors, incremental sync logs, immutable
+  resource versions, source-located chunks, optional embeddings and quality
+  status;
+- a versioned PostgreSQL/pgvector migration target that is not yet the runtime
+  source of truth;
+- the original four-course personal workspace at `/personal`, protected by a
+  server-side owner allowlist.
+
+The native apps are implemented and exportable, but this repository has not
+been submitted to App Store Connect or Google Play. Store accounts, signing,
+store product configuration, legal review, and real-device release approval
+remain external release gates.
+
+## Product routes
+
+| Area | Routes |
+| --- | --- |
+| Marketing and pricing | `/`, `/pricing` |
+| Passwordless authentication | `/auth/sign-up`, `/auth/sign-in`, `/auth/verify` |
+| Student setup | `/onboarding` |
+| Daily execution | `/app/today`, `/app/plan` |
+| Open courses | `/app/courses`, `/app/courses/:courseId` |
+| Practice and mastery | `/app/practice`, `/app/practice/:sessionId`, `/app/mastery` |
+| Hint-first tutor and resources | `/app/tutor`, `/app/resources` |
+| Settings | `/app/settings/profile`, `/study`, `/privacy`, `/billing` |
+| Reminders and reports | `/app/notifications`, `/app/reports/weekly` |
+| Administration | `/admin` |
+| Legal placeholders | `/legal/privacy`, `/legal/terms`, `/legal/academic-integrity` |
+| Private legacy workspace | `/personal` |
 
 ## Prerequisites
 
-- Node.js `>=22.13.0`
+- Node.js `>=22.18.0` (workspace contract tests use Node's default TypeScript
+  type stripping)
+- npm
+- a Cloudflare account for remote D1/R2/Worker deployment
+- a verified email sender for preview/production authentication and reminders
+- Stripe, AI provider, and Turnstile credentials only when those integrations
+  are enabled
+- Android Studio/device or an iOS development build for native testing
 
-## Quick Start
+## Local web development
 
-```bash
+```powershell
 npm install
+Copy-Item .env.example .dev.vars
+npm run db:migrate:local
 npm run dev
+```
+
+Use `APP_ENV=development` and an exact `APP_BASE_URL`. When no email provider
+key is configured, development authentication returns a clearly labelled
+local-only Magic Link preview. Preview and production never expose that link.
+
+Local D1 uses `wrangler.local.jsonc` and the ignored `.wrangler/state`
+directory.
+
+## Mobile development
+
+```powershell
+npm install
+Copy-Item apps/mobile/.env.example apps/mobile/.env
+npm run start --workspace @deepstudy/mobile
+```
+
+The root `package-lock.json` is authoritative for every workspace. Do not run
+a separate install inside `apps/mobile`.
+
+Set `EXPO_PUBLIC_API_BASE_URL` to a backend URL reachable from the device.
+Android emulators commonly use `http://10.0.2.2:3000`; physical devices need a
+LAN address or HTTPS preview URL. Native sessions are stored in secure storage,
+not AsyncStorage.
+
+Production Magic Links use Universal Links/App Links after the team ID and
+certificate fingerprints are configured. The custom `deepstudy://` scheme is
+retained as a development fallback.
+
+## Environment variables
+
+Copy `.env.example`; never put a secret in a `PUBLIC_` or `EXPO_PUBLIC_`
+variable.
+
+| Variable | Purpose |
+| --- | --- |
+| `APP_ENV` | `development`, `preview`, `production`, or `test` |
+| `APP_BASE_URL` | Canonical web origin for links and redirects |
+| `MOBILE_APP_SCHEME` | Development native callback scheme |
+| `MOBILE_APP_LINK_BASE_URL` | Canonical HTTPS mobile-link origin |
+| `EMAIL_PROVIDER`, `EMAIL_API_KEY`, `EMAIL_FROM` | Magic Links and reminder delivery |
+| `UNSUBSCRIBE_TOKEN_SECRET` | HMAC secret for expiring email-unsubscribe links |
+| `IP_HASH_SECRET` | Non-reversible IP hashing for abuse controls |
+| `CONNECTOR_TOKEN_ACTIVE_KEY_ID`, `CONNECTOR_TOKEN_KEYS` | Versioned envelope-encryption keyring reserved for LMS/tool credentials |
+| `PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `TURNSTILE_REQUIRED` | Optional anti-abuse challenge |
+| `PERSONAL_OWNER_EMAIL` | Exact account allowed to access `/personal`; blank disables it |
+| `AI_PROVIDER`, `AI_API_KEY`, `AI_BASE_URL` | AI provider selection and credentials |
+| `AI_TUTOR_MODEL`, `AI_EXTRACTION_MODEL` | Existing tutor/extraction model keys |
+| `AI_LOW_COST_MODEL`, `AI_MEDIUM_MODEL`, `AI_HIGH_CAPABILITY_MODEL` | Capability-based model policy |
+| `AI_EMBEDDING_MODEL`, `AI_EMBEDDING_VERSION` | Optional resource embeddings and cache/version key |
+| `AI_*_COST_PER_MILLION_MINOR_USD` | Cost estimation inputs |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe server credentials |
+| `STRIPE_*_PRICE_ID` | Server-owned Stripe Price IDs |
+| `PUBLIC_STRIPE_PUBLISHABLE_KEY` | Public Stripe key, if needed by a future client flow |
+| `FOUNDING_PASS_ACCESS_END_AT` | Server-owned Founding Pass expiry |
+| `APPLE_TEAM_ID` | Generates Apple app association data |
+| `ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS` | Generates Android asset links |
+
+`AI_MOCK_ENABLED`, `UPLOADS_MOCK_ENABLED`, and `PAYMENTS_MOCK_ENABLED` are for
+development/automated tests only and must stay false in production.
+
+## Database migrations
+
+After changing `db/schema.ts`:
+
+```powershell
+npm run db:generate
+npm run db:migrate:local
+```
+
+Apply all ordered SQL files under `drizzle/` to the bound remote D1 database
+before deploying compatible code. Migrations are additive/forward-only; take a
+D1 backup/bookmark before remote application.
+
+See [Database](./docs/DATABASE.md).
+
+The existing Web runtime continues to use D1 during the migration. The target
+PostgreSQL/pgvector schema is additive and can be generated and checked without
+cutting over any reads or writes:
+
+```powershell
+npm run db:generate:postgres
+npm run db:check:postgres
+
+$env:POSTGRES_URL = "postgresql://..."
+npm run db:migrate:postgres
+npm run db:verify:postgres
+```
+
+An explicit D1 snapshot can be exported and staged without overwriting an
+existing file. Staging preserves every source row and records counts,
+ownership hints, and checksums before later normalized backfills:
+
+```powershell
+npm run db:export:d1 -- --database=DB --output=./private/d1-snapshot.json --remote --config=wrangler.jsonc
+$env:POSTGRES_URL = "postgresql://..."
+npm run db:import:postgres -- --input=./private/d1-snapshot.json
+```
+
+## Validation
+
+Web/backend:
+
+```powershell
+npm run typecheck
+npm run lint
+npm run test:contracts
+npm run test:unit
+npm run test:integration
+npm run test:e2e
+npm test
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Native:
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```powershell
+npm run typecheck:mobile
+npm run lint:mobile
+npm run test:mobile
+npm run doctor --workspace @deepstudy/mobile
+npx expo export --platform android --output-dir dist-android
+npx expo export --platform ios --output-dir dist-ios
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Test adapters are explicit: in-memory D1-compatible SQLite, mock payment/AI,
+and in-memory private storage are enabled only by test/development
+configuration. Passing tests do not prove real Stripe, email, AI, R2, signing,
+or store accounts are configured.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+## Stripe local testing
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+1. Set the Stripe test secret, webhook secret, and server-side Price IDs.
+2. Keep `payments_enabled` on in development.
+3. Forward Stripe CLI events to `/api/webhooks/stripe`.
+4. Complete a test Checkout from `/pricing`.
+5. Confirm `/app/settings/billing` shows the active entitlement.
+6. Replay the same event and confirm it is recorded as a duplicate.
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+Detailed commands and supported events are in
+[Payments](./docs/PAYMENTS.md).
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+## Cron testing
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+Production runs the Worker scheduled handler hourly (`0 * * * *`). In
+development, an admin can invoke the same job through
+`POST /api/admin/jobs/run`; the endpoint requires an authenticated admin and
+the server-side admin feature flag.
 
-## Useful Commands
+The job creates timezone-aware reminders, sends/retries email deliveries,
+deduplicates scheduled work, cleans physically deleted resources, and records
+its result in `scheduled_job_runs`.
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+## Creating the first administrator
 
-## Learn More
+There is deliberately no public “make admin” endpoint. Register and verify the
+account normally, then update its role using an authenticated operational D1
+session:
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+```sql
+UPDATE users
+SET role = 'admin', updated_at = CURRENT_TIMESTAMP
+WHERE lower(email) = lower('owner@example.com')
+  AND status = 'active'
+  AND deleted_at IS NULL;
+```
+
+Verify exactly one row changed, sign out, sign in again, and audit access to
+`/admin`. See [Admin operations](./docs/ADMIN_OPERATIONS.md).
+
+## Deployment and native release
+
+- [Deployment](./docs/DEPLOYMENT.md)
+- [Mobile architecture](./docs/MOBILE_ARCHITECTURE.md)
+- [Mobile build and release](./docs/MOBILE_BUILD_AND_RELEASE.md)
+- [Use on an iPhone before publication](./docs/IPHONE_LOCAL_TESTING.md)
+- [App store readiness](./docs/APP_STORE_READINESS.md)
+- [Release readiness](./docs/RELEASE_READINESS.md)
+
+No production deployment or store submission is performed by the repository
+itself.
+
+## Documentation
+
+- [Commercialization specification](./COMMERCIALIZATION_SPEC.md)
+- [Phase 0 current state](./docs/current-state.md)
+- [Adaptive Learning OS target architecture](./docs/target-architecture.md)
+- [Adaptive Learning OS migration plan](./docs/migration-plan.md)
+- [Phase 1 foundation handoff](./docs/phase-1-foundation.md)
+- [Historical commercialisation audit](./docs/CODEBASE_AUDIT.md)
+- [Timetable import](./docs/TIMETABLE_IMPORT.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Authentication](./docs/AUTH.md)
+- [Database](./docs/DATABASE.md)
+- [Payments](./docs/PAYMENTS.md)
+- [AI safety](./docs/AI_SAFETY.md)
+- [Privacy and data](./docs/PRIVACY_AND_DATA.md)
+- [Product analytics](./docs/PRODUCT_ANALYTICS.md)
+- [Admin operations](./docs/ADMIN_OPERATIONS.md)
+- [Testing](./docs/TESTING.md)
+- [Milestone 1 report](./docs/MILESTONE_1_REPORT.md)
+- [Milestone 2 report](./docs/MILESTONE_2_REPORT.md)
+- [Milestones 3–5 report](./docs/MILESTONES_3_TO_5_REPORT.md)

@@ -1,0 +1,13 @@
+{
+  "name": "@deepstudy/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@deepstudy/shared-types": "0.1.0",
+    "zod": "^4.4.3"
+  }
+}

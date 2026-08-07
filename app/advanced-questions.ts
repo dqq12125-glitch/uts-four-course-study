@@ -21,6 +21,22 @@ export type AdvancedQuestion = {
 
 export const advancedQuestionBank: AdvancedQuestion[] = [
   {
+    id: "math-0-1", courseId: "math", topicId: "math-0", kind: "calculation",
+    question: b("向量 a=(3,4) 的长度是多少？", "What is the magnitude of vector a=(3,4)?"),
+    options: [b("4", "4"), b("5", "5"), b("7", "7"), b("25", "25")],
+    answer: 1,
+    visual: {
+      kind: "table",
+      title: b("向量分量", "Vector components"),
+      columns: [b("分量", "Component"), b("数值", "Value")],
+      rows: [["aₓ", "3"], ["aᵧ", "4"]],
+    },
+    explanation: b(
+      "第 1 步｜先说清定义\n二维向量 a=(aₓ,aᵧ) 的长度是它从原点到终点的直线距离。横向分量、纵向分量和向量本身构成直角三角形。\n\n第 2 步｜选择公式并说明为什么\n由勾股定理，|a|=√(aₓ²+aᵧ²)。这里 aₓ=3、aᵧ=4。\n\n第 3 步｜代入计算\n|a|=√(3²+4²)=√(9+16)=√25=5。\n\n第 4 步｜合理性检查\n长度必须非负，而且应大于任一单独分量 4、小于分量绝对值之和 7；5 符合。\n\n结论\n正确答案是 5（选 B）。若分量带有物理单位，向量长度继承同一单位。\n\n变式自测\n若向量改成 (6,8)，不用计算器能否利用比例迅速判断长度？",
+      "Step 1 | State the definition\nFor a 2D vector a=(aₓ,aᵧ), magnitude is the straight-line distance from the origin to its endpoint. The components and vector form a right triangle.\n\nStep 2 | Choose and justify the formula\nBy Pythagoras, |a|=√(aₓ²+aᵧ²). Here aₓ=3 and aᵧ=4.\n\nStep 3 | Substitute\n|a|=√(3²+4²)=√(9+16)=√25=5.\n\nStep 4 | Check reasonableness\nMagnitude is non-negative, greater than the larger component 4 and less than 3+4=7; 5 fits.\n\nConclusion\nThe correct answer is 5 (B). If the components carry a physical unit, the magnitude carries that same unit.\n\nTransfer check\nIf the vector becomes (6,8), can you use scaling to find its magnitude without a calculator?",
+    ),
+  },
+  {
     id: "math-0-9", courseId: "math", topicId: "math-0", kind: "calculation",
     question: b("无人机先沿向量 a=(6,8,0) m 飞行，再沿 b=(−2,1,2) m 飞行。它相对起点的直线距离是多少？", "A drone travels along a=(6,8,0) m and then b=(−2,1,2) m. What is its straight-line distance from the start?"),
     options: [b("√85 m ≈ 9.22 m", "√85 m ≈ 9.22 m"), b("√101 m ≈ 10.05 m", "√101 m ≈ 10.05 m"), b("11 m", "11 m"), b("√109 m ≈ 10.44 m", "√109 m ≈ 10.44 m")],
@@ -57,7 +73,7 @@ export const advancedQuestionBank: AdvancedQuestion[] = [
     id: "math-4-9", courseId: "math", topicId: "math-4", kind: "calculation",
     question: b("速度 v(t)=3t²−4t（m/s）。物体从 t=1 到 t=3 的位移是多少？", "Velocity is v(t)=3t²−4t m/s. What is the displacement from t=1 to t=3?"),
     options: [b("8 m", "8 m"), b("10 m", "10 m"), b("12 m", "12 m"), b("18 m", "18 m")],
-    answer: 2,
+    answer: 1,
     visual: { kind: "table", title: b("已知条件", "Given"), columns: [b("量", "Quantity"), b("表达式", "Expression")], rows: [["v(t)", "3t²−4t m/s"], ["interval", "1 ≤ t ≤ 3"]] },
     explanation: b(
       "第 1 步｜识别位移与速度的关系\n位移是速度对时间的定积分：Δx=∫₁³v(t)dt。\n\n第 2 步｜求原函数\n∫(3t²−4t)dt=t³−2t²。\n\n第 3 步｜代上下限\n[t³−2t²]₁³=(27−18)−(1−2)=9−(−1)=10 m。\n\n答案核对\n因此正确答案是 10 m（选 B）。\n\n易错点\n不要只代上限；定积分必须 F(3)−F(1)。这里下限结果是 −1，所以减去它会增加 1。",
@@ -182,6 +198,55 @@ export const advancedQuestionBank: AdvancedQuestion[] = [
     explanation: b(
       "第 1 步｜确定坐标关系\n胡克定律 F=kx。如果纵轴是 F、横轴是 x，斜率就是 k。\n\n第 2 步｜选择相距较远的点\n首点 (0.02,0.5)，末点 (0.08,2.0)。使用远点可减小读图误差的相对影响。\n\n第 3 步｜计算斜率\nk=ΔF/Δx=(2.0−0.5)/(0.08−0.02)=1.5/0.06=25 N/m。\n\n第 4 步｜单位检查\nN÷m=N/m，正是弹簧常量单位。\n\n第 5 步｜模型检查\n每个点的 F/x 都约为 25，说明线性模型合理且截距接近零。\n\n易错点\n若算 Δx/ΔF 会得到 0.04 m/N，那是斜率的倒数。",
       "Step 1 | Identify axes\nHooke’s law is F=kx. With F vertical and x horizontal, slope equals k.\n\nStep 2 | Choose well-separated points\nUse (0.02,0.5) and (0.08,2.0) to reduce relative reading error.\n\nStep 3 | Calculate slope\nk=ΔF/Δx=(2.0−0.5)/(0.08−0.02)=1.5/0.06=25 N/m.\n\nStep 4 | Unit check\nN divided by m gives N/m, the spring-constant unit.\n\nStep 5 | Model check\nEach F/x is about 25, supporting a linear model with near-zero intercept.\n\nCommon trap\nΔx/ΔF gives 0.04 m/N, the reciprocal slope."
+    ),
+  },
+  {
+    id: "physics-6-9", courseId: "physics", topicId: "physics-6", kind: "calculation",
+    question: b("0.25 kg 的铝块从 20°C 加热到 80°C。取 c=900 J kg⁻¹ K⁻¹，忽略热损失，铝块吸收多少热量？", "A 0.25 kg aluminium block is heated from 20°C to 80°C. With c=900 J kg⁻¹ K⁻¹ and no heat loss, how much heat is absorbed?"),
+    options: [b("13.5 kJ", "13.5 kJ"), b("22.5 kJ", "22.5 kJ"), b("54 kJ", "54 kJ"), b("5.4 MJ", "5.4 MJ")],
+    answer: 0,
+    visual: { kind: "table", title: b("热学数据", "Thermal data"), columns: [b("量", "Quantity"), b("值", "Value")], rows: [["m", "0.25 kg"], ["c", "900 J kg⁻¹ K⁻¹"], ["Ti", "20°C"], ["Tf", "80°C"]] },
+    explanation: b(
+      "第 1 步｜判断过程\n温度改变但没有相变，使用 Q=mcΔT。\n\n第 2 步｜求温差\nΔT=80−20=60°C。温差 1°C 与 1 K 大小相同，所以可写 60 K。\n\n第 3 步｜代入\nQ=0.25×900×60=13,500 J=13.5 kJ。\n\n第 4 步｜符号与单位\n铝块升温，所以能量进入铝块，吸热量为正。kg 与 J kg⁻¹ K⁻¹、K 相乘后只剩 J。\n\n结论\n选 A，13.5 kJ。\n\n易错点\n不要把末温 80°C 直接当 ΔT；公式使用温度变化量。",
+      "Step 1 | Identify the process\nTemperature changes with no phase change, so use Q=mcΔT.\n\nStep 2 | Temperature change\nΔT=80−20=60°C, numerically the same as 60 K for a difference.\n\nStep 3 | Substitute\nQ=0.25×900×60=13,500 J=13.5 kJ.\n\nStep 4 | Sign and units\nThe warming block gains energy, so Q is positive. Units reduce to joules.\n\nConclusion\nChoice A, 13.5 kJ.\n\nCommon trap\nUse the temperature change, not the final temperature.",
+    ),
+  },
+  {
+    id: "physics-7-9", courseId: "physics", topicId: "physics-7", kind: "data",
+    question: b("一只 6 Ω 电阻两端电压随三个实验条件变化。哪一行的电流和功率都计算正确？", "Voltage across a 6 Ω resistor is varied. Which row gives both current and power correctly?"),
+    options: [b("A 行", "Row A"), b("B 行", "Row B"), b("C 行", "Row C"), b("三行都正确", "All rows")],
+    answer: 1,
+    visual: {
+      kind: "table",
+      title: b("电阻实验", "Resistor experiment"),
+      columns: [b("行", "Row"), b("V", "V"), b("声称 I", "Claimed I"), b("声称 P", "Claimed P")],
+      rows: [["A", "6 V", "6 A", "36 W"], ["B", "12 V", "2 A", "24 W"], ["C", "18 V", "3 A", "18 W"]],
+    },
+    explanation: b(
+      "第 1 步｜确定模型\n同一只 6 Ω 欧姆电阻满足 I=V/R，功率 P=VI，也可用 V²/R 复核。\n\n第 2 步｜检查 A\nI=6/6=1 A，不是 6 A，所以 A 错。\n\n第 3 步｜检查 B\nI=12/6=2 A；P=12×2=24 W，两项都正确。\n\n第 4 步｜检查 C\nI=18/6=3 A 正确，但 P=18×3=54 W，不是 18 W。\n\n结论\n只有 B 行完全正确，选 B。\n\n迁移检查\n电压加倍时，固定电阻的功率为什么会变成四倍？",
+      "Step 1 | Model\nFor the same 6 Ω ohmic resistor, I=V/R and P=VI; V²/R is a cross-check.\n\nStep 2 | Row A\nI=6/6=1 A, not 6 A.\n\nStep 3 | Row B\nI=12/6=2 A and P=12×2=24 W; both are correct.\n\nStep 4 | Row C\nI=18/6=3 A, but P=18×3=54 W, not 18 W.\n\nConclusion\nOnly Row B is fully correct.\n\nTransfer check\nWhy does power quadruple when voltage doubles across a fixed resistor?",
+    ),
+  },
+  {
+    id: "physics-8-9", courseId: "physics", topicId: "physics-8", kind: "calculation",
+    question: b("图表给出同一介质中的波。频率为 4 Hz、波速为 12 m/s。波长和周期分别是多少？", "A wave in one medium has frequency 4 Hz and speed 12 m/s. What are its wavelength and period?"),
+    options: [b("λ=3 m，T=0.25 s", "λ=3 m, T=0.25 s"), b("λ=48 m，T=4 s", "λ=48 m, T=4 s"), b("λ=0.33 m，T=3 s", "λ=0.33 m, T=3 s"), b("λ=8 m，T=0.5 s", "λ=8 m, T=0.5 s")],
+    answer: 0,
+    visual: { kind: "bars", title: b("波参数", "Wave parameters"), labels: [b("频率 f (Hz)", "frequency f (Hz)"), b("波速 v (m/s)", "speed v (m/s)")], values: [4, 12], unit: "" },
+    explanation: b(
+      "第 1 步｜求波长\n由 v=fλ，λ=v/f=12/4=3 m。\n\n第 2 步｜求周期\n周期与频率互为倒数：T=1/f=1/4=0.25 s。\n\n第 3 步｜交叉检查\n一个周期 0.25 s 内，波传播距离 vT=12×0.25=3 m，正好等于一个波长。\n\n结论\nλ=3 m，T=0.25 s，选 A。\n\n易错点\nv/f 给波长；1/f 给周期，两者单位不同。",
+      "Step 1 | Wavelength\nFrom v=fλ, λ=v/f=12/4=3 m.\n\nStep 2 | Period\nT=1/f=0.25 s.\n\nStep 3 | Cross-check\nIn one period, the wave travels vT=12×0.25=3 m, one wavelength.\n\nConclusion\nλ=3 m and T=0.25 s, choice A.\n\nCommon trap\nv/f gives wavelength; 1/f gives period, with different units.",
+    ),
+  },
+  {
+    id: "physics-9-9", courseId: "physics", topicId: "physics-9", kind: "data",
+    question: b("不可压缩稳态水流从面积 6 cm² 的管段进入面积 2 cm² 的管段。入口流速为 0.40 m/s。窄管流速是多少？", "Steady incompressible water flows from a 6 cm² section into a 2 cm² section. Inlet speed is 0.40 m/s. What is the narrow-section speed?"),
+    options: [b("0.13 m/s", "0.13 m/s"), b("0.40 m/s", "0.40 m/s"), b("1.2 m/s", "1.2 m/s"), b("3.0 m/s", "3.0 m/s")],
+    answer: 2,
+    visual: { kind: "table", title: b("管道截面数据", "Pipe-section data"), columns: [b("位置", "Section"), b("面积", "Area"), b("流速", "Speed")], rows: [["1", "6 cm²", "0.40 m/s"], ["2", "2 cm²", "?"]] },
+    explanation: b(
+      "第 1 步｜检查连续性条件\n题目说明稳态、不可压缩，因此体积流率不变：A₁v₁=A₂v₂。\n\n第 2 步｜重排\nv₂=(A₁/A₂)v₁。\n\n第 3 步｜使用面积比\n两个面积单位相同，可直接取比值 6/2=3，不必分别换成 m²。\n\n第 4 步｜计算\nv₂=3×0.40=1.2 m/s。\n\n第 5 步｜物理检查\n截面积缩小到三分之一，速度应增大到三倍，结果方向正确。\n\n结论\n选 C，1.2 m/s。",
+      "Step 1 | Check conditions\nThe flow is steady and incompressible, so volume flow rate is constant: A₁v₁=A₂v₂.\n\nStep 2 | Rearrange\nv₂=(A₁/A₂)v₁.\n\nStep 3 | Area ratio\nBoth areas use the same unit, so A₁/A₂=6/2=3 without separate conversion.\n\nStep 4 | Calculate\nv₂=3×0.40=1.2 m/s.\n\nStep 5 | Physical check\nOne-third the area requires three times the speed.\n\nConclusion\nChoice C, 1.2 m/s.",
     ),
   },
 ];

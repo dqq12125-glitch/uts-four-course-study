@@ -120,6 +120,38 @@ export const deepLessons: Record<string, DeepLesson> = {
   "physics-3": lesson(b("力是相互作用，合力决定加速度而不是速度。受力图只画作用在研究对象上的外力，每个箭头要有来源和方向。", "A force is an interaction; net force determines acceleration, not velocity. A free-body diagram contains only external forces on the chosen object."), b("先隔离对象，再画重力、支持力、拉力、摩擦等；最后按坐标方向分解并写 ΣF=ma。", "Isolate the object, draw forces, resolve components, then write ΣF=ma."), [["ΣF=ma", b("矢量方程；每个坐标方向分别写。", "A vector equation written by components.")], ["fs≤μsN", b("静摩擦会适应到上限，不总等于 μsN。", "Static friction adjusts up to its maximum.")], ["fk=μkN", b("滑动摩擦近似模型。", "Kinetic-friction model.")]], b("2 kg 物块在水平面受 10 N 右拉、摩擦 4 N，求加速度。", "A 2 kg block has 10 N right and 4 N friction left."), [b("竖直方向 N 与 mg 抵消。", "Vertical forces cancel."), b("水平合力 10−4=6 N 向右。", "Net horizontal force is 6 N right."), b("a=6/2=3 m/s²。", "a=3 m/s².")], b("加速度为 3 m/s² 向右。", "Acceleration is 3 m/s² right.")),
   "physics-4": lesson(b("物理建模把现实系统简化为可计算的对象。关键是明确边界、假设、守恒量和模型有效范围，再用数据检查预测。", "Physical modelling simplifies a real system into a calculable one by declaring boundaries, assumptions, conservation laws and validity range."), b("一个结果即使计算正确，也可能因为忽略空气阻力、把物体当质点或假设恒加速度而不适用于现实。", "A calculation can be algebraically correct yet physically invalid because its assumptions fail."), [["model → prediction → data → revision", b("模型必须接受证据检验。", "A model must face evidence.")], ["dimension check", b("等式两边量纲必须一致，但一致不保证模型一定正确。", "Dimensions must agree, though agreement alone does not prove the model.")]], b("自由落体模型预测 2 s 位移 19.6 m；何时需要修正？", "A free-fall model predicts 19.6 m in 2 s. When must it be revised?"), [b("列假设：近地面、初速零、忽略空气阻力、g 恒定。", "List assumptions."), b("比较对象形状、速度和距离是否支持假设。", "Check object, speed and distance."), b("若空气阻力显著，需加入速度相关阻力。", "Add drag if it is significant.")], b("模型结果只在假设成立的范围内可信。", "The prediction is credible only within the model assumptions.")),
   "physics-5": lesson(b("实验数据分析通过图表、斜率、截距、拟合和残差判断模型。不要只看 R²；还要检查残差是否随机、单位是否正确以及异常点是否有物理原因。", "Experimental analysis uses plots, slope, intercept, fits and residuals. Do not rely on R² alone; inspect residual structure, units and outliers."), b("选坐标轴时尽量把理论关系线性化，因为直线的斜率和截距通常直接对应物理参数。", "Choose axes that linearise theory so slope and intercept map directly to physical parameters."), [["gradient=Δy/Δx", b("用拟合线上的远点，不要随意用相邻原始点。", "Use well-separated points on the fit line.")], ["residual=ydata−ymodel", b("随机散布支持模型；系统弯曲提示模型缺项。", "Random scatter supports the model; curvature suggests missing physics.")]], b("F–x 数据从 (0.02 m,0.5 N) 到 (0.08 m,2.0 N)，求弹簧常量。", "Find k from F–x points (0.02,0.5) and (0.08,2.0)."), [b("胡克定律 F=kx，纵轴 F 对横轴 x 的斜率就是 k。", "Under F=kx, slope is k."), b("ΔF=1.5 N，Δx=0.06 m。", "Compute differences."), b("k=1.5/0.06=25 N/m。", "k=25 N/m.")], b("弹簧常量 25 N/m；检查各点 F/x 接近 25。", "k=25 N/m; F/x checks the model.")),
+  "physics-6": lesson(
+    b("热量是因为温差而跨越系统边界传递的能量；温度反映热状态，内能是系统微观动能与势能的总和。三者不能混为一谈。", "Heat is energy transferred across a system boundary because of a temperature difference. Temperature describes thermal state; internal energy is microscopic kinetic and potential energy."),
+    b("先圈出研究系统，再追踪能量从哪里来、到哪里去。理想量热器里，一个物体放出的能量等于另一个物体吸收的能量。", "Draw a boundary around the system and track where energy comes from and goes. In ideal calorimetry, energy lost by one body is gained by another."),
+    [["Q=mcΔT", b("无相变、比热容在温区内近似恒定；ΔT 可用 K 或 °C 的温差。", "No phase change and approximately constant c; temperature differences may use K or °C.")], ["Q=mL", b("相变潜热；理想相变阶段温度保持不变。", "Latent heat during a phase change at constant temperature.")], ["ΔU=Q+W", b("先声明课程采用的功正号约定。", "State the course sign convention for work.")]],
+    b("0.20 kg 水从 20°C 加热到 35°C，c=4180 J kg⁻¹ K⁻¹。求吸收热量。", "Heat 0.20 kg of water from 20°C to 35°C, with c=4180 J kg⁻¹ K⁻¹."),
+    [b("列已知量：m=0.20 kg，ΔT=15 K。", "List m=0.20 kg and ΔT=15 K."), b("选 Q=mcΔT，因为没有相变。", "Use Q=mcΔT because there is no phase change."), b("Q=0.20×4180×15=12,540 J。", "Calculate 12,540 J.")],
+    b("水吸收约 1.25×10⁴ J；正号表示能量进入所选系统。", "The water gains about 1.25×10⁴ J; the positive sign means energy enters the chosen system."),
+  ),
+  "physics-7": lesson(
+    b("电势差是单位电荷的能量变化，电流是电荷流率。电路方程中的正负号来自你选择的电压极性和电流参考方向，而不是元件本身自带。", "Potential difference is energy change per charge; current is charge-flow rate. Signs come from chosen voltage polarities and current references."),
+    b("先画节点、箭头和极性，再写守恒方程。算出负电流通常表示真实方向与参考箭头相反，并不自动意味着错误。", "Mark nodes, arrows and polarities before conservation equations. A negative result often means the actual direction opposes the reference arrow."),
+    [["V=IR", b("仅用于给定工作区内的欧姆元件。", "For an ohmic element in its stated operating range.")], ["ΣI=0", b("KCL 来自电荷守恒。", "KCL follows charge conservation.")], ["P=VI=I²R=V²/R", b("后两式用于电阻；功率符号须配合被动符号约定。", "The latter forms are for resistors; interpret sign with the passive convention.")]],
+    b("12 V 电源接 4 Ω 电阻，求电流与电阻功率。", "A 12 V source is across a 4 Ω resistor. Find current and resistor power."),
+    [b("按电压降方向定义电流，I=V/R。", "Define current with the voltage drop and use I=V/R."), b("I=12/4=3 A。", "I=3 A."), b("P=VI=12×3=36 W，并用 V²/R 复核。", "P=36 W and V²/R confirms it.")],
+    b("电流 3 A，电阻吸收功率 36 W。", "Current 3 A; the resistor absorbs 36 W."),
+  ),
+  "physics-8": lesson(
+    b("简谐运动的回复力与位移成正比、方向相反；波把振动状态和能量传播出去，介质粒子只在平衡位置附近振动。", "In SHM, restoring force is proportional and opposite to displacement. A wave transports disturbance and energy while medium particles oscillate locally."),
+    b("把单个振子随时间的正弦变化，复制到不同位置并加入相位延迟，就得到行波。频率由波源决定，波速主要由介质决定，波长负责把二者连接。", "A travelling wave is a sinusoidal oscillator copied across space with phase delay. Source sets frequency, medium largely sets speed, and wavelength connects them."),
+    [["T=1/f", b("周期和频率互为倒数，单位分别为 s 和 Hz。", "Period and frequency are reciprocals, in s and Hz.")], ["v=fλ", b("适用于周期波；单位必须统一。", "For periodic waves with consistent units.")], ["a=−ω²x", b("简谐运动条件；负号表示指向平衡位置。", "SHM condition; the sign points toward equilibrium.")]],
+    b("频率 5.0 Hz 的波在绳上以 12 m/s 传播，求波长。", "A 5.0 Hz wave travels at 12 m/s. Find wavelength."),
+    [b("从 v=fλ 重排 λ=v/f。", "Rearrange λ=v/f."), b("代入 12 m/s ÷ 5.0 s⁻¹。", "Substitute 12/5.0."), b("λ=2.4 m。", "λ=2.4 m.")],
+    b("波长 2.4 m；检查 fλ=12 m/s。", "Wavelength 2.4 m; fλ returns 12 m/s."),
+  ),
+  "physics-9": lesson(
+    b("静止流体的压强由深度决定；流动流体还要考虑质量守恒和机械能。连续性方程连接截面积与速度，伯努利方程连接压强、速度和高度。", "Static-fluid pressure depends on depth. Flow also requires mass conservation and mechanical energy; continuity links area and speed, while Bernoulli links pressure, speed and height."),
+    b("窄管段不是“把水挤慢”，而是在不可压缩稳态条件下必须让同样体积每秒通过更小面积，所以速度增加。理想伯努利再说明这种速度增加如何与压强或高度交换。", "In steady incompressible flow, the same volume per second must cross a smaller area, so speed rises. Ideal Bernoulli relates that speed change to pressure or height."),
+    [["Δp=ρgΔh", b("静止、密度近似恒定的流体。", "Static fluid of approximately constant density.")], ["A₁v₁=A₂v₂", b("稳态、不可压缩的一维流动。", "Steady incompressible one-dimensional flow.")], ["p+½ρv²+ρgh=constant", b("同一流线上、稳态、不可压缩且黏性损失可忽略。", "Along a streamline for steady incompressible flow with negligible losses.")]],
+    b("水平管道面积从 4.0 cm² 缩到 1.0 cm²，入口流速 0.50 m/s。求窄处流速。", "A horizontal pipe narrows from 4.0 cm² to 1.0 cm²; inlet speed is 0.50 m/s."),
+    [b("使用连续性 A₁v₁=A₂v₂。", "Use continuity."), b("面积比 A₁/A₂=4。", "The area ratio is 4."), b("v₂=(A₁/A₂)v₁=4×0.50=2.0 m/s。", "v₂=2.0 m/s.")],
+    b("窄处流速 2.0 m/s；面积缩小四倍，速度增大四倍。", "Narrow-section speed 2.0 m/s; one-quarter area gives four-times speed."),
+  ),
 };
 
 function lesson(

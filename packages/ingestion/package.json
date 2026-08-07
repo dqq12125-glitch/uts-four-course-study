@@ -1,0 +1,15 @@
+{
+  "name": "@deepstudy/ingestion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@deepstudy/shared-types": "0.1.0",
+    "jszip": "3.10.1",
+    "unpdf": "1.8.0",
+    "zod": "^4.4.3"
+  }
+}

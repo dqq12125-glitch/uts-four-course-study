@@ -1,0 +1,55 @@
+name: PostgreSQL contract
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  migration-from-empty:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.5-pg16-trixie
+        env:
+          POSTGRES_USER: deepstudy
+          POSTGRES_PASSWORD: deepstudy
+          POSTGRES_DB: deepstudy_first
+        options: >-
+          --health-cmd "pg_isready -U deepstudy -d deepstudy_first"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the migration to two independent empty databases
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          docker exec "$POSTGRES_CONTAINER" createdb -U deepstudy deepstudy_second
+          for database in deepstudy_first deepstudy_second; do
+            for migration in packages/database/migrations/*.sql; do
+              docker exec -i "$POSTGRES_CONTAINER" \
+                psql -v ON_ERROR_STOP=1 -U deepstudy -d "$database" \
+                < "$migration"
+            done
+          done
+      - name: Verify pgvector, target tables, and the HNSW index
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          docker exec "$POSTGRES_CONTAINER" psql -At -U deepstudy -d deepstudy_first \
+            -c "select extversion from pg_extension where extname = 'vector';" \
+            | grep -E '^[0-9]+\.[0-9]+'
+          docker exec "$POSTGRES_CONTAINER" psql -At -U deepstudy -d deepstudy_first \
+            -c "select format_type(atttypid, atttypmod) from pg_attribute where attrelid = 'resource_chunks'::regclass and attname = 'embedding';" \
+            | grep '^vector(1536)$'
+          docker exec "$POSTGRES_CONTAINER" psql -At -U deepstudy -d deepstudy_first \
+            -c "select indexname from pg_indexes where indexname = 'resource_chunks_embedding_hnsw_idx';" \
+            | grep '^resource_chunks_embedding_hnsw_idx$'
+          docker exec "$POSTGRES_CONTAINER" psql -At -U deepstudy -d deepstudy_first \
+            -c "select count(*) from information_schema.tables where table_schema = 'public';" \
+            | grep '^42$'
